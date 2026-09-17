@@ -159,6 +159,8 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
                   navigate('/login')
                 },
               },
+              { label: 'Assets', icon: Package, onClick: () => navigate('/assets') },
+              { label: 'Team', icon: Users, onClick: () => navigate('/team') },
             ]}
           />
         </div>

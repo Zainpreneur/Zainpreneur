@@ -12,6 +12,7 @@ import {
   Sparkles,
   Users,
   X,
+  Package,
 } from 'lucide-react'
 
 import type { BusinessCategory, NavSection } from '../../types'
@@ -54,7 +55,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       },
       {
         label: 'Workspace',
-        items: [{ label: 'Settings', path: '/settings', icon: Settings }],
+        items: [
+          { label: 'Settings', path: '/settings', icon: Settings },
+          { label: 'Assets', path: '/assets', icon: Package },
+          { label: 'Team', path: '/team', icon: Users },
+        ],
       },
     ],
     [businesses.length, owners.length, openTaskCount],
