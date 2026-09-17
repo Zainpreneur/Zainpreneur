@@ -58,8 +58,15 @@ export {
   CURRENCY_SYMBOLS,
 } from './user'
 
-export type { EmploymentType, TeamMember } from './team'
-export { EMPLOYMENT_TYPE_LABELS } from './team'
+export type {
+  AgencyPartnerDetails,
+  EmploymentType,
+  EngagementType,
+  FreelancerDetails,
+  InternalStaffDetails,
+  TeamMember,
+} from './team'
+export { EMPLOYMENT_TYPE_LABELS, ENGAGEMENT_TYPE_LABELS, getEngagementLabel } from './team'
 
 export type {
   Asset,

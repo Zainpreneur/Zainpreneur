@@ -18,6 +18,7 @@ import type {
   ClientTier,
   ConsultingDetails,
   EmploymentType,
+  EngagementType,
   EquityDetails,
   Milestone,
   Owner,
@@ -151,12 +152,24 @@ export interface TeamMemberDraft {
   email: string
   phone?: string
   department?: string
+  engagementType?: EngagementType
+  /** Internal staff specific details */
   employmentType?: EmploymentType
   activeBusinessId?: string
+  associatedBusinessId?: string
   branchId?: string
   location?: string
   startedAt?: string
   monthlyCost?: number
+  /** Freelancer specific details */
+  hourlyRate?: number
+  contractTerms?: string
+  projectScope?: string
+  /** Agency partner specific details */
+  companyName?: string
+  contactPerson?: string
+  projectAllocation?: string
+  retainerMonthly?: number
   skills?: string[]
   color?: string
 }
@@ -199,6 +212,54 @@ interface PersistedState {
 
 /* ---------------------------------- storage helpers ---------------------------------- */
 
+/**
+ * Normalize a persisted team member to the current engagement-model schema.
+ * Legacy records (stored before engagementType existed) only carry
+ * employmentType + flat cost fields, so derive the model from those.
+ */
+function normalizeTeamMember(member: TeamMember): TeamMember {
+  const engagementType: EngagementType =
+    member.engagementType ?? (member.employmentType === 'contract' ? 'freelancer' : 'internal')
+  const department = member.department ?? 'Operations'
+  const normalized: TeamMember = {
+    ...member,
+    department,
+    engagementType,
+    activeBusinessId: member.activeBusinessId ?? member.associatedBusinessId,
+    associatedBusinessId: member.associatedBusinessId ?? member.activeBusinessId,
+    assignedAssets: Array.isArray(member.assignedAssets) ? member.assignedAssets : [],
+    initials: member.initials || initials(member.name ?? '?'),
+    skills: Array.isArray(member.skills) ? member.skills : [],
+  }
+  if (engagementType === 'internal' && !normalized.internalStaff) {
+    const subType =
+      normalized.employmentType === 'part_time' || normalized.employmentType === 'intern'
+        ? normalized.employmentType
+        : 'full_time'
+    normalized.internalStaff = {
+      employmentSubType: subType,
+      monthlyCost: normalized.monthlyCost ?? 0,
+      department,
+    }
+  }
+  if (engagementType === 'freelancer' && !normalized.freelancer) {
+    normalized.freelancer = {
+      hourlyRate: normalized.hourlyRate ?? 0,
+      contractTerms: normalized.contractTerms ?? 'contract',
+      projectScope: normalized.projectScope,
+    }
+  }
+  if (engagementType === 'agency_partner' && !normalized.agencyPartner) {
+    normalized.agencyPartner = {
+      companyName: normalized.companyName ?? normalized.name,
+      contactPerson: normalized.contactPerson ?? '',
+      projectAllocation: normalized.projectAllocation ?? '',
+      retainerMonthly: normalized.retainerMonthly,
+    }
+  }
+  return normalized
+}
+
 function readPersisted(): PersistedState | null {
   try {
     const raw = localStorage.getItem(DATA_KEY)
@@ -217,7 +278,9 @@ function readPersisted(): PersistedState | null {
         tasks: parsed.tasks,
         activity: parsed.activity,
         owners: parsed.owners,
-        teamMembers: Array.isArray(parsed.teamMembers) ? parsed.teamMembers : seedTeamMembers,
+        teamMembers: Array.isArray(parsed.teamMembers)
+          ? parsed.teamMembers.map(normalizeTeamMember)
+          : seedTeamMembers,
         assets: Array.isArray(parsed.assets) ? parsed.assets : seedAssets,
         assetHistory: Array.isArray(parsed.assetHistory) ? parsed.assetHistory : seedAssetHistory,
       }
@@ -362,6 +425,10 @@ const ASSET_TAG_PREFIX: Record<AssetCategory, string> = {
 }
 
 function teamMemberSeed(draft: TeamMemberDraft, id: string): TeamMember {
+  const engagementType: EngagementType = draft.engagementType ?? 'internal'
+  const activeId = draft.activeBusinessId ?? draft.associatedBusinessId
+  const department = draft.department ?? 'Operations'
+  const subType = draft.employmentType === 'part_time' || draft.employmentType === 'intern' ? draft.employmentType : 'full_time'
   return {
     id,
     name: draft.name,
@@ -370,15 +437,41 @@ function teamMemberSeed(draft: TeamMemberDraft, id: string): TeamMember {
     phone: draft.phone,
     color: draft.color ?? '#6366f1',
     initials: initials(draft.name),
-    department: draft.department ?? 'Operations',
-    employmentType: draft.employmentType ?? 'full_time',
-    activeBusinessId: draft.activeBusinessId,
+    department,
+    engagementType,
+    employmentType: draft.employmentType,
+    activeBusinessId: activeId,
+    associatedBusinessId: draft.associatedBusinessId ?? activeId,
     branchId: draft.branchId,
     assignedAssets: [],
     location: draft.location,
     startedAt: draft.startedAt,
     monthlyCost: draft.monthlyCost,
+    hourlyRate: draft.hourlyRate,
+    contractTerms: draft.contractTerms,
+    projectScope: draft.projectScope,
+    companyName: draft.companyName,
+    contactPerson: draft.contactPerson,
+    projectAllocation: draft.projectAllocation,
+    retainerMonthly: draft.retainerMonthly,
     skills: draft.skills ?? [],
+    internalStaff:
+      engagementType === 'internal'
+        ? { employmentSubType: subType, monthlyCost: draft.monthlyCost ?? 0, department }
+        : undefined,
+    freelancer:
+      engagementType === 'freelancer'
+        ? { hourlyRate: draft.hourlyRate ?? 0, contractTerms: draft.contractTerms ?? 'project-based', projectScope: draft.projectScope }
+        : undefined,
+    agencyPartner:
+      engagementType === 'agency_partner'
+        ? {
+            companyName: draft.companyName ?? draft.name,
+            contactPerson: draft.contactPerson ?? '',
+            projectAllocation: draft.projectAllocation ?? '',
+            retainerMonthly: draft.retainerMonthly,
+          }
+        : undefined,
   }
 }
 
@@ -716,7 +809,39 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       prev.map((member) => {
         if (member.id !== id) return member
         const merged: TeamMember = { ...member, ...patch }
-        if (patch.name) merged.initials = initials(patch.name)
+        if (merged.name) merged.initials = initials(merged.name)
+        if (patch.activeBusinessId !== undefined || patch.associatedBusinessId !== undefined) {
+          const synced = patch.activeBusinessId ?? patch.associatedBusinessId ?? member.activeBusinessId
+          merged.activeBusinessId = synced
+          merged.associatedBusinessId = patch.associatedBusinessId ?? synced
+        }
+        if (merged.engagementType === 'internal') {
+          const sub = merged.employmentType === 'part_time' || merged.employmentType === 'intern' ? merged.employmentType : 'full_time'
+          merged.internalStaff = {
+            employmentSubType: sub,
+            monthlyCost: patch.monthlyCost ?? merged.internalStaff?.monthlyCost ?? merged.monthlyCost ?? 0,
+            department: patch.department ?? merged.department ?? 'Operations',
+          }
+          if (patch.monthlyCost !== undefined) merged.monthlyCost = patch.monthlyCost
+          if (patch.department !== undefined) merged.department = patch.department
+        }
+        if (merged.engagementType === 'freelancer') {
+          merged.freelancer = {
+            hourlyRate: patch.hourlyRate ?? merged.freelancer?.hourlyRate ?? merged.hourlyRate ?? 0,
+            contractTerms: patch.contractTerms ?? merged.freelancer?.contractTerms ?? 'project-based',
+            projectScope: patch.projectScope ?? merged.freelancer?.projectScope,
+          }
+          if (patch.hourlyRate !== undefined) merged.hourlyRate = patch.hourlyRate
+          if (patch.contractTerms !== undefined) merged.contractTerms = patch.contractTerms
+        }
+        if (merged.engagementType === 'agency_partner') {
+          merged.agencyPartner = {
+            companyName: patch.companyName ?? merged.agencyPartner?.companyName ?? merged.name,
+            contactPerson: patch.contactPerson ?? merged.agencyPartner?.contactPerson ?? '',
+            projectAllocation: patch.projectAllocation ?? merged.agencyPartner?.projectAllocation ?? '',
+            retainerMonthly: patch.retainerMonthly ?? merged.agencyPartner?.retainerMonthly,
+          }
+        }
         return merged
       }),
     )

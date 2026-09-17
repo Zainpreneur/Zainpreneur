@@ -11,8 +11,11 @@ import {
   Moon,
   Palette,
   RotateCcw,
+  Smartphone,
   Sun,
   UserRound,
+  Wifi,
+  WifiOff,
 } from 'lucide-react'
 
 import type { CurrencyCode, ThemeMode } from '../types'
@@ -28,6 +31,7 @@ import { Field, Select, TextInput, Textarea } from '../components/common/Input'
 import { Toggle } from '../components/common/Toggle'
 import { ConfirmDialog } from '../components/common/Modal'
 import { formatBytes } from '../utils/format'
+import { usePwaInstall } from '../hooks/usePwaInstall'
 
 const THEME_OPTIONS: Array<{ value: ThemeMode; label: string; icon: typeof Sun }> = [
   { value: 'light', label: 'Light', icon: Sun },
@@ -52,6 +56,8 @@ export function Settings() {
 
   const [confirmReset, setConfirmReset] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [installing, setInstalling] = useState(false)
+  const { canInstall, installed, online, swActive, promptInstall } = usePwaInstall()
 
   const [form, setForm] = useState(() => ({
     name: profile.name,
@@ -331,10 +337,59 @@ export function Settings() {
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-display text-sm font-bold text-slate-900 dark:text-white">Session</p>
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <span className="flex size-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">
+                <Smartphone className="size-5" />
+              </span>
+              <div>
+                <CardTitle>Install app (PWA)</CardTitle>
+                <CardDescription>Run Zainpreneur as a standalone app, with offline support</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4 dark:bg-slate-800/40">
+              <span className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+                {online ? <Wifi className="size-4 text-emerald-500" /> : <WifiOff className="size-4 text-rose-500" />}
+                {online ? 'Online' : 'Offline — cached shell serving'}
+              </span>
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                {installed ? 'Installed' : swActive ? 'SW active' : 'Browser mode'}
+              </span>
+            </div>
+            {installed ? (
+              <p className="text-xs leading-relaxed text-slate-400 dark:text-slate-500">
+                Zainpreneur is installed and launches standalone. The service worker keeps the app shell
+                available offline; your data stays in localStorage on this device.
+              </p>
+            ) : canInstall ? (
+              <Button
+                icon={<Smartphone className="size-4" />}
+                className="w-full"
+                onClick={() => {
+                  setInstalling(true)
+                  promptInstall().finally(() => setInstalling(false))
+                }}
+              >
+                {installing ? 'Opening install…' : 'Install Zainpreneur'}
+              </Button>
+            ) : (
+              <p className="text-xs leading-relaxed text-slate-400 dark:text-slate-500">
+                Open this page in Chrome or Edge (production build) and use the browser menu → “Install
+                Zainpreneur” — or look for the install icon in the address bar. Offline caching activates
+                once the service worker registers.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex h-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-display text-sm font-bold text-slate-900 dark:text-white">Session</p>
             <p className="mt-0.5 text-xs text-slate-400">
               Signed in as {authUser?.email ?? 'zain@zainpreneur.io'}
             </p>
@@ -349,8 +404,9 @@ export function Settings() {
           >
             Sign out
           </Button>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="mt-8 text-center">
         <SectionHeader title="Zainpreneur" subtitle="Business OS · v1.0" className="justify-center text-center" />

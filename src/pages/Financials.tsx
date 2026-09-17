@@ -35,7 +35,7 @@ const PERIODS = [
 ]
 
 export function Financials() {
-  const { businesses, transactions, settings, zainOwnerId, addTransaction, updateTransaction, deleteTransaction, logActivity } =
+  const { businesses, transactions, settings, zainOwnerId, addTransaction, updateTransaction, deleteTransaction, logActivity, teamMembers, assets } =
     useBusinesses()
 
   const [categoryFilter, setCategoryFilter] = useState<BusinessCategory | 'all'>('all')
@@ -77,6 +77,58 @@ export function Financials() {
 
   const categoryRows = useMemo(() => categoryPerformance(filteredBusinesses), [filteredBusinesses])
   const rowTotalRevenue = categoryRows.reduce((sum, row) => sum + row.revenue, 0) || 1
+
+  /** Project-level cost analysis: freelance rates, agency retainers & deployed assets factored per business. */
+  const teamCostRows = useMemo(() => {
+    const costOf = (id: string, kind: 'internal' | 'freelancer' | 'agency_partner') =>
+      teamMembers
+        .filter((m) => (m.activeBusinessId ?? m.associatedBusinessId) === id && m.engagementType === kind)
+        .reduce((sum, m) => {
+          if (kind === 'internal') return sum + (m.internalStaff?.monthlyCost ?? m.monthlyCost ?? 0)
+          if (kind === 'freelancer') {
+            if (m.monthlyCost) return sum + m.monthlyCost
+            return sum + Math.round((m.freelancer?.hourlyRate ?? m.hourlyRate ?? 0) * 160)
+          }
+          return sum + (m.agencyPartner?.retainerMonthly ?? m.retainerMonthly ?? 0)
+        }, 0)
+    return filteredBusinesses
+      .map((business) => {
+        const financials = businessFinancials(business)
+        const internal = costOf(business.id, 'internal')
+        const freelancer = costOf(business.id, 'freelancer')
+        const agency = costOf(business.id, 'agency_partner')
+        const deployedAssets = assets.filter((a) => a.currentDeployment?.entityId === business.id)
+        const deployedValue = deployedAssets.reduce((s, a) => s + a.value, 0)
+        const teamTotal = internal + freelancer + agency
+        return {
+          business,
+          profit: financials.profit,
+          internal,
+          freelancer,
+          agency,
+          teamTotal,
+          deployedCount: deployedAssets.length,
+          deployedValue,
+          adjusted: financials.profit - teamTotal,
+        }
+      })
+      .sort((a, b) => b.teamTotal - a.teamTotal)
+  }, [filteredBusinesses, teamMembers, assets])
+
+  const teamCostTotals = useMemo(
+    () =>
+      teamCostRows.reduce(
+        (acc, r) => ({
+          internal: acc.internal + r.internal,
+          freelancer: acc.freelancer + r.freelancer,
+          agency: acc.agency + r.agency,
+          total: acc.total + r.teamTotal,
+          deployedValue: acc.deployedValue + r.deployedValue,
+        }),
+        { internal: 0, freelancer: 0, agency: 0, total: 0, deployedValue: 0 },
+      ),
+    [teamCostRows],
+  )
 
   const filteredTransactions = useMemo(() => {
     const normalized = query.trim().toLowerCase()
@@ -246,6 +298,73 @@ export function Financials() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <div>
+            <CardTitle>Team, agency & asset cost analysis</CardTitle>
+            <CardDescription>
+              Freelance rates, agency retainers and deployed Zainpreneur assets factored into project-level cost ·
+              {formatCurrency(teamCostTotals.total, settings.currency, { compact: true })}/mo total engagement cost
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="grid grid-cols-2 gap-3 px-5 pb-4 pt-1 sm:grid-cols-4">
+            <div className="rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Internal staff</p>
+              <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(teamCostTotals.internal, settings.currency, { compact: true })}</p>
+            </div>
+            <div className="rounded-xl bg-sky-50 p-3 ring-1 ring-sky-600/20 dark:bg-sky-500/10">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-sky-700 dark:text-sky-300">Freelancers</p>
+              <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(teamCostTotals.freelancer, settings.currency, { compact: true })}</p>
+            </div>
+            <div className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-600/20 dark:bg-amber-500/10">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">Agencies</p>
+              <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(teamCostTotals.agency, settings.currency, { compact: true })}</p>
+            </div>
+            <div className="rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Deployed assets</p>
+              <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(teamCostTotals.deployedValue, settings.currency, { compact: true })}</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                  <th className="px-5 py-3">Business</th>
+                  <th className="px-3 py-3 text-right">Internal</th>
+                  <th className="px-3 py-3 text-right">Freelance</th>
+                  <th className="px-3 py-3 text-right">Agency</th>
+                  <th className="px-3 py-3 text-right">Assets</th>
+                  <th className="px-5 py-3 text-right">Profit − team</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {teamCostRows.map((row) => (
+                  <tr key={row.business.id} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                    <td className="px-5 py-3">
+                      <span className="inline-flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
+                        <span className="size-2.5 rounded-full" style={{ backgroundColor: row.business.color }} />
+                        {row.business.name}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.internal ? formatCurrency(row.internal, settings.currency, { compact: true }) : '—'}</td>
+                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.freelancer ? formatCurrency(row.freelancer, settings.currency, { compact: true }) : '—'}</td>
+                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.agency ? formatCurrency(row.agency, settings.currency, { compact: true }) : '—'}</td>
+                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300" title={formatCurrency(row.deployedValue, settings.currency)}>
+                      {row.deployedCount ? `${row.deployedCount} · ${formatCurrency(row.deployedValue, settings.currency, { compact: true })}` : '—'}
+                    </td>
+                    <td className={cn('px-5 py-3 text-right font-semibold tabular-nums', row.adjusted >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400')}>
+                      {formatCurrency(row.adjusted, settings.currency, { compact: true, signed: true })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="mt-6">
         <CardHeader>

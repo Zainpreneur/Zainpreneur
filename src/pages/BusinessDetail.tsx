@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 
 import type { Branch, Task, TaskStatus, Transaction } from '../types'
-import { BUSINESS_CATEGORY_LABELS, CLIENT_TIER_LABELS } from '../types'
+import { BUSINESS_CATEGORY_LABELS, CLIENT_TIER_LABELS, ENGAGEMENT_TYPE_LABELS } from '../types'
 import { useBusinesses } from '../context/BusinessContext'
 import { formatCurrency } from '../utils/format'
 import { businessFinancials } from '../utils/calculations'
@@ -51,10 +51,11 @@ import { BranchFormModal } from '../components/business/BranchFormModal'
 import { BarChart } from '../components/ui/BarChart'
 import { ScoreRing } from '../components/ui/ScoreRing'
 
-type Tab = 'overview' | 'capTable' | 'branches' | 'model' | 'financials' | 'tasks' | 'assets'
+type Tab = 'overview' | 'capTable' | 'branches' | 'model' | 'financials' | 'tasks' | 'assets' | 'team'
 
 const TABS: Array<{ value: Tab; label: string }> = [
   { value: 'overview', label: 'Overview' },
+  { value: 'team', label: 'Team & Resources' },
   { value: 'capTable', label: 'Cap Table' },
   { value: 'branches', label: 'Branches' },
   { value: 'model', label: 'Model' },
@@ -495,6 +496,71 @@ export function BusinessDetail() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {tab === 'team' && (
+            <div className="grid gap-4">
+              {(['internal', 'freelancer', 'agency_partner'] as const).map((seg) => {
+                const members = teamMembers.filter(
+                  (m) => (m.activeBusinessId ?? m.associatedBusinessId) === business.id && m.engagementType === seg,
+                )
+                if (members.length === 0) return null
+                return (
+                  <Card key={seg}>
+                    <CardHeader>
+                      <div>
+                        <CardTitle>{ENGAGEMENT_TYPE_LABELS[seg]} · {members.length}</CardTitle>
+                        <CardDescription>
+                          {seg === 'internal' && 'Direct staff allocated to this business'}
+                          {seg === 'freelancer' && 'Contract freelancers on tasks, projects or retainers'}
+                          {seg === 'agency_partner' && 'External partner companies sub-contracted for specialized work'}
+                        </CardDescription>
+                      </div>
+                      <Link to="/team"><Button variant="secondary" size="sm">Open hub</Button></Link>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {members.map((m) => {
+                          const held = assets.filter((a) => a.currentDeployment?.assignedToMemberId === m.id)
+                          return (
+                            <div key={m.id} className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800">
+                              <Avatar name={m.name} initials={m.initials} color={m.color} size="sm" />
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate text-sm font-semibold">{m.name}</span>
+                                <span className="block truncate text-xs text-slate-500">{m.role} · {held.length} asset{held.length === 1 ? '' : 's'}</span>
+                                {m.engagementType === 'agency_partner' && (m.agencyPartner?.projectAllocation ?? m.projectAllocation) && (
+                                  <span className="block truncate text-[11px] text-amber-600">{m.agencyPartner?.projectAllocation ?? m.projectAllocation}</span>
+                                )}
+                                {m.engagementType === 'freelancer' && (m.freelancer?.projectScope ?? m.projectScope) && (
+                                  <span className="block truncate text-[11px] text-sky-600">{m.freelancer?.projectScope ?? m.projectScope}</span>
+                                )}
+                              </span>
+                              <Badge>{ENGAGEMENT_TYPE_LABELS[m.engagementType]}</Badge>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+              {teamMembers.filter((m) => (m.activeBusinessId ?? m.associatedBusinessId) === business.id).length === 0 && (
+                <Card><EmptyState icon={Users} title="No team assigned" description={`No internal members, freelancers or agencies are currently allocated to ${business.name}.`} /></Card>
+              )}
+              <Card>
+                <CardHeader><div><CardTitle>Deployed Zainpreneur assets</CardTitle><CardDescription>Hardware & machinery checked out to this business — ownership stays with Zainpreneur</CardDescription></div></CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {assets.filter((a) => a.currentDeployment?.entityId === business.id).map((a) => (
+                      <Badge key={a.id} className={ASSET_CATEGORY_META[a.category].badgeClass}>{a.tag} · {a.name}</Badge>
+                    ))}
+                    {assets.filter((a) => a.currentDeployment?.entityId === business.id).length === 0 && (
+                      <span className="text-xs text-slate-500">No assets currently deployed here.</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {tab === 'financials' && (

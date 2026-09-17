@@ -43,7 +43,7 @@ function greeting(): string {
 }
 
 export function Dashboard() {
-  const { businesses, tasks, activity, settings, zainOwnerId, addBusiness, addTask, updateTask, updateBusiness, assets } =
+  const { businesses, tasks, activity, settings, zainOwnerId, addBusiness, addTask, updateTask, updateBusiness, assets, teamMembers } =
     useBusinesses()
   const { authUser, profile } = useAuth()
 
@@ -87,6 +87,17 @@ export function Dashboard() {
       byCategory,
     }
   }, [assets])
+
+  const teamBreakdown = useMemo(() => {
+    const internal = teamMembers.filter((m) => m.engagementType === 'internal').length
+    const freelancer = teamMembers.filter((m) => m.engagementType === 'freelancer').length
+    const agency = teamMembers.filter((m) => m.engagementType === 'agency_partner').length
+    const modelCounts = businesses.reduce<Record<string, number>>((acc, b) => {
+      acc[b.model] = (acc[b.model] ?? 0) + 1
+      return acc
+    }, {})
+    return { internal, freelancer, agency, total: teamMembers.length, modelCounts }
+  }, [teamMembers, businesses])
 
   const location = useMemo(() => {
     const today = new Date()
@@ -222,6 +233,51 @@ export function Dashboard() {
             />
           </div>
         </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardContent>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Team breakdown</p>
+            <p className="mt-1 font-display text-2xl font-extrabold">{teamBreakdown.total} <span className="text-sm font-medium text-slate-400">people & partners</span></p>
+            <div className="mt-3 space-y-2 text-xs">
+              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-emerald-500" />Internal</span><span className="font-bold">{teamBreakdown.internal}</span></div>
+              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-sky-500" />Freelancers</span><span className="font-bold">{teamBreakdown.freelancer}</span></div>
+              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-amber-500" />Agencies</span><span className="font-bold">{teamBreakdown.agency}</span></div>
+            </div>
+            <Link to="/team" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600">Open team hub <ArrowRight className="size-3" /></Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Asset utilization</p>
+            <p className="mt-1 font-display text-2xl font-extrabold">{assetUtilization.utilizationRate}% <span className="text-sm font-medium text-slate-400">in-use</span></p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+              <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500" style={{ width: `${assetUtilization.utilizationRate}%` }} />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">{assetUtilization.deployed} deployed · {assetUtilization.available} available · {assetUtilization.maintenance} maintenance</p>
+            <Link to="/assets" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600">Open asset hub <ArrowRight className="size-3" /></Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Business models</p>
+            <div className="mt-2 space-y-2 text-xs">
+              <div className="flex justify-between"><span>Project-based</span><span className="font-bold">{teamBreakdown.modelCounts.project ?? 0}</span></div>
+              <div className="flex justify-between"><span>Consulting-based</span><span className="font-bold">{teamBreakdown.modelCounts.consulting ?? 0}</span></div>
+              <div className="flex justify-between"><span>Equity-based</span><span className="font-bold">{teamBreakdown.modelCounts.equity ?? 0}</span></div>
+            </div>
+            <p className="mt-3 text-[11px] text-slate-400">Project · Consulting · Equity coverage across portfolio</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Net share</p>
+            <p className="mt-1 font-display text-2xl font-extrabold">{formatCurrency(portfolio.userMonthlyProfit, settings.currency, { compact: true })}<span className="text-sm font-medium text-slate-400">/mo</span></p>
+            <p className="mt-2 text-xs text-slate-500">Net worth {formatCurrency(portfolio.userNetWorth, settings.currency, { compact: true })} · EV {formatCurrency(portfolio.enterpriseValue, settings.currency, { compact: true })}</p>
+            <Link to="/financials" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600">Open financials <ArrowRight className="size-3" /></Link>
+          </CardContent>
+        </Card>
+      </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
