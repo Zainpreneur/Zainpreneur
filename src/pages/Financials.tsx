@@ -20,6 +20,7 @@ import { SearchInput } from '../components/ui/SearchInput'
 import { StatCard } from '../components/common/StatCard'
 import { TransactionFormModal } from '../components/business/TransactionFormModal'
 import { TransactionTable } from '../components/business/TransactionTable'
+import { BillingPanel } from '../components/enterprise/BillingPanel'
 import { BarChart } from '../components/ui/BarChart'
 import { getPortfolioSeries } from '../data'
 
@@ -512,6 +513,14 @@ export function Financials() {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-8">
+        <SectionHeader
+          title="Client receivables"
+          subtitle="Invoices, milestone payments and aging from the CRM ledger"
+        />
+        <BillingPanel />
       </div>
 
       {transactionModal.open && (

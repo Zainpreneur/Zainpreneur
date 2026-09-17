@@ -15,6 +15,7 @@ import { ConfirmDialog, Modal } from '../components/common/Modal'
 import { SearchInput } from '../components/ui/SearchInput'
 import { EmptyState } from '../components/common/EmptyState'
 import { MemberFormModal } from '../components/business/MemberFormModal'
+import { PayrollPanel } from '../components/enterprise/PayrollPanel'
 
 type Segment = EngagementType | 'all'
 
@@ -54,6 +55,7 @@ export function Team() {
   const [selected, setSelected] = useState<TeamMember | null>(null)
   const [memberModal, setMemberModal] = useState<{ open: boolean; editing?: TeamMember }>({ open: false })
   const [deleting, setDeleting] = useState<TeamMember | null>(null)
+  const [view, setView] = useState<'directory' | 'payroll'>('directory')
   // Re-resolve against live context so detail modal reflects assignment changes.
   const liveSelected = selected ? (teamMembers.find((m) => m.id === selected.id) ?? selected) : null
 
@@ -81,18 +83,48 @@ export function Team() {
   return (
     <PageContainer>
       <PageHeader
-        title="Team & Partner Management Hub"
-        subtitle={`Internal staff, freelancers & sub-contracted agencies · ${formatCurrency(monthlyBurn, settings.currency, { compact: true })}/mo engagement cost`}
+        title={view === 'payroll' ? 'Payroll' : 'Team & Partner Management Hub'}
+        subtitle={
+          view === 'payroll'
+            ? 'Contracts, timesheets and payroll runs posting to the master ledger.'
+            : `Internal staff, freelancers & sub-contracted agencies · ${formatCurrency(monthlyBurn, settings.currency, { compact: true })}/mo engagement cost`
+        }
         actions={
-          <>
-            <SearchInput value={query} onChange={setQuery} placeholder="Search people, agencies, skills…" />
-            <Button icon={<Plus className="size-4" />} onClick={() => setMemberModal({ open: true })}>
-              Add member
-            </Button>
-          </>
+          view === 'directory' ? (
+            <>
+              <SearchInput value={query} onChange={setQuery} placeholder="Search people, agencies, skills…" />
+              <Button icon={<Plus className="size-4" />} onClick={() => setMemberModal({ open: true })}>
+                Add member
+              </Button>
+            </>
+          ) : undefined
         }
       />
 
+      <div className="mb-4 flex flex-wrap gap-2">
+        <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+          {(['directory', 'payroll'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={cn(
+                'cursor-pointer rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors',
+                view === v
+                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400',
+              )}
+            >
+              {v === 'directory' ? 'Directory' : 'Payroll'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {view === 'payroll' ? (
+        <PayrollPanel />
+      ) : (
+      <>
       <div className="flex flex-wrap gap-2">
         {SEGMENTS.map((s) => (
           <button
@@ -162,6 +194,8 @@ export function Team() {
             )
           })}
         </div>
+      )}
+      </>
       )}
 
       {liveSelected && (

@@ -31,6 +31,7 @@ import { Field, Select, TextInput, Textarea } from '../components/common/Input'
 import { Toggle } from '../components/common/Toggle'
 import { ConfirmDialog } from '../components/common/Modal'
 import { DatabasePanel } from '../components/business/DatabasePanel'
+import { SyncPanel } from '../components/enterprise/SyncPanel'
 import { formatBytes } from '../utils/format'
 import { usePwaInstall } from '../hooks/usePwaInstall'
 
@@ -338,6 +339,7 @@ export function Settings() {
         </Card>
 
         <DatabasePanel />
+        <SyncPanel />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
