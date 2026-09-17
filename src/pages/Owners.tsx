@@ -100,18 +100,18 @@ export function Owners() {
           />
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((stat) => {
             const { owner, holdings } = stat
             return (
               <div
                 key={owner.id}
-                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
               >
                 <div className="flex items-start gap-3">
                   <Avatar name={owner.name} initials={owner.initials} color={owner.color} size="lg" />
                   <div className="min-w-0 flex-1">
-                    <h3 className="truncate font-display text-base font-bold text-slate-900 dark:text-white">{owner.name}</h3>
+                    <h3 title={owner.name} className="truncate font-display text-[15px] font-semibold text-slate-900 dark:text-white">{owner.name}</h3>
                     <p className="truncate text-xs font-medium text-slate-500 dark:text-slate-400">{owner.role || 'Owner'}</p>
                   </div>
                   <div className="flex items-center gap-0.5">
@@ -122,7 +122,7 @@ export function Owners() {
                         setEditing(owner)
                         setAddOpen(true)
                       }}
-                      className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                      className="grid size-8 place-items-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-600 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                     >
                       <Pencil className="size-4" />
                     </button>
@@ -130,7 +130,7 @@ export function Owners() {
                       type="button"
                       aria-label={`Delete ${owner.name}`}
                       onClick={() => setDeleting(owner)}
-                      className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10"
+                      className="grid size-8 place-items-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-rose-50 hover:text-rose-600 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100 dark:hover:bg-rose-500/10"
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -156,7 +156,7 @@ export function Owners() {
                   )}
                 </ul>
 
-                <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50">
+                <div className="mt-4 grid auto-rows-fr grid-cols-2 gap-2 rounded-[10px] bg-slate-100/70 p-3 dark:bg-white/5">
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                       Cumulative equity
