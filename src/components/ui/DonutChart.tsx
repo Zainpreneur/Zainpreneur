@@ -15,6 +15,7 @@ interface DonutChartProps {
 
 export function DonutChart({ data, size = 180, thickness = 22, centerLabel, centerValue, className }: DonutChartProps) {
   const total = data.reduce((sum, slice) => sum + slice.value, 0) || 1
+  const summary = `Donut chart: ${data.map((slice) => `${slice.label} ${Math.round((slice.value / total) * 100)} percent`).join(', ')}.`
   const radius = (size - thickness) / 2
   const circumference = 2 * Math.PI * radius
   const center = size / 2
@@ -35,7 +36,8 @@ export function DonutChart({ data, size = 180, thickness = 22, centerLabel, cent
 
   return (
     <div className={cn('relative inline-flex shrink-0', className)} style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <span className="sr-only">{summary}</span>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={summary}>
         <circle
           cx={center}
           cy={center}

@@ -1,5 +1,7 @@
 import { useId } from 'react'
 
+import { formatCompactNumber } from '../../utils/number'
+
 interface SparklineProps {
   values: number[]
   color?: string
@@ -8,6 +10,8 @@ interface SparklineProps {
   strokeWidth?: number
   fill?: boolean
   className?: string
+  label?: string
+  formatValue?: (value: number) => string
 }
 
 export function Sparkline({
@@ -18,6 +22,8 @@ export function Sparkline({
   strokeWidth = 2,
   fill = true,
   className,
+  label = 'Trend',
+  formatValue = formatCompactNumber,
 }: SparklineProps) {
   const gradientId = useId()
   if (values.length < 2) return null
@@ -35,27 +41,50 @@ export function Sparkline({
 
   const line = points.join(' ')
   const area = `0,${height} ${line} ${width},${height}`
+  const first = values[0]
+  const last = values[values.length - 1]
+  const [lastX, lastY] = points[points.length - 1].split(',').map(Number)
+  const trend = last >= first ? 'up' : 'down'
+  const summary = `${label}: ${formatValue(first)} to ${formatValue(last)}, trending ${trend}.`
 
   return (
-    <svg
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
-      aria-hidden="true"
-      className={className ? `overflow-visible ${className}` : 'overflow-visible'}
-    >
-      {fill && (
-        <>
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity="0.25" />
-              <stop offset="100%" stopColor={color} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <polygon points={area} fill={`url(#${gradientId})`} />
-        </>
-      )}
-      <polyline points={line} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <span className="group/spot relative block">
+      <span className="sr-only">{summary}</span>
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={summary}
+        className={className ? `overflow-visible ${className}` : 'overflow-visible'}
+      >
+        {fill && (
+          <>
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+                <stop offset="100%" stopColor={color} stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <polygon points={area} fill={`url(#${gradientId})`} />
+          </>
+        )}
+        <polyline points={line} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+        <circle
+          cx={lastX}
+          cy={lastY}
+          r={3.5}
+          fill={color}
+          stroke="white"
+          strokeWidth={1.5}
+          className="opacity-0 transition-opacity duration-150 group-hover/spot:opacity-100"
+        >
+          <title>{`${label}: ${formatValue(last)}`}</title>
+        </circle>
+      </svg>
+      <span className="pointer-events-none absolute -top-1 right-0 z-10 -translate-y-full whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold tabular-nums text-slate-700 opacity-0 shadow-lg transition-opacity duration-150 group-hover/spot:opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+        {formatValue(last)}
+      </span>
+    </span>
   )
 }

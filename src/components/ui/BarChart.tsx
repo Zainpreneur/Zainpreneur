@@ -30,15 +30,17 @@ export function BarChart({
   const allValues = series.flatMap((s) => s.data.map((p) => p.value))
   const maxValue = Math.max(...allValues, 1)
   const gridLines = 4
+  const summary = `Bar chart comparing ${series.map((s) => s.name).join(' and ')} across ${labels.length} periods.`
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full', className)} role="img" aria-label={summary}>
+      <span className="sr-only">{summary}</span>
       <div className="relative flex" style={{ height: height + 28, paddingTop: 28 }}>
         {showGrid && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 top-7 flex flex-col justify-between">
             {Array.from({ length: gridLines + 1 }, (_, i) =>
               <div key={`grid-${i}`} className="flex items-center" style={{ height: 'auto' }}>
-                <span className="mr-2 w-10 text-right text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                <span className="mr-2 w-10 text-right text-[10.5px] font-medium tabular-nums text-slate-400 dark:text-slate-500">
                   {valueFormatter((maxValue / gridLines) * (gridLines - i))}
                 </span>
                 <div className="h-px flex-1 border-t border-dashed border-slate-200 dark:border-slate-800" />
@@ -78,7 +80,7 @@ export function BarChart({
                             minHeight: percentOfGroup > 0 ? 3 : 1,
                           }}
                         />
-                        <div className="mt-2 hidden h-3 text-[10px] font-medium text-slate-400 dark:text-slate-500 sm:block">
+                        <div className="mt-2 hidden h-3 text-[10.5px] font-medium text-slate-400 dark:text-slate-500 sm:block">
                           {index % 2 === 0 ? label : ''}
                         </div>
                       </div>
