@@ -4,9 +4,11 @@ import {
   Building2,
   Laptop,
   Package,
+  Pencil,
   Plus,
   RotateCcw,
   Search,
+  Trash2,
   Wrench,
 } from 'lucide-react'
 
@@ -20,9 +22,10 @@ import { PageContainer, PageHeader } from '../components/layout/PageContainer'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/common/Card'
 import { Badge } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
-import { Modal } from '../components/common/Modal'
+import { ConfirmDialog, Modal } from '../components/common/Modal'
 import { SearchInput } from '../components/ui/SearchInput'
 import { EmptyState } from '../components/common/EmptyState'
+import { AssetFormModal } from '../components/business/AssetFormModal'
 
 type CategoryFilter = AssetCategory | 'all'
 type StatusFilter = AssetStatus | 'all'
@@ -75,6 +78,9 @@ export function Assets() {
     deployAsset,
     returnAsset,
     setAssetStatus,
+    addAsset,
+    updateAsset,
+    deleteAsset,
   } = useBusinesses()
 
   const [query, setQuery] = useState('')
@@ -82,6 +88,8 @@ export function Assets() {
   const [status, setStatus] = useState<StatusFilter>('all')
   const [deployFor, setDeployFor] = useState<Asset | null>(null)
   const [detail, setDetail] = useState<Asset | null>(null)
+  const [assetModal, setAssetModal] = useState<{ open: boolean; editing?: Asset }>({ open: false })
+  const [deleting, setDeleting] = useState<Asset | null>(null)
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -112,13 +120,16 @@ export function Assets() {
         title="Asset & Equipment Hub"
         subtitle="Centralized Zainpreneur-owned pool — deploy hardware & machinery to staff, freelancers, agencies and branches."
         actions={
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <span className="rounded-full bg-emerald-50 px-3 py-1.5 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300">
               {stats.inUse} in-use
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 ring-1 ring-slate-500/20 dark:bg-white/5 dark:text-slate-300">
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-500/20 dark:bg-white/5 dark:text-slate-300">
               {stats.available} available
             </span>
+            <Button icon={<Plus className="size-4" />} onClick={() => setAssetModal({ open: true })}>
+              Register asset
+            </Button>
           </div>
         }
       />
@@ -223,7 +234,22 @@ export function Assets() {
       )}
 
       {detail && (
-        <Modal open onClose={() => setDetail(null)} title={detail.name} description={`${detail.tag} · ${detail.serialNumber} · Purchased ${detail.purchaseDate}`}>
+        <Modal
+          open
+          onClose={() => setDetail(null)}
+          title={detail.name}
+          description={`${detail.tag} · ${detail.serialNumber} · Purchased ${detail.purchaseDate}`}
+          footer={
+            <>
+              <Button variant="ghost" icon={<Trash2 className="size-4" />} onClick={() => { setDeleting(detail); setDetail(null) }}>
+                Delete
+              </Button>
+              <Button variant="secondary" icon={<Pencil className="size-4" />} onClick={() => { setAssetModal({ open: true, editing: detail }); setDetail(null) }}>
+                Edit
+              </Button>
+            </>
+          }
+        >
           <div className="space-y-3 text-sm">
             <p className="text-slate-600 dark:text-slate-300">{deploymentLabel(detail, businesses, teamMembers)}</p>
             <p className="text-xs text-slate-500">Condition: {detail.condition} · Value: {formatCurrency(detail.value, settings.currency)} · Owner: Zainpreneur (never transfers)</p>
@@ -241,6 +267,31 @@ export function Assets() {
           </div>
         </Modal>
       )}
+
+      {assetModal.open && (
+        <AssetFormModal
+          open
+          initial={assetModal.editing}
+          onClose={() => setAssetModal({ open: false })}
+          onSubmit={(draft) => {
+            if (assetModal.editing) updateAsset(assetModal.editing.id, draft)
+            else addAsset(draft)
+            setAssetModal({ open: false })
+          }}
+        />
+      )}
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) deleteAsset(deleting.id)
+          setDeleting(null)
+        }}
+        title={`Delete ${deleting?.tag}?`}
+        message="This removes the asset and its deployment history from the central pool. This cannot be undone."
+        confirmLabel="Delete"
+      />
     </PageContainer>
   )
 }

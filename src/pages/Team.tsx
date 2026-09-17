@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Briefcase, Building2, Handshake, Laptop, Mail, MapPin, Phone, UserRound, Users } from 'lucide-react'
+import { Briefcase, Building2, Handshake, Laptop, Mail, MapPin, Pencil, Phone, Plus, Trash2, UserRound, Users } from 'lucide-react'
 
 import type { EngagementType, TeamMember } from '../types'
 import { ENGAGEMENT_TYPE_LABELS } from '../types'
@@ -11,9 +11,10 @@ import { Card, CardContent } from '../components/common/Card'
 import { Badge } from '../components/common/Badge'
 import { Button } from '../components/common/Button'
 import { Avatar } from '../components/common/Avatar'
-import { Modal } from '../components/common/Modal'
+import { ConfirmDialog, Modal } from '../components/common/Modal'
 import { SearchInput } from '../components/ui/SearchInput'
 import { EmptyState } from '../components/common/EmptyState'
+import { MemberFormModal } from '../components/business/MemberFormModal'
 
 type Segment = EngagementType | 'all'
 
@@ -47,10 +48,12 @@ function contractSummary(m: TeamMember): string {
 }
 
 export function Team() {
-  const { teamMembers, businesses, assets, settings } = useBusinesses()
+  const { teamMembers, businesses, assets, settings, addTeamMember, updateTeamMember, deleteTeamMember, logActivity } = useBusinesses()
   const [segment, setSegment] = useState<Segment>('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<TeamMember | null>(null)
+  const [memberModal, setMemberModal] = useState<{ open: boolean; editing?: TeamMember }>({ open: false })
+  const [deleting, setDeleting] = useState<TeamMember | null>(null)
   // Re-resolve against live context so detail modal reflects assignment changes.
   const liveSelected = selected ? (teamMembers.find((m) => m.id === selected.id) ?? selected) : null
 
@@ -80,7 +83,14 @@ export function Team() {
       <PageHeader
         title="Team & Partner Management Hub"
         subtitle={`Internal staff, freelancers & sub-contracted agencies · ${formatCurrency(monthlyBurn, settings.currency, { compact: true })}/mo engagement cost`}
-        actions={<SearchInput value={query} onChange={setQuery} placeholder="Search people, agencies, skills…" />}
+        actions={
+          <>
+            <SearchInput value={query} onChange={setQuery} placeholder="Search people, agencies, skills…" />
+            <Button icon={<Plus className="size-4" />} onClick={() => setMemberModal({ open: true })}>
+              Add member
+            </Button>
+          </>
+        }
       />
 
       <div className="flex flex-wrap gap-2">
@@ -145,8 +155,44 @@ export function Team() {
         <MemberDetailModal
           member={liveSelected}
           onClose={() => setSelected(null)}
+          onEdit={() => setMemberModal({ open: true, editing: liveSelected })}
+          onDelete={() => setDeleting(liveSelected)}
         />
       )}
+
+      {memberModal.open && (
+        <MemberFormModal
+          open
+          initial={memberModal.editing}
+          onClose={() => setMemberModal({ open: false })}
+          onSubmit={(draft) => {
+            if (memberModal.editing) {
+              updateTeamMember(memberModal.editing.id, draft)
+              logActivity(draft.activeBusinessId ?? '', 'team', `${draft.name} updated`)
+            } else {
+              const created = addTeamMember(draft)
+              logActivity(created.activeBusinessId ?? '', 'team', `${created.name} joined as ${ENGAGEMENT_TYPE_LABELS[created.engagementType]}`)
+            }
+            setMemberModal({ open: false })
+          }}
+        />
+      )}
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) {
+            logActivity(deleting.activeBusinessId ?? '', 'team', `${deleting.name} removed from roster`)
+            deleteTeamMember(deleting.id)
+            if (selected?.id === deleting.id) setSelected(null)
+          }
+          setDeleting(null)
+        }}
+        title={`Remove ${deleting?.name}?`}
+        message="Their asset assignments will be released back to the pool. This cannot be undone."
+        confirmLabel="Remove"
+      />
     </PageContainer>
   )
 }
@@ -157,7 +203,7 @@ function segmentBadge(t: EngagementType): string {
   return 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300'
 }
 
-function MemberDetailModal({ member, onClose }: { member: TeamMember; onClose: () => void }) {
+function MemberDetailModal({ member, onClose, onEdit, onDelete }: { member: TeamMember; onClose: () => void; onEdit: () => void; onDelete: () => void }) {
   const { businesses, assets, settings, updateTeamMember, logActivity } = useBusinesses()
   const biz = businesses.find((b) => b.id === (member.activeBusinessId ?? member.associatedBusinessId))
   const branch = member.branchId ? biz?.branches.find((br) => br.id === member.branchId) : undefined
@@ -168,7 +214,23 @@ function MemberDetailModal({ member, onClose }: { member: TeamMember; onClose: (
   const assignDirty = assignId !== currentBizId
 
   return (
-    <Modal open onClose={onClose} title={member.name} description={`${member.role} · ${ENGAGEMENT_TYPE_LABELS[member.engagementType]}`} size="lg">
+    <Modal
+      open
+      onClose={onClose}
+      title={member.name}
+      description={`${member.role} · ${ENGAGEMENT_TYPE_LABELS[member.engagementType]}`}
+      size="lg"
+      footer={
+        <>
+          <Button variant="ghost" icon={<Trash2 className="size-4" />} onClick={() => { onDelete(); onClose() }}>
+            Remove
+          </Button>
+          <Button variant="secondary" icon={<Pencil className="size-4" />} onClick={() => { onEdit(); onClose() }}>
+            Edit
+          </Button>
+        </>
+      }
+    >
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-3">
