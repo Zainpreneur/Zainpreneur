@@ -14,7 +14,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:ring-brand-500/50 disabled:hover:bg-brand-600',
+    'bg-brand-600 text-white shadow-sm hover:-translate-y-px hover:bg-brand-700 focus-visible:ring-brand-500/50 disabled:hover:translate-y-0 disabled:hover:bg-brand-600',
   secondary:
     'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:ring-brand-500/50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700/70',
   ghost:
@@ -27,7 +27,8 @@ const VARIANTS: Record<ButtonVariant, string> = {
 
 const SIZES: Record<ButtonSize, string> = {
   sm: 'h-8 gap-1.5 rounded-lg px-3 text-xs',
-  md: 'h-10 gap-2 rounded-lg px-4 text-sm',
+  // 44px touch targets below 768px, 38px desktop control height.
+  md: 'h-11 gap-2 rounded-[10px] px-4 text-[13px] md:h-[38px]',
   lg: 'h-11 gap-2 rounded-xl px-5 text-sm',
 }
 

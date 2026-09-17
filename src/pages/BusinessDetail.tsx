@@ -39,6 +39,7 @@ import { BusinessLogo } from '../components/common/BusinessLogo'
 import { EmptyState } from '../components/common/EmptyState'
 import { ConfirmDialog } from '../components/common/Modal'
 import { StatCard } from '../components/common/StatCard'
+import { Tabs } from '../components/common/Tabs'
 import { BusinessFormModal } from '../components/business/BusinessFormModal'
 import { TransactionFormModal } from '../components/business/TransactionFormModal'
 import { TaskFormModal } from '../components/business/TaskFormModal'
@@ -319,29 +320,21 @@ export function BusinessDetail() {
             />
           </div>
 
-          <div className="sticky top-0 z-20 -mx-1 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50/90 px-1 py-2 backdrop-blur dark:bg-slate-950/80">
-            <div className="relative flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
-              {TABS.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setTab(t.value)}
-                  className={cn(
-                    'cursor-pointer rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors',
-                    tab === t.value
-                      ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white'
-                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400',
-                  )}
-                  >
-                    {t.label}
-                    {t.value === 'branches' && business.branches.length > 0 && (
-                      <span className="ml-1.5 text-xs font-semibold text-slate-400">{business.branches.length}</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-              {tab === 'tasks' && (
-              <span className="ml-auto inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <Tabs
+                ariaLabel="Business sections"
+                value={tab}
+                onChange={setTab}
+                options={TABS.map((t) => ({
+                  value: t.value,
+                  label: t.label,
+                  count: t.value === 'branches' && business.branches.length > 0 ? business.branches.length : undefined,
+                }))}
+              />
+            </div>
+            {tab === 'tasks' && (
+              <span className="inline-flex shrink-0 items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                 <CheckSquare className="size-4" />
                 {doneCount}/{businessTasks.length} done
               </span>
@@ -428,12 +421,12 @@ export function BusinessDetail() {
                   <table className="w-full rounded-md border border-slate-200">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-sm text-slate-600 dark:text-slate-400">
-                        <th>Tag</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Deployed to</th>
-                        <th>Actions</th>
+                        <th scope="col">Tag</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Deployed to</th>
+                        <th scope="col">Actions</th>
                       </tr>
                     </thead>
                     <tbody>

@@ -53,7 +53,7 @@ export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = {
   USD: '$',
   EUR: '€',
   GBP: '£',
-  PKR: '₨',
+  PKR: 'Rs',
   AED: 'د.إ',
   INR: '₹',
 }

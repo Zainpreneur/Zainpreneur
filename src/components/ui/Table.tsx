@@ -26,8 +26,8 @@ export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
   return <tbody className={cn('divide-y divide-slate-100 dark:divide-slate-800', className)} {...props} />
 }
 
-export function Th({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={cn('whitespace-nowrap px-4 py-3 font-semibold', className)} {...props} />
+export function Th({ scope = 'col', className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
+  return <th scope={scope} className={cn('whitespace-nowrap px-4 py-3 font-semibold', className)} {...props} />
 }
 
 export function Tr({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {

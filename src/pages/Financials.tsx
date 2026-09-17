@@ -261,10 +261,10 @@ export function Financials() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                    <th className="px-5 py-3">Category</th>
-                    <th className="px-3 py-3 text-right">Revenue</th>
-                    <th className="px-3 py-3 text-right">Profit</th>
-                    <th className="px-5 py-3 text-right">Share</th>
+                    <th scope="col" className="px-5 py-3">Category</th>
+                    <th scope="col" className="px-3 py-3 text-right">Revenue</th>
+                    <th scope="col" className="px-3 py-3 text-right">Profit</th>
+                    <th scope="col" className="px-5 py-3 text-right">Share</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -340,12 +340,12 @@ export function Financials() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                  <th className="px-5 py-3">Business</th>
-                  <th className="px-3 py-3 text-right">Internal</th>
-                  <th className="px-3 py-3 text-right">Freelance</th>
-                  <th className="px-3 py-3 text-right">Agency</th>
-                  <th className="px-3 py-3 text-right">Assets</th>
-                  <th className="px-5 py-3 text-right">Profit − team</th>
+                  <th scope="col" className="px-5 py-3">Business</th>
+                  <th scope="col" className="px-3 py-3 text-right">Internal</th>
+                  <th scope="col" className="px-3 py-3 text-right">Freelance</th>
+                  <th scope="col" className="px-3 py-3 text-right">Agency</th>
+                  <th scope="col" className="px-3 py-3 text-right">Assets</th>
+                  <th scope="col" className="px-5 py-3 text-right">Profit − team</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -386,13 +386,13 @@ export function Financials() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                  <th className="px-5 py-3">Business</th>
-                  <th className="px-3 py-3 text-right">Branches</th>
-                  <th className="px-3 py-3 text-right">Revenue</th>
-                  <th className="px-3 py-3 text-right">Profit</th>
-                  <th className="px-3 py-3 text-right">Your stake</th>
-                  <th className="px-3 py-3 text-right">Net share</th>
-                  <th className="px-5 py-3 text-right">Dividends</th>
+                  <th scope="col" className="px-5 py-3">Business</th>
+                  <th scope="col" className="px-3 py-3 text-right">Branches</th>
+                  <th scope="col" className="px-3 py-3 text-right">Revenue</th>
+                  <th scope="col" className="px-3 py-3 text-right">Profit</th>
+                  <th scope="col" className="px-3 py-3 text-right">Your stake</th>
+                  <th scope="col" className="px-3 py-3 text-right">Net share</th>
+                  <th scope="col" className="px-5 py-3 text-right">Dividends</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

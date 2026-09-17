@@ -137,12 +137,36 @@ export function Assets() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card><CardContent className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300"><Package className="size-5" /></span><span><span className="block text-xs font-medium text-slate-500">Total assets</span><span className="font-display text-xl font-extrabold">{stats.total}</span></span></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"><ArrowLeftRight className="size-5" /></span><span><span className="block text-xs font-medium text-slate-500">Deployed value</span><span className="font-display text-xl font-extrabold">{formatCurrency(stats.deployedValue, settings.currency, { compact: true })}</span></span></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300"><Laptop className="size-5" /></span><span><span className="block text-xs font-medium text-slate-500">Pool value</span><span className="font-display text-xl font-extrabold">{formatCurrency(stats.totalValue, settings.currency, { compact: true })}</span></span></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300"><Wrench className="size-5" /></span><span><span className="block text-xs font-medium text-slate-500">In maintenance</span><span className="font-display text-xl font-extrabold">{stats.maintenance}</span></span></CardContent></Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <div>
+            <CardTitle>Asset lifecycle</CardTitle>
+            <CardDescription>{stats.total} assets in the Zainpreneur pool · {formatCurrency(stats.totalValue, settings.currency, { compact: true })} purchase value</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            { label: 'Deployed', value: String(stats.inUse), sub: `${formatCurrency(stats.deployedValue, settings.currency, { compact: true })} in field`, icon: ArrowLeftRight, tint: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300', dot: 'bg-emerald-500' },
+            { label: 'Available', value: String(stats.available), sub: 'ready in central pool', icon: Package, tint: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300', dot: 'bg-indigo-500' },
+            { label: 'Maintenance', value: String(stats.maintenance), sub: 'bench / repair', icon: Wrench, tint: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300', dot: 'bg-amber-500' },
+            { label: 'Pool value', value: formatCurrency(stats.totalValue, settings.currency, { compact: true }), sub: `${stats.total} assets total`, icon: Laptop, tint: 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300', dot: 'bg-sky-500' },
+          ].map((stat) => (
+            <div key={stat.label} className="flex items-center gap-3 rounded-xl bg-slate-50 p-3 dark:bg-white/5">
+              <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-[10px]', stat.tint)}>
+                <stat.icon className="size-[18px]" />
+              </span>
+              <span className="min-w-0">
+                <span className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+                  <span className={cn('size-1.5 rounded-full', stat.dot)} />
+                  {stat.label}
+                </span>
+                <span className="block truncate font-display text-xl font-bold tabular-nums text-slate-900 dark:text-white" title={stat.value}>{stat.value}</span>
+                <span className="block truncate text-[11px] text-slate-400" title={stat.sub}>{stat.sub}</span>
+              </span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card className="mt-6">
         <CardHeader>
@@ -163,10 +187,10 @@ export function Assets() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                  <th className="px-5 py-3">Category</th>
-                  <th className="px-3 py-3 text-right">Assets</th>
-                  <th className="px-3 py-3 text-right">Purchase</th>
-                  <th className="px-5 py-3 text-right">Book value</th>
+                  <th scope="col" className="px-5 py-3">Category</th>
+                  <th scope="col" className="px-3 py-3 text-right">Assets</th>
+                  <th scope="col" className="px-3 py-3 text-right">Purchase</th>
+                  <th scope="col" className="px-5 py-3 text-right">Book value</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

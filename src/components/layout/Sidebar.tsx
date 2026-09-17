@@ -30,7 +30,7 @@ interface SidebarProps {
 }
 
 const NAV_LINK_BASE =
-  'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50'
+  'group relative flex min-h-[38px] items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50'
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const navigate = useNavigate()
@@ -128,6 +128,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     )
                   }
                 >
+                  {({ isActive }) =>
+                    isActive ? (
+                      <span aria-hidden="true" className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-indigo-500" />
+                    ) : null
+                  }
                   <item.icon className="size-[18px] shrink-0" />
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge ? (
@@ -227,7 +232,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop */}
-      <aside className={cn('hidden h-full shrink-0 lg:block', compact ? 'w-20' : 'w-64')}>
+      <aside className={cn('hidden h-full shrink-0 lg:block', compact ? 'w-[68px]' : 'w-60')}>
         {compact ? (
           <CompactSidebar
             navigation={navigation}
@@ -244,7 +249,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] shadow-2xl">{sidebarInner}</div>
+          <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] shadow-2xl">{sidebarInner}</div>
         </div>
       )}
     </>

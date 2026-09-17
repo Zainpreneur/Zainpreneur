@@ -148,12 +148,12 @@ export function ProcurementPanel() {
                       <li key={item.id}>· {item.qty}× {item.name} ({ASSET_CATEGORY_LABELS[item.category]}) — {formatCurrency(item.qty * item.unit_price, settings.currency, { compact: true })}{item.asset_id ? ' → pooled' : ''}</li>
                     ))}
                   </ul>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     {order.status === 'draft' && (
-                      <Button size="sm" variant="secondary" disabled={busyId === order.id} onClick={() => void act(order.id, () => setPurchaseOrderStatus(order.id, 'sent'), 'PO sent to vendor')}>Send</Button>
+                      <Button size="sm" disabled={busyId === order.id} onClick={() => void act(order.id, () => setPurchaseOrderStatus(order.id, 'sent'), 'PO sent to vendor')}>Send</Button>
                     )}
-                    {(order.status === 'draft' || order.status === 'sent') && (
-                      <Button size="sm" variant="secondary" disabled={busyId === order.id} onClick={() => void act(order.id, () => approvePurchaseOrder(order.id), 'PO approved')}>Approve</Button>
+                    {order.status === 'sent' && (
+                      <Button size="sm" disabled={busyId === order.id} onClick={() => void act(order.id, () => approvePurchaseOrder(order.id), 'PO approved')}>Approve</Button>
                     )}
                     {order.status === 'approved' && (
                       <Button
@@ -168,7 +168,7 @@ export function ProcurementPanel() {
                       </Button>
                     )}
                     {(order.status === 'draft' || order.status === 'sent' || order.status === 'approved') && (
-                      <Button size="sm" variant="ghost" disabled={busyId === order.id} onClick={() => void act(order.id, () => setPurchaseOrderStatus(order.id, 'cancelled'), 'PO cancelled')}>Cancel</Button>
+                      <Button size="sm" variant="ghost" disabled={busyId === order.id} onClick={() => void act(order.id, () => setPurchaseOrderStatus(order.id, 'cancelled'), 'PO cancelled')} className="ml-auto">Cancel</Button>
                     )}
                   </div>
                 </div>

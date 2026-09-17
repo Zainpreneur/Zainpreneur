@@ -39,7 +39,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900',
+        'rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 sm:p-5 dark:border-slate-800 dark:bg-slate-900',
         hero && 'sm:p-6',
         className,
       )}
@@ -48,19 +48,20 @@ export function StatCard({
         <div className="flex items-center gap-3">
           <span
             className={cn(
-              'flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300',
+              'flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300',
               iconClass,
             )}
           >
-            <Icon className="size-5" />
+            <Icon className="size-[18px]" />
           </span>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+          <div className="min-w-0">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">{label}</p>
             <p
               className={cn(
-                'mt-0.5 font-display font-extrabold tracking-tight text-slate-900 dark:text-white',
-                hero ? 'text-3xl sm:text-4xl' : 'text-2xl',
+                'mt-0.5 truncate font-display font-bold tracking-tight tabular-nums text-slate-900 dark:text-white',
+                hero ? 'text-[32px] leading-9' : 'text-[26px] leading-8',
               )}
+              title={value}
             >
               {value}
             </p>
@@ -69,7 +70,7 @@ export function StatCard({
         {hasDelta && (
           <span
             className={cn(
-              'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold',
+              'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums',
               delta > 0
                 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
                 : delta < 0
@@ -95,7 +96,7 @@ export function StatCard({
           />
         </div>
       )}
-      {caption && <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{caption}</p>}
+      {caption && <p className="mt-3 truncate text-[11.5px] font-medium text-slate-500 dark:text-slate-400" title={caption}>{caption}</p>}
       {children}
     </div>
   )

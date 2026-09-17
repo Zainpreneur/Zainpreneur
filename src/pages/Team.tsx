@@ -16,6 +16,7 @@ import { SearchInput } from '../components/ui/SearchInput'
 import { EmptyState } from '../components/common/EmptyState'
 import { MemberFormModal } from '../components/business/MemberFormModal'
 import { PayrollPanel } from '../components/enterprise/PayrollPanel'
+import { Tabs } from '../components/common/Tabs'
 
 type Segment = EngagementType | 'all'
 
@@ -101,24 +102,16 @@ export function Team() {
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
-          {(['directory', 'payroll'] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setView(v)}
-              className={cn(
-                'cursor-pointer rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors',
-                view === v
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white'
-                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400',
-              )}
-            >
-              {v === 'directory' ? 'Directory' : 'Payroll'}
-            </button>
-          ))}
-        </div>
+      <div className="mb-4">
+        <Tabs
+          ariaLabel="Team views"
+          value={view}
+          onChange={setView}
+          options={[
+            { value: 'directory', label: 'Directory', count: teamMembers.length },
+            { value: 'payroll', label: 'Payroll' },
+          ]}
+        />
       </div>
 
       {view === 'payroll' ? (

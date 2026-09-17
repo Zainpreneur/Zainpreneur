@@ -135,11 +135,11 @@ export function LedgerPanel() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
-                  <th className="px-5 py-3">Code</th>
-                  <th className="px-3 py-3">Account</th>
-                  <th className="px-3 py-3 text-right">Debit</th>
-                  <th className="px-3 py-3 text-right">Credit</th>
-                  <th className="px-5 py-3 text-right">Balance</th>
+                  <th scope="col" className="px-5 py-3">Code</th>
+                  <th scope="col" className="px-3 py-3">Account</th>
+                  <th scope="col" className="px-3 py-3 text-right">Debit</th>
+                  <th scope="col" className="px-3 py-3 text-right">Credit</th>
+                  <th scope="col" className="px-5 py-3 text-right">Balance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

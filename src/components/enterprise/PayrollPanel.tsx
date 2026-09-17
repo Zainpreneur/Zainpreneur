@@ -128,10 +128,10 @@ export function PayrollPanel() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
-                      <th className="py-2 pr-3">Member</th>
-                      <th className="py-2 pr-3">Kind</th>
-                      <th className="py-2 pr-3">Detail</th>
-                      <th className="py-2 text-right">Amount</th>
+                      <th scope="col" className="py-2 pr-3">Member</th>
+                      <th scope="col" className="py-2 pr-3">Kind</th>
+                      <th scope="col" className="py-2 pr-3">Detail</th>
+                      <th scope="col" className="py-2 text-right">Amount</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

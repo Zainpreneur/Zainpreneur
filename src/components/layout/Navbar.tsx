@@ -71,12 +71,12 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
 
   return (
     <header className="z-30 border-b border-slate-200 bg-white/85 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-950/80">
-      <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
+      <div className="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Open navigation"
-          className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
+          className="grid size-9 shrink-0 place-items-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
         >
           <Menu className="size-5" />
         </button>
@@ -99,7 +99,7 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
             type="button"
             onClick={onOpenSearch}
             aria-label="Search"
-            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 md:hidden dark:text-slate-400 dark:hover:bg-slate-800"
+            className="grid size-9 shrink-0 place-items-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 md:hidden dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <Search className="size-5" />
           </button>
