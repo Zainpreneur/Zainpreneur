@@ -125,7 +125,7 @@ export function PayrollPanel() {
                 </p>
               )}
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="zp-stacked w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
                       <th scope="col" className="py-2 pr-3">Member</th>
@@ -134,13 +134,13 @@ export function PayrollPanel() {
                       <th scope="col" className="py-2 text-right">Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="md:divide-y md:divide-slate-100 md:dark:divide-slate-800">
                     {run.lines.map((line) => (
                       <tr key={line.memberId}>
-                        <td className="py-2 pr-3 font-semibold">{line.memberName}</td>
-                        <td className="py-2 pr-3 text-slate-500">{line.kind}</td>
-                        <td className="py-2 pr-3 text-xs text-slate-500">{line.detail}</td>
-                        <td className="py-2 text-right font-bold tabular-nums">{formatCurrency(line.amount, settings.currency)}</td>
+                        <td data-nolabel className="font-semibold md:py-2 md:pr-3">{line.memberName}</td>
+                        <td data-label="Kind" className="text-slate-500 md:py-2 md:pr-3">{line.kind}</td>
+                        <td data-label="Detail" className="text-xs text-slate-500 md:py-2 md:pr-3">{line.detail}</td>
+                        <td data-label="Amount" className="text-right font-bold tabular-nums md:py-2">{formatCurrency(line.amount, settings.currency)}</td>
                       </tr>
                     ))}
                   </tbody>

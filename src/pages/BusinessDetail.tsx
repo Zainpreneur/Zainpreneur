@@ -418,7 +418,7 @@ export function BusinessDetail() {
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full rounded-md border border-slate-200">
+                  <table className="zp-stacked w-full rounded-md border border-slate-200 md:border-0">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-sm text-slate-600 dark:text-slate-400">
                         <th scope="col">Tag</th>
@@ -449,20 +449,22 @@ export function BusinessDetail() {
 
                           return (
                             <tr key={a.id} className="align-middle text-sm dark:bg-slate-900/50">
-                              <td className="font-medium">{a.tag}</td>
-                              <td>{a.name}</td>
-                              <td>
+                              <td data-nolabel className="font-medium">{a.tag}</td>
+                              <td data-nolabel className="font-semibold">{a.name}</td>
+                              <td data-label="Category">
                                 <Badge className={ASSET_CATEGORY_META[a.category].badgeClass}>
                                   {ASSET_CATEGORY_META[a.category].label}
                                 </Badge>
                               </td>
-                              <Badge className={`${statusClass} inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium`}>
-                                {statusLabel}
-                              </Badge>
-                              <td className="font-medium text-slate-500 dark:text-slate-400">
+                              <td data-label="Status">
+                                <Badge className={`${statusClass} inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium`}>
+                                  {statusLabel}
+                                </Badge>
+                              </td>
+                              <td data-label="Deployed to" className="font-medium text-slate-500 dark:text-slate-400">
                                 {entityLabel}
                               </td>
-                              <td>
+                              <td data-label="Actions">
                                 <Button
                                   variant="ghost"
                                   size="sm"

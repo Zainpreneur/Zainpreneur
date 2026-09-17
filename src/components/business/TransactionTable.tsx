@@ -22,7 +22,7 @@ export function TransactionTable({ transactions, businesses, currency, onEdit, o
   const businessName = (id: string) => businesses.find((b) => b.id === id)?.name ?? 'Unknown'
 
   return (
-    <Table>
+    <Table stacked>
       <THead>
         <Tr>
           <Th>Date</Th>
@@ -34,18 +34,18 @@ export function TransactionTable({ transactions, businesses, currency, onEdit, o
           {(onEdit || onDelete) && <Th className="text-right">Actions</Th>}
         </Tr>
       </THead>
-      <TBody>
+      <TBody stacked>
         {transactions.map((tx) => {
           const statusMeta = TXN_STATUS_META[tx.status]
           return (
             <Tr key={tx.id}>
-              <Td className="text-slate-500 dark:text-slate-400">{formatShortDate(tx.date)}</Td>
-              <Td>
+              <Td stackedLabel="Date" className="text-slate-500 dark:text-slate-400">{formatShortDate(tx.date)}</Td>
+              <Td noStackLabel>
                 <p className="font-medium text-slate-800 dark:text-slate-100">{tx.description}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{tx.reference}</p>
               </Td>
               {showBusiness && (
-                <Td>
+                <Td stackedLabel="Business">
                   <span className="inline-flex items-center gap-1.5">
                     <span
                       className="size-2 rounded-full"
@@ -55,23 +55,23 @@ export function TransactionTable({ transactions, businesses, currency, onEdit, o
                   </span>
                 </Td>
               )}
-              <Td>
+              <Td stackedLabel="Category">
                 <Badge tone="neutral">{TRANSACTION_CATEGORY_LABELS[tx.category]}</Badge>
               </Td>
-              <Td className="text-right">
+              <Td stackedLabel="Amount" className="text-right">
                 <span className={cn('font-display text-sm font-bold tabular-nums', tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400')}>
                   {tx.type === 'income' ? '+' : '−'}
                   {formatCurrency(tx.amount, currency)}
                 </span>
               </Td>
-              <Td>
+              <Td stackedLabel="Status">
                 <Badge className={statusMeta.badgeClass}>
                   <span className={cn('mr-1 size-1.5 rounded-full', statusMeta.dotClass)} />
                   {statusMeta.label}
                 </Badge>
               </Td>
               {(onEdit || onDelete) && (
-                <Td className="text-right">
+                <Td stackedLabel="Actions" className="text-right">
                   <div className="inline-flex items-center gap-1">
                     {onEdit && (
                       <Button variant="ghost" size="sm" aria-label="Edit transaction" onClick={() => onEdit(tx)}>

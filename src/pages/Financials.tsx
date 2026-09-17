@@ -258,7 +258,7 @@ export function Financials() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="zp-stacked w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
                     <th scope="col" className="px-5 py-3">Category</th>
@@ -267,30 +267,31 @@ export function Financials() {
                     <th scope="col" className="px-5 py-3 text-right">Share</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="md:divide-y md:divide-slate-100 md:dark:divide-slate-800">
                   {categoryRows.map((row) => {
                     const meta = CATEGORY_META[row.category as BusinessCategory]
                     return (
                       <tr key={row.category} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                        <td className="px-5 py-3">
+                        <td data-nolabel className="md:px-5 md:py-3">
                           <span className="inline-flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
                             <span className="size-2.5 rounded-full" style={{ backgroundColor: meta.chartColor }} />
                             {meta.shortLabel}
                             <span className="text-xs font-medium text-slate-400">({row.count})</span>
                           </span>
                         </td>
-                        <td className="px-3 py-3 text-right font-semibold tabular-nums text-slate-900 dark:text-white">
+                        <td data-label="Revenue" className="text-right font-semibold tabular-nums text-slate-900 md:px-3 md:py-3 dark:text-white">
                           {formatCurrency(row.revenue, settings.currency, { compact: true })}
                         </td>
                         <td
+                          data-label="Profit"
                           className={cn(
-                            'px-3 py-3 text-right font-semibold tabular-nums',
+                            'text-right font-semibold tabular-nums md:px-3 md:py-3',
                             row.profit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
                           )}
                         >
                           {formatCurrency(row.profit, settings.currency, { compact: true, signed: true })}
                         </td>
-                        <td className="px-5 py-3 text-right tabular-nums text-slate-500 dark:text-slate-400">
+                        <td data-label="Share" className="text-right tabular-nums text-slate-500 md:px-5 md:py-3 dark:text-slate-400">
                           {Math.round((row.revenue / rowTotalRevenue) * 100)}%
                         </td>
                       </tr>
@@ -337,7 +338,7 @@ export function Financials() {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="zp-stacked w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
                   <th scope="col" className="px-5 py-3">Business</th>
@@ -348,22 +349,22 @@ export function Financials() {
                   <th scope="col" className="px-5 py-3 text-right">Profit − team</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="md:divide-y md:divide-slate-100 md:dark:divide-slate-800">
                 {teamCostRows.map((row) => (
                   <tr key={row.business.id} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                    <td className="px-5 py-3">
+                    <td data-nolabel className="md:px-5 md:py-3">
                       <span className="inline-flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
                         <span className="size-2.5 rounded-full" style={{ backgroundColor: row.business.color }} />
                         {row.business.name}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.internal ? formatCurrency(row.internal, settings.currency, { compact: true }) : '—'}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.freelancer ? formatCurrency(row.freelancer, settings.currency, { compact: true }) : '—'}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.agency ? formatCurrency(row.agency, settings.currency, { compact: true }) : '—'}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300" title={formatCurrency(row.deployedValue, settings.currency)}>
+                    <td data-label="Internal" className="text-right tabular-nums text-slate-600 md:px-3 md:py-3 dark:text-slate-300">{row.internal ? formatCurrency(row.internal, settings.currency, { compact: true }) : '—'}</td>
+                    <td data-label="Freelance" className="text-right tabular-nums text-slate-600 md:px-3 md:py-3 dark:text-slate-300">{row.freelancer ? formatCurrency(row.freelancer, settings.currency, { compact: true }) : '—'}</td>
+                    <td data-label="Agency" className="text-right tabular-nums text-slate-600 md:px-3 md:py-3 dark:text-slate-300">{row.agency ? formatCurrency(row.agency, settings.currency, { compact: true }) : '—'}</td>
+                    <td data-label="Assets" className="text-right tabular-nums text-slate-600 md:px-3 md:py-3 dark:text-slate-300" title={formatCurrency(row.deployedValue, settings.currency)}>
                       {row.deployedCount ? `${row.deployedCount} · ${formatCurrency(row.deployedValue, settings.currency, { compact: true })}` : '—'}
                     </td>
-                    <td className={cn('px-5 py-3 text-right font-semibold tabular-nums', row.adjusted >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400')}>
+                    <td data-label="Profit − team" className={cn('text-right font-semibold tabular-nums md:px-5 md:py-3', row.adjusted >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400')}>
                       {formatCurrency(row.adjusted, settings.currency, { compact: true, signed: true })}
                     </td>
                   </tr>
@@ -383,7 +384,7 @@ export function Financials() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="zp-stacked w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
                   <th scope="col" className="px-5 py-3">Business</th>
@@ -395,37 +396,38 @@ export function Financials() {
                   <th scope="col" className="px-5 py-3 text-right">Dividends</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="md:divide-y md:divide-slate-100 md:dark:divide-slate-800">
                 {branchRows.map(({ business, financials, percentage, netShare, dividends }) => {
                   const modelMeta = MODEL_META[business.model]
                   return (
                     <tr key={business.id} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                      <td className="px-5 py-3">
+                      <td data-nolabel className="md:px-5 md:py-3">
                         <span className="inline-flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
                           <span className="size-2.5 rounded-full" style={{ backgroundColor: business.color }} />
                           {business.name}
                         </span>
                         <span className="mt-0.5 block text-xs text-slate-400">{modelMeta.shortLabel}</span>
                       </td>
-                      <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                      <td data-label="Branches" className="text-right tabular-nums text-slate-600 md:px-3 md:py-3 dark:text-slate-300">
                         {financials.branchCount === 0 ? '—' : `${financials.activeBranchCount}/${financials.branchCount}`}
                       </td>
-                      <td className="px-3 py-3 text-right font-semibold tabular-nums text-slate-900 dark:text-white">
+                      <td data-label="Revenue" className="text-right font-semibold tabular-nums text-slate-900 md:px-3 md:py-3 dark:text-white">
                         {formatCurrency(financials.revenue, settings.currency, { compact: true })}
                       </td>
                       <td
+                        data-label="Profit"
                         className={cn(
-                          'px-3 py-3 text-right font-semibold tabular-nums',
+                          'text-right font-semibold tabular-nums md:px-3 md:py-3',
                           financials.profit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
                         )}
                       >
                         {formatCurrency(financials.profit, settings.currency, { compact: true, signed: true })}
                       </td>
-                      <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{percentage}%</td>
-                      <td className="px-3 py-3 text-right font-semibold tabular-nums text-violet-600 dark:text-violet-400">
+                      <td data-label="Your stake" className="text-right tabular-nums text-slate-600 md:px-3 md:py-3 dark:text-slate-300">{percentage}%</td>
+                      <td data-label="Net share" className="text-right font-semibold tabular-nums text-violet-600 md:px-3 md:py-3 dark:text-violet-400">
                         {formatCurrency(netShare, settings.currency, { compact: true })}
                       </td>
-                      <td className="px-5 py-3 text-right tabular-nums text-slate-500 dark:text-slate-400">
+                      <td data-label="Dividends" className="text-right tabular-nums text-slate-500 md:px-5 md:py-3 dark:text-slate-400">
                         {dividends > 0 ? formatCurrency(dividends, settings.currency, { compact: true }) : '—'}
                       </td>
                     </tr>

@@ -2,10 +2,10 @@ import type { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 
 import { cn } from '../../utils/cn'
 
-export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
+export function Table({ stacked, className, ...props }: HTMLAttributes<HTMLTableElement> & { stacked?: boolean }) {
   return (
     <div className="max-h-[70vh] overflow-auto">
-      <table className={cn('w-full border-collapse text-left text-sm', className)} {...props} />
+      <table className={cn('w-full border-collapse text-left text-sm', stacked && 'zp-stacked', className)} {...props} />
     </div>
   )
 }
@@ -22,8 +22,16 @@ export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
   )
 }
 
-export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className={cn('divide-y divide-slate-100 dark:divide-slate-800', className)} {...props} />
+export function TBody({ stacked, className, ...props }: HTMLAttributes<HTMLTableSectionElement> & { stacked?: boolean }) {
+  return (
+    <tbody
+      className={cn(
+        stacked ? 'md:divide-y md:divide-slate-100 md:dark:divide-slate-800' : 'divide-y divide-slate-100 dark:divide-slate-800',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
 export function Th({ scope = 'col', className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
@@ -39,6 +47,13 @@ export function Tr({ className, ...props }: HTMLAttributes<HTMLTableRowElement>)
   )
 }
 
-export function Td({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn('whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300', className)} {...props} />
+export function Td({ stackedLabel, noStackLabel, className, ...props }: TdHTMLAttributes<HTMLTableCellElement> & { stackedLabel?: string; noStackLabel?: boolean }) {
+  return (
+    <td
+      data-label={noStackLabel ? undefined : stackedLabel}
+      data-nolabel={noStackLabel || undefined}
+      className={cn('whitespace-nowrap px-4 py-3 text-slate-600 md:px-4 md:py-3 dark:text-slate-300', className)}
+      {...props}
+    />
+  )
 }
