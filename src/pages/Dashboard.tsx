@@ -7,6 +7,10 @@ import {
   Building2,
   CircleDollarSign,
   HeartPulse,
+  Laptop,
+  Package,
+  Cog,
+  Wrench,
   Plus,
 } from 'lucide-react'
 
@@ -39,7 +43,7 @@ function greeting(): string {
 }
 
 export function Dashboard() {
-  const { businesses, tasks, activity, settings, zainOwnerId, addBusiness, addTask, updateTask, updateBusiness } =
+  const { businesses, tasks, activity, settings, zainOwnerId, addBusiness, addTask, updateTask, updateBusiness, assets } =
     useBusinesses()
   const { authUser, profile } = useAuth()
 
@@ -50,6 +54,39 @@ export function Dashboard() {
   const totals = useMemo(() => computeTotals(businesses), [businesses])
   const portfolio = useMemo(() => portfolioSummary(businesses, zainOwnerId), [businesses, zainOwnerId])
   const history = useMemo(() => getPortfolioHistory(businesses), [businesses])
+
+  const assetUtilization = useMemo(() => {
+    const total = assets?.length ?? 0
+    const deployed = assets?.filter((a) => a.status === 'in-use').length ?? 0
+    const available = assets?.filter((a) => a.status === 'available').length ?? 0
+    const maintenance = assets?.filter((a) => a.status === 'maintenance').length ?? 0
+    const retired = assets?.filter((a) => a.status === 'retired').length ?? 0
+    const totalValue = assets?.reduce((sum, a) => sum + a.value, 0) ?? 0
+    const deployedValue = assets?.filter((a) => a.status === 'in-use').reduce((sum, a) => sum + a.value, 0) ?? 0
+    const byCategory: Record<string, { count: number; value: number }> = {
+      hardware: { count: 0, value: 0 },
+      machinery: { count: 0, value: 0 },
+      equipment: { count: 0, value: 0 },
+      other: { count: 0, value: 0 },
+    }
+    assets?.forEach((a) => {
+      byCategory[a.category].count++
+      byCategory[a.category].value += a.value
+    })
+    const active = total - (retired ?? 0)
+    const utilizationRate = active > 0 ? (deployed / active) * 100 : 0
+    return {
+      total,
+      deployed,
+      available,
+      maintenance,
+      retired,
+      totalValue: totalValue,
+      deployedValue,
+      utilizationRate: Math.round(utilizationRate),
+      byCategory,
+    }
+  }, [assets])
 
   const location = useMemo(() => {
     const today = new Date()
@@ -156,17 +193,37 @@ export function Dashboard() {
             iconClass="bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
             caption={`${formatCurrency(portfolio.userMonthlyProfit, settings.currency, { compact: true })}/mo net share · ${portfolio.branches} branches`}
           />
-          <StatCard
-            label="Avg health"
-            value={String(totals.avgHealth)}
-            icon={HeartPulse}
-            iconClass="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400"
-            caption={`${formatNumber(portfolio.employees)} people · ${totals.owned} owned · ${totals.equity} equity · ${totals.client} client`}
-          />
+<StatCard
+              label="Avg health"
+              value={String(totals.avgHealth)}
+              icon={HeartPulse}
+              iconClass="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300"
+              caption={`${formatNumber(portfolio.employees)} people · ${totals.owned} owned · ${totals.equity} equity · ${totals.client} client`}
+            />
+            <StatCard
+              label="Assets deployed"
+              value={String(assetUtilization.deployed)}
+              icon={Laptop}
+            />
+            <StatCard
+              label="Assets available"
+              value={String(assetUtilization.available)}
+              icon={Package}
+            />
+            <StatCard
+              label="Assets in maintenance"
+              value={String(assetUtilization.maintenance)}
+              icon={Cog}
+            />
+            <StatCard
+              label="Assets retired"
+              value={String(assetUtilization.retired)}
+              icon={Wrench}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <div>
