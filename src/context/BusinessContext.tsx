@@ -51,6 +51,12 @@ import {
 } from '../data'
 import { ASSET_OWNER } from '../types'
 import { useToast } from './ToastContext'
+import {
+  deployAsset as mirrorDeployAsset,
+  returnAsset as mirrorReturnAsset,
+  updateCapTableSplit as mirrorCapTable,
+} from '../db/repositories'
+import type { DbDeploymentEntity } from '../db/schema'
 import { initials } from '../utils/format'
 import { branchTotals } from '../utils/branches'
 import { ownerStats } from '../utils/calculations'
@@ -691,6 +697,11 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       ),
     )
     notify('Cap table updated')
+    // Best-effort mirror into the offline SQLite engine; never blocks the UI.
+    void mirrorCapTable(
+      businessId,
+      capTable.map((entry) => ({ ownerId: entry.ownerId, percentage: entry.percentage })),
+    ).catch((err: unknown) => console.warn('[db] cap-table mirror skipped', err))
   }, [notify])
 
   /* ------------------------------ owner actions ------------------------------ */
@@ -994,6 +1005,15 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       })
       if (asset) logActivity(target.businessId, 'asset', `${asset.name} deployed to ${target.label}`)
       notify(`Asset "${asset?.name ?? 'asset'}" successfully deployed`)
+      // Best-effort mirror into the offline SQLite engine; never blocks the UI.
+      const mirrorEntity: DbDeploymentEntity =
+        input.entityType === 'equity' ? 'equity_branch' : input.entityType === 'client' ? 'client_project' : 'owned_branch'
+      void mirrorDeployAsset(assetId, {
+        entityType: mirrorEntity,
+        entityId: input.branchId ?? input.entityId,
+        memberId: input.memberId,
+        notes: input.notes,
+      }).catch((err: unknown) => console.warn('[db] deploy mirror skipped', err))
     },
     [assets, describeDeployment, pushHistory, logActivity, notify],
   )
@@ -1015,6 +1035,8 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       pushHistory(asset, { action: 'returned', targetLabel: 'Returned to pool', notes })
       if (asset) logActivity(target.businessId, 'asset', `${asset.name} returned from ${target.label}`)
       notify(`Asset "${asset?.name ?? 'asset'}" returned to base`)
+      // Best-effort mirror into the offline SQLite engine; never blocks the UI.
+      void mirrorReturnAsset(assetId).catch((err: unknown) => console.warn('[db] return mirror skipped', err))
     },
     [assets, describeDeployment, pushHistory, logActivity, notify],
   )
