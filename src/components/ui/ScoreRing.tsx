@@ -19,7 +19,7 @@ export function ScoreRing({ value, size = 72, strokeWidth = 7, color, label, cla
 
   const ringColor =
     color ??
-    (clamped >= 75 ? '#10b981' : clamped >= 55 ? '#f59e0b' : '#f43f5e')
+    (clamped >= 80 ? '#10b981' : clamped >= 60 ? '#f59e0b' : '#f43f5e')
 
   const styleVars = { '--ring-color': ringColor } as CSSProperties
 
@@ -48,7 +48,7 @@ export function ScoreRing({ value, size = 72, strokeWidth = 7, color, label, cla
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-lg font-extrabold tracking-tight" style={{ color: ringColor }}>
+        <span className="font-display text-[13px] font-bold tabular-nums tracking-tight" style={{ color: ringColor }}>
           {clamped}
         </span>
         {label && <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">{label}</span>}

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { ArrowUpRight, MapPin, Pencil, Trash2, Users } from 'lucide-react'
+import { ArrowUpRight, MapPin, Pause, Pencil, Play, Trash2, Users } from 'lucide-react'
 
 import type { Business } from '../../types'
 import { CLIENT_TIER_LABELS } from '../../types'
@@ -23,7 +23,8 @@ interface BusinessCardProps {
 }
 
 export function BusinessCard({ business, currency, onEdit, onDelete }: BusinessCardProps) {
-  const { owners } = useBusinesses()
+  const { owners, updateBusiness } = useBusinesses()
+  const paused = business.status === 'paused'
   const meta = CATEGORY_META[business.category]
   const model = MODEL_META[business.model]
   const status = STATUS_META[business.status]
@@ -37,10 +38,13 @@ export function BusinessCard({ business, currency, onEdit, onDelete }: BusinessC
   return (
     <div className="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
       <div className="flex items-start gap-3">
-        <BusinessLogo glyph={business.logoGlyph} color={business.color} size="lg" />
+        <BusinessLogo glyph={business.logoGlyph} color={business.color} size="md" />
         <div className="min-w-0 flex-1">
           <Link to={`/businesses/${business.id}`} className="block">
-            <h3 className="truncate font-display text-base font-bold tracking-tight text-slate-900 transition-colors group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+            <h3
+              title={business.name}
+              className="truncate font-display text-[15px] font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400"
+            >
               {business.name}
             </h3>
           </Link>
@@ -63,35 +67,40 @@ export function BusinessCard({ business, currency, onEdit, onDelete }: BusinessC
             trigger={<span className="text-lg leading-none text-slate-400">···</span>}
             items={[
               { label: 'Edit business', icon: Pencil, onClick: () => onEdit(business) },
+              {
+                label: paused ? 'Resume business' : 'Pause business',
+                icon: paused ? Play : Pause,
+                onClick: () => updateBusiness(business.id, { status: paused ? 'active' : 'paused' }),
+              },
               { label: '', separator: true },
               { label: 'Delete business', icon: Trash2, danger: true, onClick: () => onDelete(business) },
             ]}
           />
-          <ScoreRing value={business.healthScore} size={52} strokeWidth={5} />
+          <ScoreRing value={business.healthScore} size={44} strokeWidth={4} />
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50">
-        <div>
+      <div className="mt-4 grid auto-rows-fr grid-cols-3 gap-2 rounded-[10px] bg-slate-100/70 p-3 dark:bg-white/5">
+        <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Revenue</p>
-          <p className="mt-0.5 font-display text-sm font-bold text-slate-900 dark:text-white">
+          <p className="mt-0.5 truncate font-display text-sm font-bold tabular-nums text-slate-900 dark:text-white">
             {formatCurrency(financials.revenue, currency, { compact: true })}
           </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Profit</p>
           <p
             className={cn(
-              'mt-0.5 font-display text-sm font-bold',
+              'mt-0.5 truncate font-display text-sm font-bold tabular-nums',
               profit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400',
             )}
           >
             {formatCurrency(profit, currency, { compact: true, signed: true })}
           </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Margin</p>
-          <p className="mt-0.5 font-display text-sm font-bold text-slate-900 dark:text-white">{margin.toFixed(0)}%</p>
+          <p className="mt-0.5 truncate font-display text-sm font-bold tabular-nums text-slate-900 dark:text-white">{margin.toFixed(0)}%</p>
         </div>
       </div>
 
