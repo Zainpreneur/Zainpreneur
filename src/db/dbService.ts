@@ -165,7 +165,7 @@ class DbService {
           const journal = readJournal()
           if (journal.length > 0) {
             try {
-              await this.batch(journal)
+              await this.sendBatch(journal)
             } catch (err) {
               console.warn('[sqlite] journal replay failed, starting from seed', err)
               writeJournal([])
@@ -224,6 +224,15 @@ class DbService {
   /** Execute statements atomically (single transaction). Accepts seed/journal statements. */
   async batch(stmts: SqlStatement[] | BatchStatement[]): Promise<number> {
     await this.ready()
+    return this.sendBatch(stmts)
+  }
+
+  /**
+   * Batch without the readiness gate. Used ONLY by `ready()` itself during
+   * journal replay — routing replay through `batch()` would await the very
+   * promise being constructed and deadlock the reboot path.
+   */
+  private async sendBatch(stmts: SqlStatement[] | BatchStatement[]): Promise<number> {
     const res = await this.request({ op: 'batch', stmts })
     return res.changes ?? 0
   }

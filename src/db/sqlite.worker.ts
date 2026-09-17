@@ -121,7 +121,17 @@ function tableCounts(): Record<string, number> {
      UNION ALL SELECT 'cap_table', COUNT(*) FROM cap_table
      UNION ALL SELECT 'team_members', COUNT(*) FROM team_members
      UNION ALL SELECT 'assets', COUNT(*) FROM assets
-     UNION ALL SELECT 'asset_deployments', COUNT(*) FROM asset_deployments`,
+     UNION ALL SELECT 'asset_deployments', COUNT(*) FROM asset_deployments
+     UNION ALL SELECT 'vendors', COUNT(*) FROM vendors
+     UNION ALL SELECT 'purchase_orders', COUNT(*) FROM purchase_orders
+     UNION ALL SELECT 'po_items', COUNT(*) FROM po_items
+     UNION ALL SELECT 'hr_contracts', COUNT(*) FROM hr_contracts
+     UNION ALL SELECT 'timesheets', COUNT(*) FROM timesheets
+     UNION ALL SELECT 'ledger_accounts', COUNT(*) FROM ledger_accounts
+     UNION ALL SELECT 'ledger_entries', COUNT(*) FROM ledger_entries
+     UNION ALL SELECT 'ledger_lines', COUNT(*) FROM ledger_lines
+     UNION ALL SELECT 'invoices', COUNT(*) FROM invoices
+     UNION ALL SELECT 'outbox', COUNT(*) FROM outbox`,
   )
   const counts: Record<string, number> = {}
   for (const row of rows) counts[String(row['t'])] = Number(row['n'])

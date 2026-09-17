@@ -474,9 +474,7 @@ export function BusinessDetail() {
                                   variant="ghost"
                                   size="sm"
                                   icon={<ArrowRight className="size-3.5" />}
-                                  onClick={() => {
-                                    // placeholder for now
-                                  }}
+                                  onClick={() => navigate('/assets')}
                                 >
                                   View
                                 </Button>
