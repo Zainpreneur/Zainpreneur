@@ -1,4 +1,4 @@
-import { CalendarDays, Check, MoreHorizontal } from 'lucide-react'
+import { CalendarDays, MoreHorizontal } from 'lucide-react'
 
 import type { Business, Task, TaskStatus } from '../../types'
 import { TASK_STATUS_LABELS } from '../../types'
@@ -7,6 +7,7 @@ import { isOverdue as isTaskOverdue } from '../../utils/time'
 import { PRIORITY_META } from '../../utils/meta'
 import { cn } from '../../utils/cn'
 import { Badge } from '../common/Badge'
+import { Checkbox } from '../common/Checkbox'
 import { Dropdown } from '../ui/Dropdown'
 
 interface TaskCardProps {
@@ -33,19 +34,12 @@ export function TaskCard({ task, business, onEdit, onDelete, onStatusChange, sho
       )}
     >
       <div className="flex items-start gap-2.5">
-        <button
-          type="button"
-          aria-label={isDone ? 'Reopen task' : 'Mark task complete'}
-          onClick={() => onStatusChange(task, isDone ? 'todo' : 'done')}
-          className={cn(
-            'mt-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-colors',
-            isDone
-              ? 'border-emerald-500 bg-emerald-500 text-white'
-              : 'border-slate-300 text-transparent hover:border-emerald-500 hover:text-emerald-500 dark:border-slate-600',
-          )}
-        >
-          <Check className="size-3.5" strokeWidth={3} />
-        </button>
+        <Checkbox
+          checked={isDone}
+          onChange={(checked) => onStatusChange(task, checked ? 'done' : 'todo')}
+          label={isDone ? `Reopen task: ${task.title}` : `Mark task complete: ${task.title}`}
+          className="mt-0.5 md:mt-[3px]"
+        />
 
         <button type="button" onClick={() => onEdit(task)} className="min-w-0 flex-1 cursor-pointer text-left">
           <p

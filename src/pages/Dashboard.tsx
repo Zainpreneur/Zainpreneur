@@ -29,6 +29,7 @@ import { PageContainer, PageHeader } from '../components/layout/PageContainer'
 import { Badge } from '../components/common/Badge'
 import { StatCard } from '../components/common/StatCard'
 import { BusinessLogo } from '../components/common/BusinessLogo'
+import { Checkbox } from '../components/common/Checkbox'
 import { BusinessFormModal } from '../components/business/BusinessFormModal'
 import { TaskFormModal } from '../components/business/TaskFormModal'
 import { ActivityFeed } from '../components/business/ActivityFeed'
@@ -387,15 +388,15 @@ export function Dashboard() {
                 const business = businesses.find((b) => b.id === task.businessId)
                 const isOverdue = isPast(task.dueDate)
                 return (
-                  <label
+                  <div
                     key={task.id}
-                    className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 p-3 transition-all hover:border-slate-200 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                    className="flex items-start gap-3 rounded-xl border border-slate-100 p-3 transition-all hover:border-slate-200 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={false}
                       onChange={() => updateTask(task.id, { status: 'done' as TaskStatus })}
-                      className="mt-0.5 size-4 shrink-0 rounded border-slate-300 accent-brand-600"
+                      label={`Mark task complete: ${task.title}`}
+                      className="mt-0.5 md:mt-[3px]"
                     />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium text-slate-700 dark:text-slate-200">{task.title}</span>
@@ -413,7 +414,7 @@ export function Dashboard() {
                       </span>
                     </span>
                     <Badge className={PRIORITY_CLASS(task.priority)}>{task.priority}</Badge>
-                  </label>
+                  </div>
                 )
               })
             )}
