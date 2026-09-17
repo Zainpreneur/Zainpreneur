@@ -11,7 +11,8 @@ export function toDeploymentEntity(category: BusinessCategory): DbDeploymentEnti
   return 'owned_branch'
 }
 
-function memberRate(member: (typeof teamMembers)[number]): string | null {
+/** Human-readable rate/terms line for a roster member, shared by seed + mirrors. */
+export function memberRateTerms(member: (typeof teamMembers)[number]): string | null {
   if (member.engagementType === 'internal') {
     const cost = member.internalStaff?.monthlyCost ?? member.monthlyCost ?? 0
     return `${cost}/mo · ${member.internalStaff?.department ?? member.department}`
@@ -66,7 +67,7 @@ export function buildSeedStatements(): SqlStatement[] {
   for (const m of teamMembers) {
     stmts.push({
       sql: 'INSERT INTO team_members (id, name, email, engagement_type, role, rate_or_terms) VALUES (?, ?, ?, ?, ?, ?)',
-      params: [m.id, m.name, m.email, m.engagementType, m.role, memberRate(m)],
+      params: [m.id, m.name, m.email, m.engagementType, m.role, memberRateTerms(m)],
     })
   }
 

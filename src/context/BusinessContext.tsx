@@ -53,9 +53,12 @@ import { ASSET_OWNER } from '../types'
 import { useToast } from './ToastContext'
 import {
   deployAsset as mirrorDeployAsset,
+  mirrorDelete,
+  mirrorInsert,
   returnAsset as mirrorReturnAsset,
   updateCapTableSplit as mirrorCapTable,
 } from '../db/repositories'
+import { memberRateTerms } from '../db/seed'
 import type { DbDeploymentEntity } from '../db/schema'
 import { initials } from '../utils/format'
 import { branchTotals } from '../utils/branches'
@@ -322,6 +325,11 @@ function readProfile(): UserProfile {
 
 function makeId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID().slice(0, 8)}`
+}
+
+/** Swallow mirror failures — the localStorage store is source of truth. */
+function mirrorSkip(label: string): (err: unknown) => void {
+  return (err: unknown) => console.warn(`[db] ${label} mirror skipped`, err)
 }
 
 function computeHealth(revenue: number, expenses: number): number {
@@ -657,6 +665,14 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     const nextBusiness = businessSeed(draft, makeId('biz'))
     setBusinesses((prev) => [...prev, nextBusiness])
     notify(`Business "${nextBusiness.name}" created`)
+    void mirrorInsert('businesses', {
+      id: nextBusiness.id,
+      name: nextBusiness.name,
+      model: nextBusiness.model,
+      category: nextBusiness.category,
+      status: nextBusiness.status,
+      created_at: nextBusiness.createdAt,
+    }).catch(mirrorSkip('business create'))
     return nextBusiness
   }, [notify])
 
@@ -674,6 +690,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
 
   const deleteBusiness = useCallback((id: string) => {
     notify('Business deleted', 'info')
+    void mirrorDelete('businesses', id).catch(mirrorSkip('business delete'))
     setBusinesses((prev) => prev.filter((business) => business.id !== id))
     setTransactions((prev) => prev.filter((tx) => tx.businessId !== id))
     setTasks((prev) => prev.filter((task) => task.businessId !== id))
@@ -710,6 +727,12 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     const nextOwner = ownerSeed(draft, makeId('own'))
     setRawOwners((prev) => [...prev, nextOwner])
     notify(`Owner "${nextOwner.name}" added`)
+    void mirrorInsert('owners', {
+      id: nextOwner.id,
+      name: nextOwner.name,
+      email: nextOwner.email,
+      avatar: null,
+    }).catch(mirrorSkip('owner create'))
     return nextOwner
   }, [notify])
 
@@ -727,6 +750,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
 
   const deleteOwner = useCallback((id: string) => {
     notify('Owner removed', 'info')
+    void mirrorDelete('owners', id).catch(mirrorSkip('owner delete'))
     setRawOwners((prev) => prev.filter((owner) => owner.id !== id))
     setBusinesses((prev) =>
       prev.map((business) =>
@@ -750,6 +774,14 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       }),
     )
     notify(`Branch "${branch.name}" added — totals rolled up`)
+    void mirrorInsert('branches', {
+      id: branch.id,
+      business_id: businessId,
+      name: branch.name,
+      location: branch.location,
+      monthly_revenue: branch.monthlyRevenue,
+      monthly_expenses: branch.monthlyExpenses,
+    }).catch(mirrorSkip('branch create'))
     return branch
   }, [notify])
 
@@ -767,6 +799,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
 
   const deleteBranch = useCallback((businessId: string, branchId: string) => {
     notify('Branch deleted — totals rolled up', 'info')
+    void mirrorDelete('branches', branchId).catch(mirrorSkip('branch delete'))
     setBusinesses((prev) =>
       prev.map((business) =>
         business.id === businessId
@@ -836,6 +869,14 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     const member = teamMemberSeed(draft, makeId('tm'))
     setRawTeamMembers((prev) => [...prev, member])
     notify(`"${member.name}" added to roster`)
+    void mirrorInsert('team_members', {
+      id: member.id,
+      name: member.name,
+      email: member.email,
+      engagement_type: member.engagementType,
+      role: member.role,
+      rate_or_terms: memberRateTerms(member),
+    }).catch(mirrorSkip('member create'))
     return member
   }, [notify])
 
@@ -892,6 +933,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
 
   const deleteTeamMember = useCallback((id: string) => {
     notify('Team member removed', 'info')
+    void mirrorDelete('team_members', id).catch(mirrorSkip('member delete'))
     setRawTeamMembers((prev) => prev.filter((member) => member.id !== id))
     setAssets((prev) =>
       prev.map((asset) =>
@@ -907,6 +949,15 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   const addAsset = useCallback((draft: AssetDraft) => {
     const asset = assetSeed(draft, makeId('as'))
     notify(`Asset "${asset.name}" registered to central pool`)
+    void mirrorInsert('assets', {
+      id: asset.id,
+      name: asset.name,
+      category: asset.category,
+      asset_owner: 'Zainpreneur',
+      serial_number: asset.serialNumber,
+      purchase_value: asset.value,
+      status: asset.status === 'retired' ? 'maintenance' : asset.status,
+    }).catch(mirrorSkip('asset create'))
     setAssets((prev) => [asset, ...prev])
     setAssetHistory((prev) => [
       {
@@ -929,6 +980,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
 
   const deleteAsset = useCallback((id: string) => {
     notify('Asset deleted from pool', 'info')
+    void mirrorDelete('assets', id).catch(mirrorSkip('asset delete'))
     setAssets((prev) => prev.filter((asset) => asset.id !== id))
     setAssetHistory((prev) => prev.filter((entry) => entry.assetId !== id))
   }, [notify])

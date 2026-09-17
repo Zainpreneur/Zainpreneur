@@ -15,6 +15,7 @@ import type {
   CapShareRow,
   DbDeploymentEntity,
   OwnerRow,
+  TableName,
   TeamMemberRow,
 } from './schema'
 
@@ -165,6 +166,26 @@ export async function returnAsset(assetId: string): Promise<{ cleared: number }>
     { sql: 'UPDATE assets SET status = ? WHERE id = ?', params: ['available', assetId] },
   ])
   return { cleared: existing.length }
+}
+
+/**
+ * Best-effort mirrors used by the app store to keep the SQL engine close to
+ * live data. Callers must catch failures — the localStorage store is the
+ * source of truth and must never break because the mirror skipped.
+ */
+export async function mirrorInsert(table: TableName, row: Record<string, string | number | null>): Promise<void> {
+  const columns = Object.keys(row)
+  if (columns.length === 0) return
+  // Plain INSERT (never REPLACE — replace would fire FK cascades on conflicts).
+  const placeholders = columns.map(() => '?').join(', ')
+  await dbService.run(
+    `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`,
+    columns.map((column) => row[column] ?? null),
+  )
+}
+
+export async function mirrorDelete(table: TableName, id: string): Promise<void> {
+  await dbService.run(`DELETE FROM ${table} WHERE id = ?`, [id])
 }
 
 /** Full inventory with current deployment + holder name (if any). */
