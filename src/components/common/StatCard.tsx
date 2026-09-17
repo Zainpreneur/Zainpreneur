@@ -30,7 +30,7 @@ export function StatCard({
   caption,
   hero = false,
   sparkline,
-  sparklineColor = '#6366f1',
+  sparklineColor = '#007AFF',
   className,
   children,
 }: StatCardProps) {
@@ -39,7 +39,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 sm:p-5 dark:border-slate-800 dark:bg-slate-900',
+        'rounded-[var(--r-card)] bg-[var(--surface-1)] shadow-[var(--sh-raised)] transition-shadows hover:shadow-[var(--sh-raised)] group-hover:translate-y-[-2px] transition-transform duration-150',
         hero && 'sm:p-6',
         className,
       )}
@@ -48,17 +48,17 @@ export function StatCard({
         <div className="flex items-center gap-3">
           <span
             className={cn(
-              'flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300',
+              'flex size-9 shrink-0 items-center justify-center rounded-[var(r-chip)] bg-[var(--surface-2)] text-[var(--text-2)] dark:text-[var(--text-3)]',
               iconClass,
             )}
           >
             <Icon className="size-[18px]" />
           </span>
           <div className="min-w-0">
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">{label}</p>
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[var(--text-2)] dark:text-[var(--text-3)]">{label}</p>
             <p
               className={cn(
-                'mt-0.5 truncate font-display font-bold tracking-tight tabular-nums text-slate-900 dark:text-white',
+                'mt-0.5 truncate font-display font-bold tracking-tight tabular-nums text-[var(--text-1)]',
                 hero ? 'text-[32px] leading-9' : 'text-[26px] leading-8',
               )}
               title={value}
@@ -72,10 +72,10 @@ export function StatCard({
             className={cn(
               'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums',
               delta > 0
-                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+                ? 'bg-[var(--success-tint)] text-[var(--success)]'
                 : delta < 0
-                  ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'
-                  : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
+                  ? 'bg-[var(--danger-tint)] text-[var(--danger)]'
+                  : 'bg-[var(--surface-2)] text-[var(--text-2)]',
             )}
           >
             {delta > 0 ? <TrendingUp className="size-3" /> : delta < 0 ? <TrendingDown className="size-3" /> : <Minus className="size-3" />}
@@ -96,7 +96,7 @@ export function StatCard({
           />
         </div>
       )}
-      {caption && <p className="mt-3 truncate text-[11.5px] font-medium text-slate-500 dark:text-slate-400" title={caption}>{caption}</p>}
+      {caption && <p className="mt-3 truncate text-[11.5px] font-medium text-[var(--text-2)] dark:text-[var(--text-3)]" title={caption}>{caption}</p>}
       {children}
     </div>
   )

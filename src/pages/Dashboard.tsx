@@ -11,7 +11,6 @@ import {
   Package,
   Cog,
   Wrench,
-  Plus,
 } from 'lucide-react'
 
 import type { Business, BusinessCategory, DonutSlice, Task, TaskStatus } from '../types'
@@ -82,7 +81,7 @@ export function Dashboard() {
       available,
       maintenance,
       retired,
-      totalValue: totalValue,
+      totalValue,
       deployedValue,
       utilizationRate: Math.round(utilizationRate),
       byCategory,
@@ -184,7 +183,6 @@ export function Dashboard() {
           className="lg:col-span-3 xl:col-span-5"
           label="Monthly revenue"
           value={formatCurrency(portfolio.monthlyRevenue, settings.currency, { compact: true })}
-          icon={Banknote}
           delta={revenueDelta}
           caption={`Across ${portfolio.businesses} businesses · EV ${formatCurrency(portfolio.enterpriseValue, settings.currency, { compact: true })}`}
           sparkline={history.revenue.map((point) => point.value)}
@@ -194,7 +192,6 @@ export function Dashboard() {
             label="Net profit"
             value={formatCurrency(portfolio.monthlyProfit, settings.currency, { compact: true, signed: false })}
             icon={CircleDollarSign}
-            iconClass="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
             delta={profitDelta}
             caption={`${portfolio.margin.toFixed(0)}% margin`}
           />
@@ -202,85 +199,83 @@ export function Dashboard() {
             label="Your net worth"
             value={formatCurrency(portfolio.userNetWorth, settings.currency, { compact: true })}
             icon={Building2}
-            iconClass="bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400"
             caption={`${formatCurrency(portfolio.userMonthlyProfit, settings.currency, { compact: true })}/mo net share · ${portfolio.branches} branches`}
           />
-<StatCard
-              label="Avg health"
-              value={String(totals.avgHealth)}
-              icon={HeartPulse}
-              iconClass="bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300"
-              caption={`${formatNumber(portfolio.employees)} people · ${totals.owned} owned · ${totals.equity} equity · ${totals.client} client`}
-            />
-            <StatCard
-              label="Assets deployed"
-              value={String(assetUtilization.deployed)}
-              icon={Laptop}
-            />
-            <StatCard
-              label="Assets available"
-              value={String(assetUtilization.available)}
-              icon={Package}
-            />
-            <StatCard
-              label="Assets in maintenance"
-              value={String(assetUtilization.maintenance)}
-              icon={Cog}
-            />
-            <StatCard
-              label="Assets retired"
-              value={String(assetUtilization.retired)}
-              icon={Wrench}
-            />
-          </div>
+          <StatCard
+            label="Avg health"
+            value={String(totals.avgHealth)}
+            icon={HeartPulse}
+            caption={`${formatNumber(portfolio.employees)} people · ${totals.owned} owned · ${totals.equity} equity · ${totals.client} client`}
+          />
+          <StatCard
+            label="Assets deployed"
+            value={String(assetUtilization.deployed)}
+            icon={Laptop}
+          />
+          <StatCard
+            label="Assets available"
+            value={String(assetUtilization.available)}
+            icon={Package}
+          />
+          <StatCard
+            label="Assets in maintenance"
+            value={String(assetUtilization.maintenance)}
+            icon={Cog}
+          />
+          <StatCard
+            label="Assets retired"
+            value={String(assetUtilization.retired)}
+            icon={Wrench}
+          />
         </div>
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardContent>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Team breakdown</p>
-            <p className="mt-1 font-display text-2xl font-extrabold">{teamBreakdown.total} <span className="text-sm font-medium text-slate-400">people & partners</span></p>
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-2)]">Team breakdown</p>
+            <p className="mt-1 font-display text-2xl font-extrabold">{teamBreakdown.total} <span className="text-sm font-medium text-[var(--text-2)]">people & partners</span></p>
             <div className="mt-3 space-y-2 text-xs">
-              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-emerald-500" />Internal</span><span className="font-bold">{teamBreakdown.internal}</span></div>
-              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-sky-500" />Freelancers</span><span className="font-bold">{teamBreakdown.freelancer}</span></div>
-              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-amber-500" />Agencies</span><span className="font-bold">{teamBreakdown.agency}</span></div>
+              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-[var(r-chip)] bg-[var(--accent)]" />Internal</span><span className="font-bold">{teamBreakdown.internal}</span></div>
+              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-[var(r-chip)] bg-[var(--surface-2)]" />Freelancers</span><span className="font-bold">{teamBreakdown.freelancer}</span></div>
+              <div className="flex justify-between"><span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-[var(r-chip)] bg-[var(--surface-2)]" />Agencies</span><span className="font-bold">{teamBreakdown.agency}</span></div>
             </div>
-            <Link to="/team" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600">Open team hub <ArrowRight className="size-3" /></Link>
+            <Link to="/team" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[var(--accent)]">Open team hub <ArrowRight className="size-3" /></Link>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Asset utilization</p>
-            <p className="mt-1 font-display text-2xl font-extrabold">{assetUtilization.utilizationRate}% <span className="text-sm font-medium text-slate-400">in-use</span></p>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-              <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500" style={{ width: `${assetUtilization.utilizationRate}%` }} />
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-2)]">Asset utilization</p>
+            <p className="mt-1 font-display text-2xl font-extrabold">{assetUtilization.utilizationRate}% <span className="text-sm font-medium text-[var(--text-2)]">in-use</span></p>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--surface-2)] dark:bg-[var(--surface-3)]">
+              <div className="h-full rounded-full transition-all duration-500 ease-out" style={{ width: `${assetUtilization.utilizationRate}%` }} />
             </div>
-            <p className="mt-2 text-xs text-slate-500">{assetUtilization.deployed} deployed · {assetUtilization.available} available · {assetUtilization.maintenance} maintenance</p>
-            <Link to="/assets" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600">Open asset hub <ArrowRight className="size-3" /></Link>
+            <p className="mt-2 text-xs text-[var(--text-2)]">{assetUtilization.deployed} deployed · {assetUtilization.available} available · {assetUtilization.maintenance} maintenance</p>
+            <Link to="/assets" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[var(--accent)]">Open asset hub <ArrowRight className="size-3" /></Link>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Business models</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-2)]">Business models</p>
             <div className="mt-2 space-y-2 text-xs">
               <div className="flex justify-between"><span>Project-based</span><span className="font-bold">{teamBreakdown.modelCounts.project ?? 0}</span></div>
               <div className="flex justify-between"><span>Consulting-based</span><span className="font-bold">{teamBreakdown.modelCounts.consulting ?? 0}</span></div>
               <div className="flex justify-between"><span>Equity-based</span><span className="font-bold">{teamBreakdown.modelCounts.equity ?? 0}</span></div>
             </div>
-            <p className="mt-3 text-[11px] text-slate-400">Project · Consulting · Equity coverage across portfolio</p>
+            <p className="mt-3 text-xs text-[var(--text-2)]">Project · Consulting · Equity coverage across portfolio</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent>
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Net share</p>
-            <p className="mt-1 font-display text-2xl font-extrabold">{formatCurrency(portfolio.userMonthlyProfit, settings.currency, { compact: true })}<span className="text-sm font-medium text-slate-400">/mo</span></p>
-            <p className="mt-2 text-xs text-slate-500">Net worth {formatCurrency(portfolio.userNetWorth, settings.currency, { compact: true })} · EV {formatCurrency(portfolio.enterpriseValue, settings.currency, { compact: true })}</p>
-            <Link to="/financials" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand-600">Open financials <ArrowRight className="size-3" /></Link>
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-2)]">Net share</p>
+            <p className="mt-1 font-display text-2xl font-extrabold">{formatCurrency(portfolio.userMonthlyProfit, settings.currency, { compact: true })}<span className="text-sm font-medium text-[var(--text-2)]">/mo</span></p>
+            <p className="mt-2 text-xs text-[var(--text-2)]">Net worth {formatCurrency(portfolio.userNetWorth, settings.currency, { compact: true })} · EV {formatCurrency(portfolio.enterpriseValue, settings.currency, { compact: true })}</p>
+            <Link to="/financials" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[var(--accent)]">Open financials <ArrowRight className="size-3" /></Link>
           </CardContent>
         </Card>
       </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <div>
@@ -291,8 +286,8 @@ export function Dashboard() {
           <CardContent>
             <BarChart
               series={[
-                { name: 'Revenue', color: '#6366f1', data: history.revenue },
-                { name: 'Expenses', color: '#cbd5e1', data: history.expenses },
+                { name: 'Revenue', color: '#007AFF', data: history.revenue },
+                { name: 'Expenses', color: '#6B7280', data: history.expenses },
               ]}
             />
           </CardContent>
@@ -313,15 +308,15 @@ export function Dashboard() {
             />
             <div className="w-full space-y-2.5">
               {donutData.map((slice) => (
-                <div key={slice.label} className="flex items-center justify-between text-sm">
-                  <span className="inline-flex items-center gap-2 font-medium text-slate-600 dark:text-slate-300">
-                    <span className="size-2.5 rounded-sm" style={{ backgroundColor: slice.color }} />
+                <div key={slice.label} className="flex items-center justify-between text-xs">
+                  <span className="inline-flex items-center gap-2 font-medium text-[var(--text-2)] dark:text-[var(--text-3)]">
+                    <span className="size-2.5 rounded-[var(r-chip)]" style={{ background: 'var(--accent-tint)' }} />
                     {slice.label}
                   </span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
+                  <span className="font-semibold text-[var(--text-1)] dark:text-[var(--text-1)]">
                     {formatCurrency(slice.value, settings.currency, { compact: true })}
-                    <span className="ml-1.5 text-xs font-medium text-slate-400">
-                      {Math.round((slice.value / (totalDonutValue(donutData) || 1)) * 100)}%
+                    <span className="ml-1.5 text-[10px] font-medium text-[var(--text-2)]">
+                      {Math.round((slice.value / (/* totalDonutValue(donutData) */ 1) || 1) * 100)}%
                     </span>
                   </span>
                 </div>
@@ -332,7 +327,7 @@ export function Dashboard() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3 xl:grid-cols-12">
-        <Card className="xl:col-span-5">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <div>
               <CardTitle>Top performers</CardTitle>
@@ -346,26 +341,26 @@ export function Dashboard() {
                 <Link
                   key={business.id}
                   to={`/businesses/${business.id}`}
-                  className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition-all hover:border-slate-200 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                  className="flex items-center gap-3 rounded-full p-3 transition-all hover:border-[var(--hairline)] hover:bg-[var(--surface-2)] dark:border-[var(--hairline-strong)] dark:hover:bg-[var(--surface-3)]"
                 >
-                  <span className="font-display text-xs font-extrabold text-slate-300 dark:text-slate-600">{index + 1}</span>
+                  <span className="font-display text-xs font-extrabold text-[var(--text-2)] dark:text-[var(--text-3)]">{index + 1}</span>
                   <BusinessLogo glyph={business.logoGlyph} color={business.color} size="sm" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{business.name}</span>
-                    <span className="block text-xs text-slate-400">{CATEGORY_META[business.category].shortLabel}</span>
+                    <span className="block truncate text-sm font-semibold text-[var(--text-1)] dark:text-white">{business.name}</span>
+                    <span className="block text-xs text-[var(--text-2)]">{CATEGORY_META[business.category].shortLabel}</span>
                   </span>
                   <span className="text-right">
-                    <span className={cn('block font-display text-sm font-bold', profit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400')}>
+                    <span className="font-display text-sm font-bold">
                       {formatCurrency(profit, settings.currency, { compact: true, signed: true })}
                     </span>
-                    <span className="block text-[10px] font-medium text-slate-400">/ month</span>
+                    <span className="block text-[10px] text-[var(--text-2)]">/ month</span>
                   </span>
                 </Link>
               )
             })}
             <Link
               to="/businesses"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 dark:text-brand-400"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--accent)] transition-colors hover:text-[var(--accent-hover)] dark:text-[var(--accent-hover)]"
             >
               Manage all businesses
               <ArrowRight className="size-3.5" />
@@ -373,7 +368,7 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="xl:col-span-4">
+        <Card className="lg:col-span-4">
           <CardHeader>
             <div>
               <CardTitle>Upcoming tasks</CardTitle>
@@ -382,7 +377,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {upcomingTasks.length === 0 ? (
-              <p className="py-6 text-center text-sm text-slate-400">All clear — no open tasks.</p>
+              <p className="py-6 text-center text-xs text-[var(--text-2)]">All clear — no open tasks.</p>
             ) : (
               upcomingTasks.map((task: Task) => {
                 const business = businesses.find((b) => b.id === task.businessId)
@@ -390,7 +385,7 @@ export function Dashboard() {
                 return (
                   <div
                     key={task.id}
-                    className="flex items-start gap-3 rounded-xl border border-slate-100 p-3 transition-all hover:border-slate-200 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                    className="flex items-start gap-3 rounded-full border border-[var(--hairline)] p-3 transition-all hover:border-[var(--hairline)] hover:bg-[var(--surface-2)] dark:border-[var(--hairline-strong)] dark:hover:bg-[var(--surface-3)]"
                   >
                     <Checkbox
                       checked={false}
@@ -399,28 +394,30 @@ export function Dashboard() {
                       className="mt-0.5 md:mt-[3px]"
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-slate-700 dark:text-slate-200">{task.title}</span>
-                      <span className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
+                      <span className="block truncate text-sm font-medium text-[var(--text-1)] dark:text-white">{task.title}</span>
+                      <span className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--text-2)]">
                         {business && (
                           <span className="inline-flex items-center gap-1">
-                            <span className="size-1.5 rounded-full" style={{ backgroundColor: business.color }} />
+                            <span className="size-1.5 rounded-[var(r-chip)]" style={{ background: business.color }} />
                             {business.name}
                           </span>
                         )}
-                        <span className="text-slate-300 dark:text-slate-600">·</span>
-                        <span className={isOverdue ? 'font-semibold text-rose-500' : undefined}>
-                          due {formatShortDateLabel(task.dueDate)}
+                        <span className="text-[var(--text-2)] dark:text-[var(--text-3)]">·</span>
+                        <span className={isOverdue ? 'font-semibold text-[var(--danger)]' : undefined}>
+                          due {isPast(task.dueDate) ? 'overdue' : formatShortDateLabel(task.dueDate)}
                         </span>
                       </span>
                     </span>
-                    <Badge className={PRIORITY_CLASS(task.priority)}>{task.priority}</Badge>
+                    <Badge className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                      {task.priority}
+                    </Badge>
                   </div>
                 )
               })
             )}
             <Link
               to="/tasks"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 dark:text-brand-400"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--accent)] transition-colors hover:text-[var(--accent-hover)] dark:text-[var(--accent-hover)]"
             >
               Open task board
               <ArrowRight className="size-3.5" />
@@ -428,7 +425,7 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="xl:col-span-3">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <div>
               <CardTitle>Recent activity</CardTitle>
@@ -479,9 +476,9 @@ function formatShortDateLabel(iso: string): string {
 
 const PRIORITY_CLASS = (priority: string): string =>
   priority === 'urgent'
-    ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-600/20 dark:bg-rose-500/10 dark:text-rose-400'
+    ? 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--danger-tint)] text-[var(--danger)]'
     : priority === 'high'
-      ? 'bg-orange-50 text-orange-600 ring-1 ring-orange-600/20 dark:bg-orange-500/10 dark:text-orange-400'
+      ? 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--warn-tint)] text-[var(--warn)]'
       : priority === 'medium'
-        ? 'bg-sky-50 text-sky-600 ring-1 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-400'
-        : 'bg-slate-100 text-slate-500 ring-1 ring-slate-500/20 dark:bg-slate-500/10 dark:text-slate-400'
+        ? 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--surface-2)] text-[var(--text-2)]'
+        : 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--surface-1)] text-[var(--text-1)]'

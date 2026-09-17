@@ -30,7 +30,7 @@ interface SidebarProps {
 }
 
 const NAV_LINK_BASE =
-  'group relative flex min-h-[38px] items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50'
+  'group relative flex min-h-[38px] items-center gap-3 rounded-[var(r-control)] px-3 py-2 text-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]'
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const navigate = useNavigate()
@@ -91,16 +91,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <NavLink
       to="/"
       onClick={onClose}
-      className="flex items-center gap-3 rounded-lg px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+      className="flex items-center gap-3 rounded-full px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]"
     >
-      <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 via-violet-500 to-fuchsia-500 font-display text-lg font-extrabold text-white shadow-lg shadow-brand-500/30">
+      <span className="flex size-10 items-center justify-center rounded-[var(r-chip)] bg-gradient-to-br from-[var(--accent)] via-[var(--accent-hover)] to-[var(--accent-press)] font-display text-lg font-extrabold text-white shadow-[var(--sh-accent)]">
         Z
       </span>
       <span className="leading-tight">
-        <span className="block font-display text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
+        <span className="block font-display text-base font-extrabold tracking-tight text-[var(--text-1)]">
           Zainpreneur
         </span>
-        <span className="block text-[11px] font-medium text-slate-500 dark:text-slate-400">Business OS</span>
+        <span className="block text-[11px] font-medium text-[var(--text-2)]">Business OS</span>
       </span>
     </NavLink>
   )
@@ -109,7 +109,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       {navigation.map((section) => (
         <div key={section.label} className="mt-6">
-          <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+          <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-2)]">
             {section.label}
           </p>
           <ul className="space-y-0.5">
@@ -123,20 +123,23 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     cn(
                       NAV_LINK_BASE,
                       isActive
-                        ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-100 dark:bg-white/10 dark:text-white dark:ring-white/10'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-100',
+                        ? 'bg-[var(--surface-1)] shadow-[var(--sh-raised-sm)] text-[var(--text-1)]'
+                        : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text-1)]',
                     )
                   }
                 >
                   {({ isActive }) =>
                     isActive ? (
-                      <span aria-hidden="true" className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-indigo-500" />
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-1/2 h-1.5 w-0.5 -translate-y-1/2 rounded-full bg-[var(--accent)]"
+                      />
                     ) : null
                   }
                   <item.icon className="size-[18px] shrink-0" />
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge ? (
-                    <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 ring-1 ring-slate-200 dark:bg-white/10 dark:text-slate-200 dark:ring-white/10">
+                    <span className="ml-auto rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[10px] font-bold text-[var(--text-2)] ring-1 ring-[var(--hairline)] dark:ring-[var(--hairline-strong)]">
                       {item.badge}
                     </span>
                   ) : null}
@@ -149,8 +152,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <div className="mt-7">
         <div className="mb-1.5 flex items-center justify-between px-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Categories</p>
-          <Sparkles className="size-3 text-slate-400 dark:text-slate-600" />
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-2)]">Categories</p>
+          <Sparkles className="size-3 text-[var(--text-3)]" />
         </div>
         <ul className="space-y-0.5">
           {(Object.keys(CATEGORY_META) as BusinessCategory[]).map((category) => {
@@ -163,11 +166,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     navigate(`/businesses?category=${category}`)
                     onClose()
                   }}
-                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-100"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-[var(r-control)] px-3 py-2 text-sm font-medium text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)] dark:text-[var(--text-3)] dark:hover:bg-[var(--surface-1)] dark:hover:text-[var(--text-1)]"
                 >
                   <span className={cn('size-2 rounded-full', meta.dotClass)} />
                   <span className="flex-1 truncate text-left">{meta.label}</span>
-                  <span className="text-xs font-semibold text-slate-500">{categoryCounts[category]}</span>
+                  <span className="text-xs font-semibold text-[var(--text-2)]">{categoryCounts[category]}</span>
                 </button>
               </li>
             )
@@ -178,7 +181,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   )
 
   const sidebarInner = (
-    <div className="flex h-full flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+    <div className="flex h-full flex-col rounded-[var(r-well)] border border-[var(--hairline)] bg-[var(--surface-1)] shadow-[var(--sh-raised)]">
       <div className="flex h-16 items-center justify-between px-4">
         {brand}
         <div className="flex items-center gap-1">
@@ -186,7 +189,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             type="button"
             onClick={() => updateSettings({ compactSidebar: true })}
             aria-label="Collapse sidebar"
-            className="hidden rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 lg:block dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white"
+            className="hidden rounded-[var(r-control)] p-1.5 text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)] lg:block"
           >
             <PanelLeftClose className="size-5" />
           </button>
@@ -194,7 +197,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
-            className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 lg:hidden dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white"
+            className="rounded-[var(r-control)] p-1.5 text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] lg:hidden"
           >
             <X className="size-5" />
           </button>
@@ -205,25 +208,25 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {navBody}
       </nav>
 
-      <div className="border-t border-slate-200 p-3 dark:border-white/10">
+      <div className="border-t border-[var(--hairline)] p-3">
         <button
           type="button"
           onClick={() => {
             navigate('/settings')
             onClose()
           }}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 dark:hover:bg-white/5"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-[var(r-control)] p-2 text-left transition-colors hover:bg-[var(--surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]"
         >
           <Avatar name={authUser?.name ?? 'User'} initials="ZP" color="#6366f1" size="sm" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold text-slate-900 dark:text-white">
+            <span className="block truncate text-sm font-semibold text-[var(--text-1)]">
               {authUser?.name ?? 'Zain Pirzada'}
             </span>
-            <span className="block truncate text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="block truncate text-[11px] text-[var(--text-2)]">
               {authUser?.email ?? 'zain@zainpreneur.io'}
             </span>
           </span>
-          <Settings className="size-4 shrink-0 text-slate-400 dark:text-slate-500" />
+          <Settings className="size-4 shrink-0 text-[var(--text-2)]" />
         </button>
       </div>
     </div>
@@ -248,8 +251,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-          <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] shadow-2xl">{sidebarInner}</div>
+          <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+          <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] rounded-[var(r-well)] bg-[var(--surface-1)] shadow-[var(--sh-raised)]">{sidebarInner}</div>
         </div>
       )}
     </>
@@ -268,14 +271,14 @@ function CompactSidebar({ navigation, onNavigate, onExpand, userName }: CompactS
   const items = navigation.flatMap((section) => section.items)
 
   return (
-    <div className="flex h-full flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+    <div className="flex h-full flex-col rounded-[var(r-well)] border border-[var(--hairline)] bg-[var(--surface-1)] shadow-[var(--sh-raised)]">
       <div className="flex h-16 items-center justify-center">
         <NavLink
           to="/"
           onClick={onNavigate}
-          className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+          className="rounded-[var(r-chip)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]"
         >
-          <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 via-violet-500 to-fuchsia-500 font-display text-lg font-extrabold text-white shadow-lg shadow-brand-500/30">
+          <span className="flex size-10 items-center justify-center rounded-[var(r-chip)] bg-gradient-to-br from-[var(--accent)] via-[var(--accent-hover)] to-[var(--accent-press)] font-display text-lg font-extrabold text-white shadow-[var(--sh-accent)]">
             Z
           </span>
         </NavLink>
@@ -285,7 +288,7 @@ function CompactSidebar({ navigation, onNavigate, onExpand, userName }: CompactS
           <CompactNavItem key={item.path} {...item} onNavigate={onNavigate} />
         ))}
       </nav>
-      <div className="flex flex-col items-center gap-2 border-t border-slate-200 p-3 dark:border-white/10">
+      <div className="flex flex-col items-center gap-2 border-t border-[var(--hairline)] p-3">
         <button
           type="button"
           onClick={() => {
@@ -294,7 +297,7 @@ function CompactSidebar({ navigation, onNavigate, onExpand, userName }: CompactS
           }}
           title={userName}
           aria-label="Open settings"
-          className="rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+          className="rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]"
         >
           <Avatar name={userName} initials="ZP" color="#6366f1" size="sm" />
         </button>
@@ -303,7 +306,7 @@ function CompactSidebar({ navigation, onNavigate, onExpand, userName }: CompactS
           onClick={onExpand}
           title="Expand sidebar"
           aria-label="Expand sidebar"
-          className="flex size-10 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 dark:text-slate-500 dark:hover:bg-white/5 dark:hover:text-slate-200"
+          className="flex size-10 items-center justify-center rounded-[var(r-chip)] text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]"
         >
           <PanelLeftOpen className="size-5" />
         </button>
@@ -326,10 +329,10 @@ function CompactNavItem({
       title={label}
       className={({ isActive }) =>
         cn(
-          'flex size-10 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50',
+          'flex size-10 items-center justify-center rounded-[var(r-chip)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]',
           isActive
-            ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-100 dark:bg-white/10 dark:text-white dark:ring-white/10'
-            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-slate-200',
+            ? 'bg-[var(--surface-1)] shadow-[var(--sh-raised-sm)] text-[var(--text-1)]'
+            : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text-1)]',
         )
       }
     >

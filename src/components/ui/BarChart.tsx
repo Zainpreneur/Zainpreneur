@@ -40,10 +40,10 @@ export function BarChart({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 top-7 flex flex-col justify-between">
             {Array.from({ length: gridLines + 1 }, (_, i) =>
               <div key={`grid-${i}`} className="flex items-center" style={{ height: 'auto' }}>
-                <span className="mr-2 w-10 text-right text-[10.5px] font-medium tabular-nums text-slate-400 dark:text-slate-500">
+                <span className="mr-2 w-10 text-right text-[10.5px] font-medium tabular-nums text-[var(--text-2)] dark:text-[var(--text-3)]">
                   {valueFormatter((maxValue / gridLines) * (gridLines - i))}
                 </span>
-                <div className="h-px flex-1 border-t border-dashed border-slate-200 dark:border-slate-800" />
+                <div className="h-px flex-1 border-t border-dashed border-[var(--hairline)]" />
               </div>,
             )}
           </div>
@@ -66,8 +66,8 @@ export function BarChart({
                         key={`${s.name}-${label}`}
                         className="relative flex h-full flex-1 flex-col items-center justify-end"
                       >
-                        <div className="pointer-events-none absolute -top-1 z-20 -translate-y-full scale-95 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 opacity-0 shadow-lg transition-all duration-100 group-hover:opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
-                          <div className="text-slate-400 dark:text-slate-400">
+                        <div className="pointer-events-none absolute -top-1 z-20 -translate-y-full scale-95 whitespace-nowrap rounded-[999px] border border-[var(--hairline)] bg-[var(--surface-1)] px-2.5 py-1.5 text-xs font-semibold text-[var(--text-1)] shadow-[var(--sh-raised-sm)] transition-all duration-100 group-hover:shadow-[var(--sh-inset-sm)] dark:border-[var(--hairline-strong)] dark:bg-[var(--surface-2)] dark:text-[var(--text-1)]">
+                          <div className="text-[var(--text-2)] dark:text-[var(--text-3)]">
                             {label} · {s.name}
                           </div>
                           {valueFormatter(value)}
@@ -76,11 +76,13 @@ export function BarChart({
                           className="w-full max-w-7 rounded-t-md transition-opacity hover:opacity-80"
                           style={{
                             height: `${Math.max(percentOfMax, 1)}%`,
-                            backgroundColor: s.color,
-                            minHeight: percentOfGroup > 0 ? 3 : 1,
+                            background:
+                              value > 0
+                                ? 'var(--accent)' + 'var(--accent-glow)'
+                                : 'var(--surface-2)',
                           }}
                         />
-                        <div className="mt-2 hidden h-3 text-[10.5px] font-medium text-slate-400 dark:text-slate-500 sm:block">
+                        <div className="mt-2 hidden h-3 text-[10.5px] font-medium text-[var(--text-2)] dark:text-[var(--text-3)] sm:block">
                           {index % 2 === 0 ? label : ''}
                         </div>
                       </div>
@@ -92,10 +94,10 @@ export function BarChart({
           })}
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-3 dark:border-slate-800">
+      <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-[var(--hairline)] pt-3">
         {series.map((s) => (
-          <span key={s.name} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <span className="size-2.5 rounded-sm" style={{ backgroundColor: s.color }} />
+          <span key={s.name} className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-2)] dark:text-[var(--text-3)]">
+            <span className="size-2.5 rounded-[999px]" style={{ background: 'var(--accent-tint)' }} />
             {s.name}
           </span>
         ))}

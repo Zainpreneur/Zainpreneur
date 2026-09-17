@@ -51,7 +51,7 @@ export function Dropdown({ trigger, items, align = 'right', label, hideChevron }
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={label}
-        className="inline-flex cursor-pointer items-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+        className="inline-flex cursor-pointer items-center rounded-[14px] p-1.5 text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-tint)]"
       >
         {trigger}
         {!hideChevron && (
@@ -63,13 +63,13 @@ export function Dropdown({ trigger, items, align = 'right', label, hideChevron }
         <div
           role="menu"
           className={cn(
-            'absolute top-full z-40 mt-1.5 min-w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800',
+            'absolute top-full z-40 min-w-[160px] overflow-hidden rounded-[18px] border border-[var(--hairline)] bg-[var(--surface-1)] shadow-[var(--sh-raised)] backdrop-blur-[8px]',
             align === 'right' ? 'right-0' : 'left-0',
           )}
         >
           {items.map((item, index) =>
             item.separator ? (
-              <div key={`sep-${index}`} className="my-1.5 border-t border-slate-100 dark:border-slate-700" />
+              <div key={`sep-${index}`} className="my-1.5 border-t border-[var(--hairline)]" />
             ) : (
               <button
                 key={`${item.label}-${index}`}
@@ -82,8 +82,8 @@ export function Dropdown({ trigger, items, align = 'right', label, hideChevron }
                 className={cn(
                   'flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2 text-left text-sm font-medium transition-colors',
                   item.danger
-                    ? 'text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700/60 dark:hover:text-white',
+                    ? 'text-[var(--danger)] hover:bg-[var(--danger-tint)]'
+                    : 'text-[var(--text-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text-1)]',
                 )}
               >
                 {item.icon && <item.icon className="size-4 shrink-0" />}

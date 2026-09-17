@@ -2,47 +2,113 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ---------------------------------- tokens ---------------------------------- */
-/* Single :root source (Rule 1). Dark values are the executive theme; light
-   values preserve the existing light mode. Always reference vars below. */
+/* ---------------------------------- tokens (Rule 1) ---------------------------------- */
+/* Single :root source. Dark values are the executive theme; light values
+   preserve the existing light mode. Always reference vars below. */
 
+/* --bg-canvas, --bg-base, --surface-1/2/3, --text-1/2/3, --hairline are shared */
 :root {
-  --bg: #f8fafc;
-  --bg-elev: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --border: rgba(100, 116, 139, 0.18);
-  --border-strong: rgba(100, 116, 139, 0.32);
-  --text-1: #0f172a;
-  --text-2: #64748b;
-  --text-3: #7c8aa0;
-  --indigo: #6366f1;
-  --violet: #8b5cf6;
-  --green: #10b981;
-  --green-2: #34d399;
-  --amber: #f59e0b;
-  --red: #f43f5e;
-  --cyan: #22d3ee;
-  --pink: #ec4899;
-  --grad-brand: linear-gradient(135deg, #8b5cf6, #6366f1);
-  --grad-progress: linear-gradient(90deg, #6366f1, #10b981);
-  --r-card: 16px;
-  --r-control: 10px;
-  --r-chip: 999px;
+  --bg-canvas:#121214;
+  --bg-base:#1D1D1F;
+  --surface-1:linear-gradient(145deg,#232326,#1B1B1D);
+  --surface-2:#171719;
+  --surface-3:#26262A;
+  --text-1:#F5F5F7;
+  --text-2:#AAAAAA;
+  --text-3:#77777C;
+  --hairline:rgba(245,245,247,.06);
+  --hairline-strong:rgba(245,245,247,.12);
+  --accent:#007AFF;
+  --accent-hover:#3395FF;
+  --accent-press:#0062CC;
+  --accent-glow:rgba(0,122,255,.35);
+  --accent-tint:rgba(0,122,255,.14);
+  --success:#30D158;
+  --success-tint:rgba(48,209,88,.14);
+  --success-glow:rgba(48,209,88,.30);
+  --warn:#FF9F0A;
+  --warn-tint:rgba(255,159,10,.14);
+  --warn-glow:rgba(255,159,10,.30);
+  --danger:#FF453A;
+  --danger-tint:rgba(255,69,58,.14);
+  --danger-glow:rgba(255,69,58,.30);
+  --r-card:22px;
+  --r-control:14px;
+  --r-chip:999px;
+  --r-well:14px;
+  --r-panel:18px;
+  --r-modal:26px;
+  --r-tile:12px;
   color-scheme: light;
 }
 
 .dark {
-  --bg: #0a0e17;
-  --bg-elev: #0d1220;
-  --surface: #11162a;
-  --surface-2: #161c30;
-  --border: rgba(148, 163, 184, 0.12);
-  --border-strong: rgba(148, 163, 184, 0.22);
-  --text-1: #f1f5f9;
-  --text-2: #94a3b8;
-  --text-3: #7c8aa0;
+  --bg-canvas:#121214;
+  --bg-base:#1D1D1F;
+  --surface-1:linear-gradient(145deg,#232326,#1B1B1D);
+  --surface-2:#171719;
+  --surface-3:#26262A;
+  --text-1:#F5F5F7;
+  --text-2:#AAAAAA;
+  --text-3:#77777C;
+  --hairline:rgba(245,245,247,.06);
+  --hairline-strong:rgba(245,245,247,.12);
+  --accent:#007AFF;
+  --accent-hover:#3395FF;
+  --accent-press:#0062CC;
+  --accent-glow:rgba(0,122,255,.35);
+  --accent-tint:rgba(0,122,255,.14);
+  --success:#30D158;
+  --success-tint:rgba(48,209,88,.14);
+  --success-glow:rgba(48,209,88,.30);
+  --warn:#FF9F0A;
+  --warn-tint:rgba(255,159,10,.14);
+  --warn-glow:rgba(255,159,10,.30);
+  --danger:#FF453A;
+  --danger-tint:rgba(255,69,58,.14);
+  --danger-glow:rgba(255,69,58,.30);
+  --r-card:22px;
+  --r-control:14px;
+  --r-chip:999px;
+  --r-well:14px;
+  --r-panel:18px;
+  --r-modal:26px;
+  --r-tile:12px;
   color-scheme: dark;
+}
+
+/* Light mode ("Daylight Neumorph") */
+.light {
+  --bg-canvas:#EDEDF0;
+  --bg-base:#F5F5F7;
+  --surface-1:linear-gradient(145deg,#FFFFFF,#EFEFF2);
+  --surface-2:#E9E9EC;
+  --surface-3:#FFFFFF;
+  --text-1:#1D1D1F;
+  --text-2:#6E6E73;
+  --text-3:#86868B;
+  --hairline:rgba(29,29,31,.08);
+  --accent:#007AFF;
+  --accent-hover:#3395FF;
+  --accent-press:#0062CC;
+  --accent-glow:rgba(0,122,255,.35);
+  --accent-tint:rgba(0,122,255,.14);
+  --success:#30D158;
+  --success-tint:rgba(48,209,88,.14);
+  --success-glow:rgba(48,209,88,.30);
+  --warn:#FF9F0A;
+  --warn-tint:rgba(255,159,10,.14);
+  --warn-glow:rgba(255,159,10,.30);
+  --danger:#FF453A;
+  --danger-tint:rgba(255,69,58,.14);
+  --danger-glow:rgba(255,69,58,.30);
+  --r-card:22px;
+  --r-control:14px;
+  --r-chip:999px;
+  --r-well:14px;
+  --r-panel:18px;
+  --r-modal:26px;
+  --r-tile:12px;
 }
 
 @theme {
@@ -109,7 +175,7 @@ html {
   background-image: linear-gradient(
     100deg,
     transparent 20%,
-    rgb(148 163 184 / 0.18) 50%,
+    rgb(170 170 170 / 0.18) 50%,
     transparent 80%
   );
   background-size: 200% 100%;
@@ -142,10 +208,11 @@ table {
   font-variant-numeric: tabular-nums;
 }
 
-/* Visible 2px indigo focus everywhere (Rule 1). */
+/* Visible 2px accent focus everywhere (Rule 1). */
 :focus-visible {
-  outline: 2px solid var(--indigo);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-tint);
 }
 
 /* Primary buttons lift on hover (Rule 5); disabled state (Rule 5). */
@@ -168,7 +235,7 @@ button:disabled {
   table.zp-stacked tbody tr {
     display: grid;
     gap: 8px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--hairline);
     border-radius: var(--r-card);
     padding: 12px 16px;
   }
@@ -196,8 +263,8 @@ button:disabled {
 }
 
 ::selection {
-  background-color: var(--color-brand-500);
-  color: white;
+  background-color: var(--accent-tint);
+  color: var(--accent);
 }
 
 *::-webkit-scrollbar {
@@ -214,6 +281,4 @@ button:disabled {
   border-radius: 9999px;
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(148 163 184 / 0.7);
-}
+*::-webkit-scrollbar-thumb:hover { background-color: var(--text-2); }

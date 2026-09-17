@@ -1,58 +1,77 @@
-import type { CSSProperties } from 'react'
+import { useId } from 'react'
+
+import type { ScoreRingSlice } from '../../types'
 
 import { cn } from '../../utils/cn'
 
 interface ScoreRingProps {
-  value: number
+  data: ScoreRingSlice[]
   size?: number
-  strokeWidth?: number
-  color?: string
-  label?: string
   className?: string
 }
 
-export function ScoreRing({ value, size = 72, strokeWidth = 7, color, label, className }: ScoreRingProps) {
-  const clamped = Math.min(100, Math.max(0, value))
-  const radius = (size - strokeWidth) / 2
+export function ScoreRing({ data, size = 160, className }: ScoreRingProps) {
+  const total = data.reduce((sum, slice) => sum + slice.value, 0) || 1
+  const radius = size / 2 - 8
   const circumference = 2 * Math.PI * radius
-  const offset = circumference - (clamped / 100) * circumference
-
-  const ringColor =
-    color ??
-    (clamped >= 80 ? '#10b981' : clamped >= 60 ? '#f59e0b' : '#f43f5e')
-
-  const styleVars = { '--ring-color': ringColor } as CSSProperties
+  const center = size / 2
+  const summary = `Score ring: ${data.map((slice) => `${slice.label} ${Math.round((slice.value / total) * 100)}%`).join(', ')}.`
 
   return (
     <div className={cn('relative inline-flex shrink-0', className)} style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" style={styleVars}>
+      <span className="sr-only">{summary}</span>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={summary}>
         <circle
-          cx={size / 2}
-          cy={size / 2}
+          cx={center}
+          cy={center}
           r={radius}
           fill="none"
-          strokeWidth={strokeWidth}
-          className="stroke-slate-100 dark:stroke-slate-800"
+          stroke="rgba(0,0,0,.1)"
+          strokeWidth={16}
         />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          stroke="var(--ring-color)"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-[stroke-dashoffset] duration-700 ease-out"
-        />
+        <g transform={`rotate(-90 ${center} ${center})`}>
+          {data.map((slice, index) => {
+            const stroke =
+              slice.label === 'Revenue'
+                ? 'var(--accent)'
+                : slice.label === 'Profit'
+                  ? 'var(--success)'
+                  : slice.label === 'Expenses'
+                    ? 'var(--warn)'
+                    : 'var(--danger)'
+
+            return (
+              <circle
+                key={slice.label}
+                cx={center}
+                cy={center}
+                r={radius}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={16}
+                strokeDasharray={`${(slice.value / total) * circumference}`
+                  } ${circumference - (slice.value / total) * circumference}
+                strokeDashoffset={-slice.value / total * circumference}
+                strokeLinecap="round"
+              >
+                <title>{`${slice.label}: ${slice.value}`}</title>
+              </circle>
+            )
+          })}
+        </g>
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-[13px] font-bold tabular-nums tracking-tight" style={{ color: ringColor }}>
-          {clamped}
-        </span>
-        {label && <span className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">{label}</span>}
-      </div>
+      {data.map((slice) => {
+        const value = (slice.value / total) * 100
+        return (
+          <div
+            key={slice.label}
+            className="absolute inset-0 flex flex-col items-center justify-center text-center"
+          >
+            <span className="text-xs font-medium uppercase tracking-wider [var(--text-2)]">{slice.label}</span>
+            <span className="font-display font-bold text-[2xl] [var(--text-1)]">{Math.round(value)}%</span>
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -22,7 +22,7 @@ export function Avatar({ name, initials, color, size = 'md', className }: Avatar
       title={name}
       aria-label={name}
       className={cn(
-        'inline-flex shrink-0 select-none items-center justify-center rounded-full font-display font-bold text-white',
+        'inline-flex shrink-0 select-none items-center justify-center rounded-full font-display font-bold text-white shadow-[var(--sh-raised-sm)]',
         SIZES[size],
         className,
       )}

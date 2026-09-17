@@ -5,7 +5,9 @@ import { AlertCircle } from 'lucide-react'
 import { cn } from '../../utils/cn'
 
 const FIELD_BASE =
-  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400 dark:disabled:bg-slate-800/40'
+  'w-full rounded-[14px] border border-[var(--hairline)] bg-[var(--surface-2)] px-3.5 py-2.5 text-sm text-[var(--text-1)] shadow-[var(--sh-inset)] placeholder-color-[var(--text-3)] transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus-ring-[var(--accent-tint)] disabled:cursor-not-allowed disabled:bg-[var(--surface-3)] dark:border-[var(--hairline-strong)] dark:bg-[var(--surface-3)] dark:text-[var(--text-1)] dark:placeholder-color-[var(--text-3)]'
+
+const INPUT_LEFT_ICON = 'left-3 top-1/2 -translate-y-1/2 left-3 select-none pointer-events-none text-[var(--text-2)]'
 
 interface FieldProps {
   label: string
@@ -20,18 +22,18 @@ interface FieldProps {
 export function Field({ label, htmlFor, hint, error, required, className, children }: FieldProps) {
   return (
     <div className={cn('space-y-1.5', className)}>
-      <label htmlFor={htmlFor} className="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <label htmlFor={htmlFor} className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-2)] dark:text-[var(--text-3)]">
         {label}
-        {required && <span className="ml-0.5 text-rose-500">*</span>}
+        {required && <span className="ml-0.5 text-[var(--danger)]">*</span>}
       </label>
       {children}
       {error ? (
-        <p role="alert" className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400">
+        <p role="alert" className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--danger)] dark:text-[var(--danger-tint)]">
           <AlertCircle className="size-3.5 shrink-0" />
           {error}
         </p>
       ) : hint ? (
-        <p className="text-xs text-slate-400 dark:text-slate-500">{hint}</p>
+        <p className="text-xs text-[var(--text-2)] dark:text-[var(--text-3)]">{hint}</p>
       ) : null}
     </div>
   )
@@ -40,20 +42,23 @@ export function Field({ label, htmlFor, hint, error, required, className, childr
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {}
 
 export function TextInput({ className, ...props }: TextInputProps) {
-  return <input className={cn(FIELD_BASE, className)} {...props} />
+  return <input className={cn(FIELD_BASE, 'pl-12', className)} {...props} />
 }
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 export function Textarea({ className, ...props }: TextareaProps) {
-  return <textarea className={cn(FIELD_BASE, 'resize-y', className)} {...props} />
+  return <textarea className={cn(FIELD_BASE, 'resize-y', 'pl-12', className)} {...props} />
 }
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {}
 
 export function Select({ className, children, ...props }: SelectProps) {
   return (
-    <select className={cn(FIELD_BASE, 'cursor-pointer pr-8', className)} {...props}>
+    <select
+      className={cn(FIELD_BASE, 'cursor-pointer pr-12 rounded-[14px]', className)}
+      {...props}
+    >
       {children}
     </select>
   )

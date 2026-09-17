@@ -10,8 +10,8 @@ interface CheckboxProps {
 }
 
 /**
- * Custom 18px indigo checkbox (Rule 6): 44px touch target below 768px,
- * exact 18px box on desktop.
+ * Neo-depth checkbox (Rule 6): raised circle, accent glow when checked.
+ * 44px touch target below 768px, exact 18px box on desktop.
  */
 export function Checkbox({ checked, onChange, label, className }: CheckboxProps) {
   return (
@@ -21,18 +21,18 @@ export function Checkbox({ checked, onChange, label, className }: CheckboxProps)
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={cn('grid shrink-0 cursor-pointer place-items-center rounded-md md:size-[18px] md:p-0', 'size-11', className)}
+      className={cn('grid shrink-0 cursor-pointer place-items-center rounded-full md:size-[18px] md:p-0 bg-[var(--surface-1)] shadow-[var(--sh-raised-sm)]', 'size-11', className)}
     >
       <span
         aria-hidden="true"
         className={cn(
-          'grid size-[18px] place-items-center rounded-md border transition-colors duration-150',
+          'grid size-[18px] place-items-center rounded-full transition-colors duration-150',
           checked
-            ? 'border-indigo-500 bg-indigo-500 text-white dark:border-indigo-400 dark:bg-indigo-500'
-            : 'border-slate-300 text-transparent hover:border-indigo-500 hover:text-indigo-500 dark:border-slate-600',
+            ? 'bg-[var(--accent)] shadow-[var(--sh-accent)]'
+            : 'border border-[var(--hairline)] hover:bg-[var(--surface-2)]',
         )}
       >
-        <Check className="size-3" strokeWidth={3.5} />
+        <Check className="size-3 stroke-2 stroke-white" />
       </span>
     </button>
   )

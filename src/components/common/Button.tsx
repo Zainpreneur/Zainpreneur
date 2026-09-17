@@ -12,24 +12,30 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean
 }
 
+const SHADOW_RAISED = '0 8px 18px rgba(0,0,0,.55), -8px -8px 18px rgba(255,255,255,.045), inset 0 1px 0 rgba(255,255,255,.06)'
+const SHADOW_RAISED_SM = '0 4px 10px rgba(0,0,0,.5), -4px -4px 10px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.05)'
+const SHADOW_INSET = 'inset 4px 4px 9px rgba(0,0,0,.5), inset -4px -4px 9px rgba(255,255,255,.04)'
+const SHADOW_INSET_SM = 'inset 2px 2px 6px rgba(0,0,0,.45), inset -2px -2px 6px rgba(255,255,255,.035)'
+const SHADOW_ACCENT = '0 6px 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.25)'
+
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-brand-600 text-white shadow-sm hover:-translate-y-px hover:bg-brand-700 focus-visible:ring-brand-500/50 disabled:hover:translate-y-0 disabled:hover:bg-brand-600',
+    'bg-[var(--accent)] text-white shadow-[var(--sh-accent)] hover:bg-[var(--accent-hover)] focus-visible:ring-[var(--accent-tint)] active:shadow-[inset_0_1px_0_rgba(255,255,255,.25)]',
   secondary:
-    'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:ring-brand-500/50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700/70',
+    'bg-[var(--surface-1)] text-[var(--text-1)] shadow-[var(--sh-raised-sm)] hover:bg-[var(--surface-2)] focus-visible:ring-[var(--accent-tint)] active:shadow-[var(--sh-inset-sm)]',
   ghost:
-    'text-slate-600 hover:bg-slate-100 focus-visible:ring-slate-400/40 dark:text-slate-300 dark:hover:bg-slate-800',
+    'text-[var(--text-2)] hover:bg-transparent focus-visible:ring-[var(--accent-tint)]',
   danger:
-    'bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:ring-rose-500/50 disabled:hover:bg-rose-600',
+    'bg-[var(--danger)] text-white shadow-[var(--sh-accent)] hover:bg-[#ff5a4a] focus-visible:ring-[var(--danger-glow)]',
   success:
-    'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 focus-visible:ring-emerald-500/50 disabled:hover:bg-emerald-600',
+    'bg-[var(--success)] text-white shadow-[var(--sh-accent)] hover:bg-[var(--success)] focus-visible:ring-[var(--success-tint)]',
 }
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: 'h-8 gap-1.5 rounded-lg px-3 text-xs',
+  sm: 'h-8 gap-1.5 rounded-[14px] px-3 text-xs',
   // 44px touch targets below 768px, 38px desktop control height.
-  md: 'h-11 gap-2 rounded-[10px] px-4 text-[13px] md:h-[38px]',
-  lg: 'h-11 gap-2 rounded-xl px-5 text-sm',
+  md: 'h-11 rounded-[14px] px-4 text-[13px] md:h-[38px]',
+  lg: 'h-11 rounded-xl px-5 text-sm',
 }
 
 export function Button({
@@ -45,8 +51,8 @@ export function Button({
   return (
     <button
       className={cn(
-        'inline-flex cursor-pointer items-center justify-center whitespace-nowrap font-semibold transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950',
+        'inline-flex cursor-pointer items-center justify-center whitespace-nowrap font-semibold transition-shadows duration-150',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--accent)] dark:focus-visible:ring-offset-slate-950',
         'disabled:pointer-events-none disabled:opacity-50',
         VARIANTS[variant],
         SIZES[size],

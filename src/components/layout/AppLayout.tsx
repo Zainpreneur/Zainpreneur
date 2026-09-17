@@ -34,10 +34,10 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-screen overflow-hidden bg-[var(--bg-canvas)]">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[var(--accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Skip to content
       </a>
@@ -47,7 +47,7 @@ export function AppLayout() {
         <main
           id="main-content"
           ref={mainRef}
-          className="flex-1 overflow-y-auto scroll-smooth"
+          className="flex-1 overflow-y-auto scroll-smooth bg-[var(--bg-canvas)]"
           tabIndex={-1}
         >
           <Suspense fallback={<PageSkeleton />}>
@@ -55,8 +55,8 @@ export function AppLayout() {
               <Outlet />
             </div>
           </Suspense>
-          <footer className="border-t border-slate-200 px-6 py-5 dark:border-slate-800">
-            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+          <footer className="border-t border-[var(--hairline)] px-6 py-5">
+            <p className="text-center text-xs text-[var(--text-2)]">
               Zainpreneur · Business Command Center — data is stored locally in your browser.
             </p>
           </footer>

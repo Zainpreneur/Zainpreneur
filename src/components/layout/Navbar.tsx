@@ -70,13 +70,15 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
   const currentTheme = THEME_OPTIONS.find((option) => option.value === settings.theme) ?? THEME_OPTIONS[2]
 
   return (
-    <header className="z-30 border-b border-slate-200 bg-white/85 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-950/80">
+    <header
+      className="z-30 border-[var(--hairline)] bg-[var(--surface-3)] shadow-[var(--sh-float)] backdrop-blur-[20px] saturate-[180%]"
+    >
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Open navigation"
-          className="grid size-9 shrink-0 place-items-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
+          className="grid size-9 shrink-0 place-items-center rounded-[var(r-control)] text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] lg:hidden"
         >
           <Menu className="size-5" />
         </button>
@@ -85,11 +87,11 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
           type="button"
           onClick={onOpenSearch}
           aria-label="Search businesses, tasks and pages"
-          className="hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-400 shadow-sm transition-colors hover:border-slate-400 hover:text-slate-600 md:flex dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-slate-600 dark:hover:text-slate-200"
+          className="hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-[var(r-control)] border border-[var(--hairline)] bg-[var(--surface-1)] text-[var(--text-1)] shadow-[var(--sh-inset-sm)] transition-colors hover:border-[var(--hairline)] hover:text-[var(--text-1)] md:flex"
         >
           <Search className="size-4 shrink-0" />
           <span className="flex-1 text-left">Search…</span>
-          <kbd className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-slate-400 dark:border-slate-700 dark:bg-slate-800">
+          <kbd className="rounded-[var(r-control)] border border-[var(--hairline)] bg-[var(--surface-1)] px-1.5 py-0.5 font-sans text-[10px] font-semibold text-[var(--text-2)]">
             ⌘K
           </kbd>
         </button>
@@ -99,7 +101,7 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
             type="button"
             onClick={onOpenSearch}
             aria-label="Search"
-            className="grid size-9 shrink-0 place-items-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 md:hidden dark:text-slate-400 dark:hover:bg-slate-800"
+            className="grid size-9 shrink-0 place-items-center rounded-[var(r-control)] text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] md:hidden"
           >
             <Search className="size-5" />
           </button>
@@ -127,7 +129,9 @@ export function Navbar({ onMenuClick, onOpenSearch }: NavbarProps) {
               <span className="relative inline-flex">
                 <Bell className="size-[18px]" />
                 {recentActivity.length > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-950" />
+                  <span
+                    className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-[var(--danger)] text-white ring-2 ring-[var(--surface-1)] dark:ring-slate-950"
+                  />
                 )}
               </span>
             }

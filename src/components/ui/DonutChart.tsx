@@ -43,35 +43,51 @@ export function DonutChart({ data, size = 180, thickness = 22, centerLabel, cent
           cy={center}
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke="rgba(0,0,0,.1)"
           strokeWidth={thickness}
-          className="text-slate-100 dark:text-slate-800"
         />
         <g transform={`rotate(-90 ${center} ${center})`}>
-          {segments.map(({ slice, dashLength, offset }, index) => (
-            <circle
-              key={`${slice.label}-${index}`}
-              cx={center}
-              cy={center}
-              r={radius}
-              fill="none"
-              stroke={slice.color}
-              strokeWidth={thickness}
-              strokeDasharray={`${Math.max(0, dashLength - 2)} ${circumference - Math.max(0, dashLength - 2)}`}
-              strokeDashoffset={offset}
-              strokeLinecap="butt"
-            >
-              <title>{`${slice.label}: ${slice.value}`}</title>
-            </circle>
-          ))}
+          {segments.map(({ slice, dashLength, offset }, index) => {
+            const color =
+              slice.color === 'success'
+                ? 'var(--success)'
+                : slice.color === 'warning'
+                  ? 'var(--warn)'
+                  : slice.color === 'danger'
+                    ? 'var(--danger)'
+                    : 'var(--accent)'
+            return (
+              <circle
+                key={`${slice.label}-${index}`}
+                cx={center}
+                cy={center}
+                r={radius}
+                fill="none"
+                stroke={color}
+                strokeWidth={thickness}
+                strokeDasharray={`${Math.max(0, dashLength - 2)} ${circumference - Math.max(0, dashLength - 2)}`}
+                strokeDashoffset={offset}
+                strokeLinecap="round"
+              >
+                <title>{`${slice.label}: ${slice.value}`}</title>
+                <animate
+                  dur="2s"
+                  repeatCount="indefinite"
+                  values="${color};var(--accent);${color}"
+                  keyTimes="0;0.5;1"
+                  calcMode="spline"
+                />
+              </circle>
+            )
+          })}
         </g>
       </svg>
       {(centerValue || centerLabel) && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           {centerValue && (
-            <span className="font-display text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">{centerValue}</span>
+            <span className="font-display text-[2xl] font-extrabold tracking-tight text-[var(--text-1)]">{centerValue}</span>
           )}
-          {centerLabel && <span className="text-xs font-medium text-slate-400 dark:text-slate-500">{centerLabel}</span>}
+          {centerLabel && <span className="text-xs font-medium text-[var(--text-2)] dark:text-[var(--text-3)]">{centerLabel}</span>}
         </div>
       )}
     </div>

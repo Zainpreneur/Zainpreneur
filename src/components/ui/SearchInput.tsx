@@ -17,14 +17,14 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
 
   return (
     <div className={cn('relative', fullWidth && 'w-full', className)}>
-      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 left-3 select-none pointer-events-none text-[var(--text-2)]" />
       <input
         ref={inputRef}
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-10 w-full rounded-lg border border-slate-300 bg-white pr-9 pl-9 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100 dark:placeholder:text-slate-500"
+        className="h-10 w-full rounded-[14px] border border-[var(--hairline)] bg-[var(--surface-2)] px-9 pl-9 text-sm text-[var(--text-1)] shadow-[var(--sh-inset)] transition-colors placeholder-color-[var(--text-3)] focus:border-transparent focus:outline-none focus:ring-2 focus-ring-[var(--accent-tint)] disabled:cursor-not-allowed disabled:bg-[var(--surface-3)] dark:border-[var(--hairline-strong)] dark:bg-[var(--surface-3)] dark:text-[var(--text-1)] dark:placeholder-color-[var(--text-3)]"
       />
       {value && (
         <button
@@ -34,7 +34,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
             onChange('')
             inputRef.current?.focus()
           }}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-[999px] p-0.5 text-[var(--text-2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] dark:hover:text-[var(--text-1)]"
         >
           <X className="size-4" />
         </button>

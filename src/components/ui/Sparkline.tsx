@@ -16,7 +16,7 @@ interface SparklineProps {
 
 export function Sparkline({
   values,
-  color = '#6366f1',
+  color = '#007AFF',
   width = 120,
   height = 36,
   strokeWidth = 2,
@@ -62,7 +62,7 @@ export function Sparkline({
           <>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+                <stop offset="0%" stopColor={color} stopOpacity="0.18" />
                 <stop offset="100%" stopColor={color} stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -82,7 +82,7 @@ export function Sparkline({
           <title>{`${label}: ${formatValue(last)}`}</title>
         </circle>
       </svg>
-      <span className="pointer-events-none absolute -top-1 right-0 z-10 -translate-y-full whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold tabular-nums text-slate-700 opacity-0 shadow-lg transition-opacity duration-150 group-hover/spot:opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+      <span className="pointer-events-none absolute -top-1 right-0 rounded-[var(r-chip)] border border-[var(--hairline)] bg-[var(--surface-1)] px-2 py-1 text-[11px] font-bold tabular-nums text-[var(--text-1)] shadow-[var(--sh-raised-sm)] transition-opacity duration-150 group-hover/spot:opacity-100 dark:border-[var(--hairline-strong)] dark:bg-[var(--surface-2)] dark:text-[var(--text-1)]">
         {formatValue(last)}
       </span>
     </span>
