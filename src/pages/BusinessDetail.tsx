@@ -83,6 +83,7 @@ export function BusinessDetail() {
     updateBranch,
     deleteBranch,
     logActivity,
+    teamMembers,
   } = useBusinesses()
 
   const business = businesses.find((b) => b.id === id)
@@ -276,7 +277,7 @@ export function BusinessDetail() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {business.team.map((member) => (
+              {teamMembers.filter((m) => m.activeBusinessId === business.id).map((member) => (
                 <div key={member.id} className="flex items-center gap-3">
                   <Avatar name={member.name} initials={member.initials} color={member.color} size="md" />
                   <div className="min-w-0 flex-1">

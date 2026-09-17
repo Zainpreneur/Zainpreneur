@@ -3,6 +3,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type {
   ActivityEvent,
   AppSettings,
+  Asset,
+  AssetCategory,
+  AssetCondition,
+  AssetHistoryAction,
+  AssetHistoryEntry,
+  AssetStatus,
   Branch,
   BranchStatus,
   Business,
@@ -11,6 +17,7 @@ import type {
   BusinessStatus,
   ClientTier,
   ConsultingDetails,
+  EmploymentType,
   EquityDetails,
   Milestone,
   Owner,
@@ -19,6 +26,7 @@ import type {
   Task,
   TaskPriority,
   TaskStatus,
+  TeamMember,
   Transaction,
   TransactionCategory,
   TransactionStatus,
@@ -27,6 +35,8 @@ import type {
 } from '../types'
 import {
   activity as seedActivity,
+  assetHistory as seedAssetHistory,
+  assets as seedAssets,
   branchesByBusiness,
   businesses as seedBusinesses,
   capTablesByBusiness,
@@ -34,9 +44,11 @@ import {
   defaultUser,
   owners as seedOwners,
   tasks as seedTasks,
+  teamMembers as seedTeamMembers,
   transactions as seedTransactions,
   ZAIN_OWNER_ID,
 } from '../data'
+import { ASSET_OWNER } from '../types'
 import { initials } from '../utils/format'
 import { branchTotals } from '../utils/branches'
 import { ownerStats } from '../utils/calculations'
@@ -133,6 +145,45 @@ export interface BranchDraft {
   isHeadquarters?: boolean
 }
 
+export interface TeamMemberDraft {
+  name: string
+  role: string
+  email: string
+  phone?: string
+  department?: string
+  employmentType?: EmploymentType
+  activeBusinessId?: string
+  branchId?: string
+  location?: string
+  startedAt?: string
+  monthlyCost?: number
+  skills?: string[]
+  color?: string
+}
+
+export interface AssetDraft {
+  name: string
+  category: AssetCategory
+  serialNumber: string
+  purchaseDate: string
+  value: number
+  status?: AssetStatus
+  condition?: AssetCondition
+  tag?: string
+  assetOwner?: string
+  location?: string
+  notes?: string
+}
+
+export interface DeployAssetInput {
+  entityType: BusinessCategory
+  entityId: string
+  branchId?: string
+  memberId?: string
+  deployedDate?: string
+  notes?: string
+}
+
 /* ---------------------------------- persisted shape ---------------------------------- */
 
 interface PersistedState {
@@ -141,6 +192,9 @@ interface PersistedState {
   tasks: Task[]
   activity: ActivityEvent[]
   owners: Owner[]
+  teamMembers: TeamMember[]
+  assets: Asset[]
+  assetHistory: AssetHistoryEntry[]
 }
 
 /* ---------------------------------- storage helpers ---------------------------------- */
@@ -157,7 +211,16 @@ function readPersisted(): PersistedState | null {
       Array.isArray(parsed.activity) &&
       Array.isArray(parsed.owners)
     ) {
-      return parsed as PersistedState
+      return {
+        businesses: parsed.businesses,
+        transactions: parsed.transactions,
+        tasks: parsed.tasks,
+        activity: parsed.activity,
+        owners: parsed.owners,
+        teamMembers: Array.isArray(parsed.teamMembers) ? parsed.teamMembers : seedTeamMembers,
+        assets: Array.isArray(parsed.assets) ? parsed.assets : seedAssets,
+        assetHistory: Array.isArray(parsed.assetHistory) ? parsed.assetHistory : seedAssetHistory,
+      }
     }
     return null
   } catch {
@@ -244,7 +307,6 @@ function businessSeed(input: BusinessDraft, id: string): Business {
     employees: input.employees ?? 0,
     healthScore: computeHealth(input.monthlyRevenue ?? 0, input.monthlyExpenses ?? 0),
     tags: input.tags ?? [],
-    team: [],
     capTable,
     branches: [],
     project: input.project,
@@ -292,6 +354,54 @@ function branchSeed(businessId: string, draft: BranchDraft, id: string): Branch 
   }
 }
 
+const ASSET_TAG_PREFIX: Record<AssetCategory, string> = {
+  hardware: 'HW',
+  machinery: 'MC',
+  equipment: 'EQ',
+  other: 'OT',
+}
+
+function teamMemberSeed(draft: TeamMemberDraft, id: string): TeamMember {
+  return {
+    id,
+    name: draft.name,
+    role: draft.role,
+    email: draft.email,
+    phone: draft.phone,
+    color: draft.color ?? '#6366f1',
+    initials: initials(draft.name),
+    department: draft.department ?? 'Operations',
+    employmentType: draft.employmentType ?? 'full_time',
+    activeBusinessId: draft.activeBusinessId,
+    branchId: draft.branchId,
+    assignedAssets: [],
+    location: draft.location,
+    startedAt: draft.startedAt,
+    monthlyCost: draft.monthlyCost,
+    skills: draft.skills ?? [],
+  }
+}
+
+function assetSeed(draft: AssetDraft, id: string): Asset {
+  const status = draft.status ?? 'available'
+  return {
+    id,
+    tag: draft.tag?.trim() || `ZP-${ASSET_TAG_PREFIX[draft.category]}-${id.slice(-4).toUpperCase()}`,
+    name: draft.name,
+    category: draft.category,
+    serialNumber: draft.serialNumber,
+    purchaseDate: draft.purchaseDate,
+    value: draft.value,
+    status,
+    condition: draft.condition ?? 'good',
+    assetOwner: draft.assetOwner ?? ASSET_OWNER,
+    location: draft.location,
+    notes: draft.notes,
+    currentDeployment: undefined,
+    createdAt: new Date().toISOString(),
+  }
+}
+
 function seadRelations(): Business[] {
   return seedBusinesses.map((business) => ({
     ...business,
@@ -308,6 +418,9 @@ interface BusinessContextValue {
   tasks: Task[]
   activity: ActivityEvent[]
   owners: Owner[]
+  teamMembers: TeamMember[]
+  assets: Asset[]
+  assetHistory: AssetHistoryEntry[]
   settings: AppSettings
   profile: UserProfile
   zainOwnerId: string
@@ -332,6 +445,17 @@ interface BusinessContextValue {
   updateBranch: (businessId: string, branchId: string, patch: Partial<BranchDraft>) => void
   deleteBranch: (businessId: string, branchId: string) => void
 
+  addTeamMember: (draft: TeamMemberDraft) => TeamMember
+  updateTeamMember: (id: string, patch: Partial<TeamMemberDraft>) => void
+  deleteTeamMember: (id: string) => void
+
+  addAsset: (draft: AssetDraft) => Asset
+  updateAsset: (id: string, patch: Partial<AssetDraft>) => void
+  deleteAsset: (id: string) => void
+  deployAsset: (assetId: string, input: DeployAssetInput) => void
+  returnAsset: (assetId: string, notes?: string) => void
+  setAssetStatus: (assetId: string, status: AssetStatus, notes?: string) => void
+
   setCapTable: (businessId: string, capTable: OwnerShareInput[]) => void
   addMilestone: (businessId: string, milestone: Omit<Milestone, 'id'>) => void
   updateMilestone: (businessId: string, milestoneId: string, patch: Partial<Milestone>) => void
@@ -354,6 +478,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         tasks: seedTasks,
         activity: seedActivity,
         owners: seedOwners,
+        teamMembers: seedTeamMembers,
+        assets: seedAssets,
+        assetHistory: seedAssetHistory,
       },
     [],
   )
@@ -363,6 +490,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(seeded.tasks)
   const [activity, setActivity] = useState<ActivityEvent[]>(seeded.activity)
   const [rawOwners, setRawOwners] = useState<Owner[]>(seeded.owners)
+  const [rawTeamMembers, setRawTeamMembers] = useState<TeamMember[]>(seeded.teamMembers)
+  const [assets, setAssets] = useState<Asset[]>(seeded.assets)
+  const [assetHistory, setAssetHistory] = useState<AssetHistoryEntry[]>(seeded.assetHistory)
   const [settings, setSettings] = useState<AppSettings>(() => readSettings())
   const [profile, setProfile] = useState<UserProfile>(() => readProfile())
 
@@ -373,14 +503,36 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     [rawOwners, businesses],
   )
 
+  /* ------------------------------ derived team ------------------------------ */
+
+  const teamMembers = useMemo<TeamMember[]>(
+    () =>
+      rawTeamMembers.map((member) => ({
+        ...member,
+        assignedAssets: assets
+          .filter((asset) => asset.currentDeployment?.assignedToMemberId === member.id)
+          .map((asset) => asset.id),
+      })),
+    [rawTeamMembers, assets],
+  )
+
   /* ------------------------------ persistence ------------------------------ */
 
   useEffect(() => {
     localStorage.setItem(
       DATA_KEY,
-      JSON.stringify({ businesses, transactions, tasks, activity, owners: rawOwners }),
+      JSON.stringify({
+        businesses,
+        transactions,
+        tasks,
+        activity,
+        owners: rawOwners,
+        teamMembers: rawTeamMembers,
+        assets,
+        assetHistory,
+      }),
     )
-  }, [businesses, transactions, tasks, activity, rawOwners])
+  }, [businesses, transactions, tasks, activity, rawOwners, rawTeamMembers, assets, assetHistory])
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
@@ -414,6 +566,16 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     setTransactions((prev) => prev.filter((tx) => tx.businessId !== id))
     setTasks((prev) => prev.filter((task) => task.businessId !== id))
     setActivity((prev) => prev.filter((event) => event.businessId !== id))
+    setRawTeamMembers((prev) =>
+      prev.map((member) => (member.activeBusinessId === id ? { ...member, activeBusinessId: undefined } : member)),
+    )
+    setAssets((prev) =>
+      prev.map((asset) =>
+        asset.currentDeployment?.entityId === id
+          ? { ...asset, status: 'available', currentDeployment: undefined }
+          : asset,
+      ),
+    )
   }, [])
 
   const setCapTable = useCallback((businessId: string, capTable: OwnerShareInput[]) => {
@@ -488,6 +650,13 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
           : business,
       ),
     )
+    setAssets((prev) =>
+      prev.map((asset) =>
+        asset.currentDeployment?.branchId === branchId
+          ? { ...asset, currentDeployment: { ...asset.currentDeployment, branchId: undefined } }
+          : asset,
+      ),
+    )
   }, [])
 
   /* ------------------------------ milestone actions ------------------------------ */
@@ -533,6 +702,177 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       }),
     )
   }, [])
+
+  /* ------------------------------ team member actions ------------------------------ */
+
+  const addTeamMember = useCallback((draft: TeamMemberDraft) => {
+    const member = teamMemberSeed(draft, makeId('tm'))
+    setRawTeamMembers((prev) => [...prev, member])
+    return member
+  }, [])
+
+  const updateTeamMember = useCallback((id: string, patch: Partial<TeamMemberDraft>) => {
+    setRawTeamMembers((prev) =>
+      prev.map((member) => {
+        if (member.id !== id) return member
+        const merged: TeamMember = { ...member, ...patch }
+        if (patch.name) merged.initials = initials(patch.name)
+        return merged
+      }),
+    )
+  }, [])
+
+  const deleteTeamMember = useCallback((id: string) => {
+    setRawTeamMembers((prev) => prev.filter((member) => member.id !== id))
+    setAssets((prev) =>
+      prev.map((asset) =>
+        asset.currentDeployment?.assignedToMemberId === id
+          ? { ...asset, currentDeployment: { ...asset.currentDeployment, assignedToMemberId: undefined } }
+          : asset,
+      ),
+    )
+  }, [])
+
+  /* ------------------------------ asset actions ------------------------------ */
+
+  const addAsset = useCallback((draft: AssetDraft) => {
+    const asset = assetSeed(draft, makeId('as'))
+    setAssets((prev) => [asset, ...prev])
+    setAssetHistory((prev) => [
+      {
+        id: makeId('ah'),
+        assetId: asset.id,
+        assetName: asset.name,
+        action: 'created',
+        targetLabel: 'Asset registered',
+        date: new Date().toISOString(),
+      },
+      ...prev,
+    ])
+    return asset
+  }, [])
+
+  const updateAsset = useCallback((id: string, patch: Partial<AssetDraft>) => {
+    setAssets((prev) => prev.map((asset) => (asset.id === id ? { ...asset, ...patch } : asset)))
+  }, [])
+
+  const deleteAsset = useCallback((id: string) => {
+    setAssets((prev) => prev.filter((asset) => asset.id !== id))
+    setAssetHistory((prev) => prev.filter((entry) => entry.assetId !== id))
+  }, [])
+
+  const describeDeployment = useCallback(
+    (input: { entityId: string; branchId?: string; memberId?: string }): { label: string; businessId: string } => {
+      const business = businesses.find((item) => item.id === input.entityId)
+      const branch = input.branchId ? business?.branches.find((item) => item.id === input.branchId) : undefined
+      const member = input.memberId ? teamMembers.find((item) => item.id === input.memberId) : undefined
+      const place = branch?.name ?? business?.name ?? 'Pool'
+      const label = member ? `${member.name} · ${place}` : place
+      return { label, businessId: business?.id ?? '' }
+    },
+    [businesses, teamMembers],
+  )
+
+  const pushHistory = useCallback(
+    (asset: Asset | undefined, entry: Omit<AssetHistoryEntry, 'id' | 'assetId' | 'assetName' | 'date'>) => {
+      if (!asset) return
+      const full: AssetHistoryEntry = {
+        id: makeId('ah'),
+        assetId: asset.id,
+        assetName: asset.name,
+        date: new Date().toISOString(),
+        ...entry,
+      }
+      setAssetHistory((prev) => [full, ...prev])
+    },
+    [],
+  )
+
+  const logActivity = useCallback((businessId: string, type: ActivityEvent['type'], message: string) => {
+    const event: ActivityEvent = {
+      id: makeId('act'),
+      businessId,
+      type,
+      message,
+      timestamp: new Date().toISOString(),
+    }
+    setActivity((prev) => [event, ...prev].slice(0, 60))
+  }, [])
+
+  const deployAsset = useCallback(
+    (assetId: string, input: DeployAssetInput) => {
+      const asset = assets.find((item) => item.id === assetId)
+      const target = describeDeployment(input)
+      const deployedDate = input.deployedDate || new Date().toISOString().slice(0, 10)
+      setAssets((prev) =>
+        prev.map((item) =>
+          item.id === assetId
+            ? {
+                ...item,
+                status: 'in-use',
+                currentDeployment: {
+                  entityType: input.entityType,
+                  entityId: input.entityId,
+                  branchId: input.branchId,
+                  assignedToMemberId: input.memberId,
+                  deployedDate,
+                  notes: input.notes,
+                },
+              }
+            : item,
+        ),
+      )
+      pushHistory(asset, {
+        action: 'assigned',
+        entityType: input.entityType,
+        entityId: input.entityId,
+        branchId: input.branchId,
+        memberId: input.memberId,
+        targetLabel: target.label,
+        notes: input.notes,
+      })
+      if (asset) logActivity(target.businessId, 'asset', `${asset.name} deployed to ${target.label}`)
+    },
+    [assets, describeDeployment, pushHistory, logActivity],
+  )
+
+  const returnAsset = useCallback(
+    (assetId: string, notes?: string) => {
+      const asset = assets.find((item) => item.id === assetId)
+      const deployment = asset?.currentDeployment
+      const target = deployment
+        ? describeDeployment({
+            entityId: deployment.entityId,
+            branchId: deployment.branchId,
+            memberId: deployment.assignedToMemberId,
+          })
+        : { label: 'the pool', businessId: '' }
+      setAssets((prev) =>
+        prev.map((item) => (item.id === assetId ? { ...item, status: 'available', currentDeployment: undefined } : item)),
+      )
+      pushHistory(asset, { action: 'returned', targetLabel: 'Returned to pool', notes })
+      if (asset) logActivity(target.businessId, 'asset', `${asset.name} returned from ${target.label}`)
+    },
+    [assets, describeDeployment, pushHistory, logActivity],
+  )
+
+  const setAssetStatus = useCallback(
+    (assetId: string, status: AssetStatus, notes?: string) => {
+      const asset = assets.find((item) => item.id === assetId)
+      setAssets((prev) =>
+        prev.map((item) =>
+          item.id === assetId
+            ? { ...item, status, currentDeployment: status === 'in-use' ? item.currentDeployment : undefined }
+            : item,
+        ),
+      )
+      const action: AssetHistoryAction = status === 'maintenance' ? 'maintenance' : status === 'retired' ? 'retired' : 'restored'
+      const label = status === 'maintenance' ? 'Sent for maintenance' : status === 'retired' ? 'Retired from service' : 'Back in service'
+      pushHistory(asset, { action, targetLabel: label, notes })
+      if (asset) logActivity('', 'asset', `${asset.name} marked ${status}`)
+    },
+    [assets, pushHistory, logActivity],
+  )
 
   /* ------------------------------ transaction actions ------------------------------ */
 
@@ -598,18 +938,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     setTasks((prev) => prev.filter((task) => task.id !== id))
   }, [])
 
-  /* ------------------------------ activity & settings ------------------------------ */
-
-  const logActivity = useCallback((businessId: string, type: ActivityEvent['type'], message: string) => {
-    const event: ActivityEvent = {
-      id: makeId('act'),
-      businessId,
-      type,
-      message,
-      timestamp: new Date().toISOString(),
-    }
-    setActivity((prev) => [event, ...prev].slice(0, 60))
-  }, [])
+  /* ------------------------------ settings ------------------------------ */
 
   const updateSettings = useCallback((patch: Partial<AppSettings>) => {
     setSettings((prev) => ({ ...prev, ...patch }))
@@ -625,6 +954,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     setTasks(seedTasks)
     setActivity(seedActivity)
     setRawOwners(seedOwners)
+    setRawTeamMembers(seedTeamMembers)
+    setAssets(seedAssets)
+    setAssetHistory(seedAssetHistory)
     setSettings(defaultSettings)
     setProfile(defaultUser)
   }, [])
@@ -636,6 +968,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       tasks,
       activity,
       owners,
+      teamMembers,
+      assets,
+      assetHistory,
       settings,
       profile,
       zainOwnerId: ZAIN_OWNER_ID,
@@ -654,6 +989,15 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       addBranch,
       updateBranch,
       deleteBranch,
+      addTeamMember,
+      updateTeamMember,
+      deleteTeamMember,
+      addAsset,
+      updateAsset,
+      deleteAsset,
+      deployAsset,
+      returnAsset,
+      setAssetStatus,
       setCapTable,
       addMilestone,
       updateMilestone,
@@ -669,6 +1013,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       tasks,
       activity,
       owners,
+      teamMembers,
+      assets,
+      assetHistory,
       settings,
       profile,
       addBusiness,
@@ -686,6 +1033,15 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       addBranch,
       updateBranch,
       deleteBranch,
+      addTeamMember,
+      updateTeamMember,
+      deleteTeamMember,
+      addAsset,
+      updateAsset,
+      deleteAsset,
+      deployAsset,
+      returnAsset,
+      setAssetStatus,
       setCapTable,
       addMilestone,
       updateMilestone,

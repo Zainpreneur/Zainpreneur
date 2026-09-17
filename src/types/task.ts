@@ -15,7 +15,7 @@ export interface Task {
   completedAt?: string
 }
 
-export type ActivityType = 'task' | 'transaction' | 'team' | 'business' | 'milestone' | 'branch' | 'owner'
+export type ActivityType = 'task' | 'transaction' | 'team' | 'business' | 'milestone' | 'branch' | 'owner' | 'asset'
 
 export interface ActivityEvent {
   id: string

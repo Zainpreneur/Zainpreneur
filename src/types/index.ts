@@ -11,7 +11,6 @@ export type {
   Milestone,
   MilestoneStatus,
   ProjectDetails,
-  TeamMember,
 } from './business'
 export {
   BUSINESS_CATEGORY_LABELS,
@@ -58,6 +57,26 @@ export {
   CURRENCY_LABELS,
   CURRENCY_SYMBOLS,
 } from './user'
+
+export type { EmploymentType, TeamMember } from './team'
+export { EMPLOYMENT_TYPE_LABELS } from './team'
+
+export type {
+  Asset,
+  AssetCategory,
+  AssetCondition,
+  AssetDeployment,
+  AssetHistoryAction,
+  AssetHistoryEntry,
+  AssetStatus,
+} from './asset'
+export {
+  ASSET_CATEGORY_LABELS,
+  ASSET_CONDITION_LABELS,
+  ASSET_OWNER,
+  ASSET_STATUS_LABELS,
+  ASSET_USEFUL_LIFE_YEARS,
+} from './asset'
 
 export type { NavItem, NavSection } from './navigation'
 

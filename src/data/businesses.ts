@@ -26,11 +26,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 14,
     healthScore: 94,
     tags: ['memberships', 'detailing', 'B2B fleet'],
-    team: [
-      { id: 'm-aa-1', name: 'Zain Pirzada', role: 'Founder & CEO', email: 'zain@apexautospa.com', color: '#8b5cf6', initials: 'ZP' },
-      { id: 'm-aa-2', name: 'Hassan Mir', role: 'Operations Manager', email: 'hassan@apexautospa.com', color: '#06b6d4', initials: 'HM' },
-      { id: 'm-aa-3', name: 'Ayesha Rana', role: 'Membership Lead', email: 'ayesha@apexautospa.com', color: '#f43f5e', initials: 'AR' },
-    ],
     equity: { valuation: 1450000, dividendYield: 6.5, dividendsReceived: 9400 },
     createdAt: '2021-06-14T09:00:00Z',
   },
@@ -56,10 +51,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 9,
     healthScore: 83,
     tags: ['subscriptions', 'app-first', 'B2C'],
-    team: [
-      { id: 'm-lx-1', name: 'Zain Pirzada', role: 'Owner', email: 'zain@luxelaundry.app', color: '#0ea5e9', initials: 'ZP' },
-      { id: 'm-lx-2', name: 'Sana Tariq', role: 'Plant Supervisor', email: 'sana@luxelaundry.app', color: '#84cc16', initials: 'ST' },
-    ],
     consulting: { hourlyRate: 85, retainerMonthly: 54800, billableHoursTarget: 160, billableHoursLogged: 142, contracts: 3 },
     createdAt: '2022-03-02T09:00:00Z',
   },
@@ -85,10 +76,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 4,
     healthScore: 25,
     tags: ['winding down', 'inventory', 'repairs'],
-    team: [
-      { id: 'm-gm-1', name: 'Zain Pirzada', role: 'Founder', email: 'zain@gearheadmotors.pk', color: '#f59e0b', initials: 'ZP' },
-      { id: 'm-gm-2', name: 'Usman Cheema', role: 'Head Mechanic', email: 'usman@gearheadmotors.pk', color: '#64748b', initials: 'UC' },
-    ],
     project: {
       budget: 180000,
       deliverables: 12,
@@ -123,11 +110,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 32,
     healthScore: 70,
     tags: ['equity', 'ERP licensing', 'retail'],
-    team: [
-      { id: 'm-mc-1', name: 'Bilal Khawaja', role: 'Managing Partner', email: 'bilal@mobicomsolutions.com', color: '#10b981', initials: 'BK' },
-      { id: 'm-mc-2', name: 'Zain Pirzada', role: 'Equity Partner · Tech', email: 'zain@mobicomsolutions.com', color: '#8b5cf6', initials: 'ZP' },
-      { id: 'm-mc-3', name: 'Mariam Akhtar', role: 'Finance Lead', email: 'mariam@mobicomsolutions.com', color: '#f43f5e', initials: 'MA' },
-    ],
     equity: { valuation: 2600000, dividendYield: 8.2, dividendsReceived: 21300 },
     createdAt: '2020-01-15T09:00:00Z',
   },
@@ -154,10 +136,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 41,
     healthScore: 45,
     tags: ['equity', 'food delivery', 'expansion'],
-    team: [
-      { id: 'm-cs-1', name: 'Rafi Gondal', role: 'Co-founder', email: 'rafi@cloudspoon.food', color: '#ef4444', initials: 'RG' },
-      { id: 'm-cs-2', name: 'Zain Pirzada', role: 'Equity Partner', email: 'zain@cloudspoon.food', color: '#8b5cf6', initials: 'ZP' },
-    ],
     equity: { valuation: 1100000, dividendYield: 0, dividendsReceived: 0 },
     createdAt: '2023-05-10T09:00:00Z',
   },
@@ -184,11 +162,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 18,
     healthScore: 73,
     tags: ['retainer', 'performance marketing', 'storefront'],
-    team: [
-      { id: 'm-st-1', name: 'Omar Sheikh', role: 'Founder (Client)', email: 'omar@stridewear.com', color: '#6366f1', initials: 'OS' },
-      { id: 'm-st-2', name: 'Zain Pirzada', role: 'Lead Consultant', email: 'zain@stridewear.com', color: '#8b5cf6', initials: 'ZP' },
-      { id: 'm-st-3', name: 'Noor Fatima', role: 'Account Manager', email: 'noor@stridewear.com', color: '#ec4899', initials: 'NF' },
-    ],
     consulting: { hourlyRate: 120, retainerMonthly: 72400, billableHoursTarget: 200, billableHoursLogged: 168, contracts: 2 },
     createdAt: '2022-08-01T09:00:00Z',
   },
@@ -215,10 +188,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 11,
     healthScore: 69,
     tags: ['consulting', 'training', 'operations'],
-    team: [
-      { id: 'm-cr-1', name: 'Daniyal Raza', role: 'Owner (Client)', email: 'daniyal@craftcoffee.pk', color: '#a16207', initials: 'DR' },
-      { id: 'm-cr-2', name: 'Zain Pirzada', role: 'Operations Consultant', email: 'zain@craftcoffee.pk', color: '#8b5cf6', initials: 'ZP' },
-    ],
     project: {
       budget: 120000,
       deliverables: 8,
@@ -254,11 +223,6 @@ const baseBusinesses: Array<Omit<Business, 'capTable' | 'branches'>> = [
     employees: 26,
     healthScore: 61,
     tags: ['project-based', 'launch', 'memberships'],
-    team: [
-      { id: 'm-nf-1', name: 'Hira Baig', role: 'Founder (Client)', email: 'hira@novastudios.fit', color: '#db2777', initials: 'HB' },
-      { id: 'm-nf-2', name: 'Zain Pirzada', role: 'Project Consultant', email: 'zain@novastudios.fit', color: '#8b5cf6', initials: 'ZP' },
-      { id: 'm-nf-3', name: 'Ali Raza', role: 'Implementation Analyst', email: 'ali@novastudios.fit', color: '#14b8a6', initials: 'AR' },
-    ],
     consulting: { hourlyRate: 95, retainerMonthly: 67100, billableHoursTarget: 180, billableHoursLogged: 171, contracts: 4 },
     createdAt: '2024-01-08T09:00:00Z',
   },

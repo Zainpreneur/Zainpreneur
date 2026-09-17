@@ -1,6 +1,26 @@
-import { Crown, Handshake, Briefcase, FolderKanban, LineChart, Wallet, type LucideIcon } from 'lucide-react'
+import {
+  ArrowLeftRight,
+  CircleDot,
+  Cog,
+  Crown,
+  Handshake,
+  Briefcase,
+  FolderKanban,
+  Laptop,
+  LineChart,
+  Package,
+  RotateCcw,
+  ShieldBan,
+  Wrench,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react'
 
 import type {
+  AssetCategory,
+  AssetCondition,
+  AssetHistoryAction,
+  AssetStatus,
   BranchStatus,
   BusinessCategory,
   BusinessModel,
@@ -11,6 +31,9 @@ import type {
   TransactionType,
 } from '../types'
 import {
+  ASSET_CATEGORY_LABELS,
+  ASSET_CONDITION_LABELS,
+  ASSET_STATUS_LABELS,
   BRANCH_STATUS_LABELS,
   BUSINESS_CATEGORY_LABELS,
   BUSINESS_MODEL_LABELS,
@@ -261,4 +284,114 @@ export const TXN_STATUS_META: Record<TransactionStatus, StatusMeta> = {
       'bg-rose-50 text-rose-700 ring-1 ring-rose-600/20 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/20',
     dotClass: 'bg-rose-500',
   },
+}
+
+/* ------------------------------ assets ------------------------------ */
+
+export interface AssetCategoryMeta extends StatusMeta {
+  icon: LucideIcon
+  iconClass: string
+  color: string
+}
+
+export const ASSET_CATEGORY_META: Record<AssetCategory, AssetCategoryMeta> = {
+  hardware: {
+    label: ASSET_CATEGORY_LABELS.hardware,
+    icon: Laptop,
+    color: '#0ea5e9',
+    badgeClass:
+      'bg-sky-50 text-sky-700 ring-1 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-400/20',
+    dotClass: 'bg-sky-500',
+    iconClass: 'bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300',
+  },
+  machinery: {
+    label: ASSET_CATEGORY_LABELS.machinery,
+    icon: Cog,
+    color: '#f59e0b',
+    badgeClass:
+      'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20',
+    dotClass: 'bg-amber-500',
+    iconClass: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300',
+  },
+  equipment: {
+    label: ASSET_CATEGORY_LABELS.equipment,
+    icon: Wrench,
+    color: '#6366f1',
+    badgeClass:
+      'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/20',
+    dotClass: 'bg-indigo-500',
+    iconClass: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300',
+  },
+  other: {
+    label: ASSET_CATEGORY_LABELS.other,
+    icon: Package,
+    color: '#64748b',
+    badgeClass:
+      'bg-slate-100 text-slate-600 ring-1 ring-slate-500/20 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-400/20',
+    dotClass: 'bg-slate-400',
+    iconClass: 'bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300',
+  },
+}
+
+export const ASSET_STATUS_META: Record<AssetStatus, StatusMeta> = {
+  available: {
+    label: ASSET_STATUS_LABELS.available,
+    badgeClass:
+      'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20',
+    dotClass: 'bg-emerald-500',
+  },
+  'in-use': {
+    label: ASSET_STATUS_LABELS['in-use'],
+    badgeClass:
+      'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/20',
+    dotClass: 'bg-indigo-500',
+  },
+  maintenance: {
+    label: ASSET_STATUS_LABELS.maintenance,
+    badgeClass:
+      'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20',
+    dotClass: 'bg-amber-500',
+  },
+  retired: {
+    label: ASSET_STATUS_LABELS.retired,
+    badgeClass:
+      'bg-slate-100 text-slate-600 ring-1 ring-slate-500/20 dark:bg-slate-500/10 dark:text-slate-300 dark:ring-slate-400/20',
+    dotClass: 'bg-slate-400',
+  },
+}
+
+export const ASSET_CONDITION_META: Record<AssetCondition, StatusMeta> = {
+  new: {
+    label: ASSET_CONDITION_LABELS.new,
+    badgeClass:
+      'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20',
+    dotClass: 'bg-emerald-500',
+  },
+  good: {
+    label: ASSET_CONDITION_LABELS.good,
+    badgeClass:
+      'bg-sky-50 text-sky-700 ring-1 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-400/20',
+    dotClass: 'bg-sky-500',
+  },
+  fair: {
+    label: ASSET_CONDITION_LABELS.fair,
+    badgeClass:
+      'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20',
+    dotClass: 'bg-amber-500',
+  },
+  poor: {
+    label: ASSET_CONDITION_LABELS.poor,
+    badgeClass:
+      'bg-rose-50 text-rose-700 ring-1 ring-rose-600/20 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/20',
+    dotClass: 'bg-rose-500',
+  },
+}
+
+export const HISTORY_ACTION_META: Record<AssetHistoryAction, { label: string; icon: LucideIcon; iconClass: string }> = {
+  created: { label: 'Registered', icon: Package, iconClass: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' },
+  assigned: { label: 'Deployed', icon: ArrowLeftRight, iconClass: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300' },
+  returned: { label: 'Returned', icon: RotateCcw, iconClass: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300' },
+  maintenance: { label: 'Maintenance', icon: Wrench, iconClass: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300' },
+  restored: { label: 'Back in service', icon: CircleDot, iconClass: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300' },
+  retired: { label: 'Retired', icon: ShieldBan, iconClass: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' },
 }

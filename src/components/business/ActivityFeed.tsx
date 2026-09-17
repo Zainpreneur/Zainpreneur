@@ -1,6 +1,7 @@
 import {
   Building2,
   Flag,
+  Package,
   Receipt,
   Settings as SettingsIcon,
   Sparkles,
@@ -27,6 +28,7 @@ const ICONS: Record<ActivityType, LucideIcon> = {
   milestone: Flag,
   branch: Building2,
   owner: UserRound,
+  asset: Package,
 }
 
 const ICON_STYLES: Record<ActivityType, string> = {
@@ -37,6 +39,7 @@ const ICON_STYLES: Record<ActivityType, string> = {
   milestone: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300',
   branch: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300',
   owner: 'bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-500/10 dark:text-fuchsia-300',
+  asset: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300',
 }
 
 export function ActivityFeed({ events, businesses, limit }: ActivityFeedProps) {

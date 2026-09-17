@@ -1,13 +1,16 @@
+import { assetHistory, assets } from './assets'
 import { allBranches, branchesByBusiness } from './branches'
 import { businesses } from './businesses'
 import { getBusinessSeries, getPortfolioSeries } from './financialSeries'
 import { capTablesByBusiness, owners, ZAIN_OWNER_ID } from './owners'
 import { activity, tasks } from './tasks'
+import { teamMembers } from './team'
 import { transactions } from './transactions'
 import { defaultSettings, defaultUser } from './user'
 
 export { businesses, transactions, tasks, activity, defaultUser, defaultSettings }
 export { owners, capTablesByBusiness, branchesByBusiness, allBranches, ZAIN_OWNER_ID }
+export { assets, assetHistory, teamMembers }
 export { getBusinessSeries, getPortfolioSeries }
 
 export function getBusinessById(id: string) {

@@ -45,15 +45,6 @@ export interface EquityDetails {
   dividendsReceived: number
 }
 
-export interface TeamMember {
-  id: string
-  name: string
-  role: string
-  email: string
-  color: string
-  initials: string
-}
-
 export interface FinancialPerformance {
   revenue: number
   expenses: number
@@ -84,7 +75,6 @@ export interface Business {
   employees: number
   healthScore: number
   tags: string[]
-  team: TeamMember[]
   /** Ownership split across all stakeholders. Percentages must total 100. */
   capTable: OwnerShare[]
   branches: Branch[]

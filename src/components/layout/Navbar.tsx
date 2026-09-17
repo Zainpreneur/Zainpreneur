@@ -10,6 +10,7 @@ import {
   Menu,
   Monitor,
   Moon,
+  Package,
   Receipt,
   Search,
   Settings as SettingsIcon,
@@ -40,6 +41,7 @@ const ACTIVITY_ICONS: Record<ActivityType, LucideIcon> = {
   milestone: Flag,
   branch: Building2,
   owner: UserRound,
+  asset: Package,
 }
 
 const THEME_OPTIONS: Array<{ value: ThemeMode; label: string; icon: LucideIcon }> = [
