@@ -1,5 +1,7 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 
+import { AlertCircle } from 'lucide-react'
+
 import { cn } from '../../utils/cn'
 
 const FIELD_BASE =
@@ -24,7 +26,10 @@ export function Field({ label, htmlFor, hint, error, required, className, childr
       </label>
       {children}
       {error ? (
-        <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{error}</p>
+        <p role="alert" className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400">
+          <AlertCircle className="size-3.5 shrink-0" />
+          {error}
+        </p>
       ) : hint ? (
         <p className="text-xs text-slate-400 dark:text-slate-500">{hint}</p>
       ) : null}
