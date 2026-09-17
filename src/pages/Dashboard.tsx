@@ -43,7 +43,7 @@ function greeting(): string {
 }
 
 export function Dashboard() {
-  const { businesses, tasks, activity, settings, zainOwnerId, addBusiness, addTask, updateTask, updateBusiness, assets, teamMembers } =
+  const { businesses, tasks, activity, settings, zainOwnerId, addBusiness, addTask, updateTask, updateBusiness, addBranch, assets, teamMembers } =
     useBusinesses()
   const { authUser, profile } = useAuth()
 
@@ -445,11 +445,12 @@ export function Dashboard() {
           open
           onClose={() => setBusinessModalOpen(false)}
           initial={editingBusiness}
-          onSubmit={(draft) => {
+          onSubmit={(draft, initialBranches) => {
             if (editingBusiness) {
               updateBusiness(editingBusiness.id, draft)
             } else {
-              addBusiness(draft)
+              const created = addBusiness(draft)
+              initialBranches.forEach((branch) => addBranch(created.id, branch))
             }
           }}
         />

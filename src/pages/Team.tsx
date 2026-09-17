@@ -115,7 +115,20 @@ export function Team() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="mt-6"><EmptyState icon={Users} title="No members" description="Try a different segment or search." /></Card>
+        <Card className="mt-6">
+          <EmptyState
+            icon={Users}
+            title={teamMembers.length === 0 ? 'No team members yet' : 'No members found'}
+            description={teamMembers.length === 0 ? 'Add your first internal member, freelancer or agency partner.' : 'Try a different segment or search.'}
+            action={
+              teamMembers.length === 0 ? (
+                <Button icon={<Plus className="size-4" />} onClick={() => setMemberModal({ open: true })}>
+                  Add first member
+                </Button>
+              ) : undefined
+            }
+          />
+        </Card>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((m) => {
@@ -203,11 +216,21 @@ function segmentBadge(t: EngagementType): string {
   return 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300'
 }
 
+/** Urgency color for a freelancer contract end date. */
+function contractUrgency(iso: string): string {
+  const diff = new Date(iso).getTime() - Date.now()
+  if (Number.isNaN(diff) || diff < 0) return 'text-rose-600 dark:text-rose-400'
+  if (diff < 30 * 86_400_000) return 'text-amber-600 dark:text-amber-400'
+  return 'text-sky-700 dark:text-sky-300'
+}
+
 function MemberDetailModal({ member, onClose, onEdit, onDelete }: { member: TeamMember; onClose: () => void; onEdit: () => void; onDelete: () => void }) {
-  const { businesses, assets, settings, updateTeamMember, logActivity } = useBusinesses()
+  const { businesses, assets, settings, updateTeamMember, deployAsset, logActivity } = useBusinesses()
   const biz = businesses.find((b) => b.id === (member.activeBusinessId ?? member.associatedBusinessId))
   const branch = member.branchId ? biz?.branches.find((br) => br.id === member.branchId) : undefined
   const held = assets.filter((a) => a.currentDeployment?.assignedToMemberId === member.id)
+  const availableAssets = assets.filter((a) => a.status === 'available')
+  const [handoverId, setHandoverId] = useState('')
   const currentBizId = member.activeBusinessId ?? member.associatedBusinessId ?? ''
   const [assignId, setAssignId] = useState(currentBizId)
   const [assignSaved, setAssignSaved] = useState(false)
@@ -289,6 +312,11 @@ function MemberDetailModal({ member, onClose, onEdit, onDelete }: { member: Team
               <p className="font-bold text-sky-800 dark:text-sky-200">Freelance contract</p>
               <p className="mt-1 text-sky-700 dark:text-sky-300">Rate: ${(member.freelancer?.hourlyRate ?? member.hourlyRate ?? 0)}/hr · Terms: {member.freelancer?.contractTerms ?? member.contractTerms}</p>
               {(member.freelancer?.projectScope ?? member.projectScope) && <p className="mt-1">Scope: {member.freelancer?.projectScope ?? member.projectScope}</p>}
+              {(member.freelancer?.contractEndDate ?? member.contractEndDate) && (
+                <p className={cn('mt-1 font-semibold', contractUrgency(member.freelancer?.contractEndDate ?? member.contractEndDate ?? ''))}>
+                  Ends: {(member.freelancer?.contractEndDate ?? member.contractEndDate ?? '').slice(0, 10)}
+                </p>
+              )}
             </div>
           )}
           {member.engagementType === 'agency_partner' && (
@@ -323,6 +351,46 @@ function MemberDetailModal({ member, onClose, onEdit, onDelete }: { member: Team
                 <Badge>{a.category}</Badge>
               </div>
             ))}
+          </div>
+          <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-3 dark:border-slate-700">
+            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">Direct asset handover</p>
+            {!biz ? (
+              <p className="mt-1 text-[11px] text-slate-500">Assign {member.name} to a business first — handovers deploy into their business context.</p>
+            ) : availableAssets.length === 0 ? (
+              <p className="mt-1 text-[11px] text-slate-500">No available assets in the central pool right now.</p>
+            ) : (
+              <div className="mt-2 flex gap-2">
+                <select
+                  value={handoverId}
+                  onChange={(e) => setHandoverId(e.target.value)}
+                  aria-label="Available asset to hand over"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs dark:border-slate-700 dark:bg-slate-800"
+                >
+                  <option value="">Select pool asset…</option>
+                  {availableAssets.map((a) => (
+                    <option key={a.id} value={a.id}>{a.tag} · {a.name}</option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  disabled={!handoverId}
+                  onClick={() => {
+                    const asset = availableAssets.find((a) => a.id === handoverId)
+                    if (!asset || !biz) return
+                    deployAsset(asset.id, {
+                      entityType: biz.category,
+                      entityId: biz.id,
+                      branchId: member.branchId,
+                      memberId: member.id,
+                      notes: `Direct handover to ${member.name}`,
+                    })
+                    setHandoverId('')
+                  }}
+                >
+                  Hand over
+                </Button>
+              </div>
+            )}
           </div>
           {biz && (
             <div className="mt-4 rounded-xl bg-slate-900 p-3 text-xs text-white dark:bg-white/5 dark:text-slate-200">

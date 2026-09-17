@@ -27,7 +27,7 @@ const FILTERS: Array<{ value: BusinessCategory | 'all'; label: string }> = [
 ]
 
 export function BusinessesList() {
-  const { businesses, settings, addBusiness, updateBusiness, deleteBusiness } = useBusinesses()
+  const { businesses, settings, addBusiness, updateBusiness, deleteBusiness, addBranch } = useBusinesses()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [statusFilter, setStatusFilter] = useState<BusinessStatus | 'all'>('all')
@@ -200,11 +200,12 @@ export function BusinessesList() {
           open
           onClose={() => setAddOpen(false)}
           initial={editing}
-          onSubmit={(draft) => {
+          onSubmit={(draft, initialBranches) => {
             if (editing) {
               updateBusiness(editing.id, draft)
             } else {
-              addBusiness(draft)
+              const created = addBusiness(draft)
+              initialBranches.forEach((branch) => addBranch(created.id, branch))
             }
           }}
         />

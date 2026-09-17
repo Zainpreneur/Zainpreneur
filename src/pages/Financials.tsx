@@ -10,6 +10,7 @@ import { businessFinancials, ownerPercentage, portfolioSummary, userDividendShar
 import { CATEGORY_META, MODEL_META } from '../utils/meta'
 import { cn } from '../utils/cn'
 import { categoryPerformance } from '../utils/stats'
+import { assetUtilization } from '../utils/assets'
 import { PageContainer, PageHeader, SectionHeader } from '../components/layout/PageContainer'
 import { Button } from '../components/common/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/common/Card'
@@ -129,6 +130,8 @@ export function Financials() {
       ),
     [teamCostRows],
   )
+
+  const fleetBookValue = useMemo(() => assetUtilization(assets).bookValue, [assets])
 
   const filteredTransactions = useMemo(() => {
     const normalized = query.trim().toLowerCase()
@@ -310,7 +313,7 @@ export function Financials() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="grid grid-cols-2 gap-3 px-5 pb-4 pt-1 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 px-5 pb-4 pt-1 sm:grid-cols-3 xl:grid-cols-5">
             <div className="rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-600/20 dark:bg-emerald-500/10">
               <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Internal staff</p>
               <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(teamCostTotals.internal, settings.currency, { compact: true })}</p>
@@ -326,6 +329,10 @@ export function Financials() {
             <div className="rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-600/20 dark:bg-indigo-500/10">
               <p className="text-[11px] font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Deployed assets</p>
               <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(teamCostTotals.deployedValue, settings.currency, { compact: true })}</p>
+            </div>
+            <div className="rounded-xl bg-slate-100 p-3 ring-1 ring-slate-500/20 dark:bg-white/5">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">Fleet book value</p>
+              <p className="font-display text-lg font-extrabold tabular-nums">{formatCurrency(fleetBookValue, settings.currency, { compact: true })}</p>
             </div>
           </div>
           <div className="overflow-x-auto">

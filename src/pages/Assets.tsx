@@ -15,6 +15,7 @@ import {
 import type { Asset, AssetCategory, AssetStatus, BusinessCategory } from '../types'
 import { ASSET_CATEGORY_LABELS, ASSET_STATUS_LABELS, ENGAGEMENT_TYPE_LABELS } from '../types'
 import { useBusinesses, type DeployAssetInput } from '../context/BusinessContext'
+import { assetAgeYears, assetBookValue, assetUtilization } from '../utils/assets'
 import { formatCurrency, formatDate } from '../utils/format'
 import { ASSET_CATEGORY_META, ASSET_STATUS_META, CATEGORY_META } from '../utils/meta'
 import { cn } from '../utils/cn'
@@ -114,6 +115,8 @@ export function Assets() {
     return { total, inUse, available, maintenance, totalValue, deployedValue }
   }, [assets])
 
+  const valuation = useMemo(() => assetUtilization(assets), [assets])
+
   return (
     <PageContainer>
       <PageHeader
@@ -144,6 +147,50 @@ export function Assets() {
       <Card className="mt-6">
         <CardHeader>
           <div>
+            <CardTitle>Portfolio valuation</CardTitle>
+            <CardDescription>Straight-line depreciation with 10% salvage floor · purchase vs current book value</CardDescription>
+          </div>
+          <div className="text-right">
+            <p className="font-display text-xl font-extrabold tabular-nums">{formatCurrency(valuation.bookValue, settings.currency, { compact: true })}</p>
+            <p className="text-[11px] text-slate-400">
+              book · {formatCurrency(valuation.totalValue, settings.currency, { compact: true })} purchase ·
+              −{formatCurrency(valuation.totalValue - valuation.bookValue, settings.currency, { compact: true })} depreciated
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                  <th className="px-5 py-3">Category</th>
+                  <th className="px-3 py-3 text-right">Assets</th>
+                  <th className="px-3 py-3 text-right">Purchase</th>
+                  <th className="px-5 py-3 text-right">Book value</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {(Object.keys(valuation.byCategory) as AssetCategory[]).map((cat) => {
+                  const row = valuation.byCategory[cat]
+                  if (row.count === 0) return null
+                  return (
+                    <tr key={cat} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                      <td className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">{ASSET_CATEGORY_LABELS[cat]}</td>
+                      <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{row.count}</td>
+                      <td className="px-3 py-3 text-right tabular-nums text-slate-600 dark:text-slate-300">{formatCurrency(row.value, settings.currency, { compact: true })}</td>
+                      <td className="px-5 py-3 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(row.bookValue, settings.currency, { compact: true })}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <div>
             <CardTitle>Inventory grid</CardTitle>
             <CardDescription>Filter by category & status. Ownership is always Zainpreneur — only deployment moves.</CardDescription>
           </div>
@@ -161,7 +208,29 @@ export function Assets() {
           </div>
 
           {filtered.length === 0 ? (
-            <EmptyState icon={Package} title="No assets match" description="Try clearing filters or search." />
+            <EmptyState
+              icon={Package}
+              title={assets.length === 0 ? 'No assets registered' : 'No assets match'}
+              description={assets.length === 0 ? 'Register your first Zainpreneur-owned laptop, machine or equipment.' : 'Try clearing filters or search.'}
+              action={
+                assets.length === 0 ? (
+                  <Button icon={<Plus className="size-4" />} onClick={() => setAssetModal({ open: true })}>
+                    Add first asset
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setQuery('')
+                      setCategory('all')
+                      setStatus('all')
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                )
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((asset) => {
@@ -253,6 +322,10 @@ export function Assets() {
           <div className="space-y-3 text-sm">
             <p className="text-slate-600 dark:text-slate-300">{deploymentLabel(detail, businesses, teamMembers)}</p>
             <p className="text-xs text-slate-500">Condition: {detail.condition} · Value: {formatCurrency(detail.value, settings.currency)} · Owner: Zainpreneur (never transfers)</p>
+            <p className="text-xs text-slate-500">
+              Book value: <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(assetBookValue(detail), settings.currency)}</span>
+              {' '}· Age: {assetAgeYears(detail).toFixed(1)} yrs (straight-line, 10% salvage)
+            </p>
             {detail.notes && <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800 ring-1 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-200">{detail.notes}</p>}
             <div className="flex gap-2 pt-2">
               {detail.status === 'in-use' ? (

@@ -30,6 +30,8 @@ export interface FreelancerDetails {
   hourlyRate: number
   contractTerms: string
   projectScope?: string
+  /** ISO date when the current contract ends. */
+  contractEndDate?: string
 }
 
 /**
@@ -86,6 +88,7 @@ export interface TeamMember {
   hourlyRate?: number
   contractTerms?: string
   projectScope?: string
+  contractEndDate?: string
   /** Legacy flat agency fields — prefer agencyPartner.* */
   companyName?: string
   contactPerson?: string

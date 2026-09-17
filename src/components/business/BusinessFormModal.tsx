@@ -7,7 +7,7 @@ import {
   BUSINESS_STATUS_LABELS,
   CLIENT_TIER_LABELS,
 } from '../../types'
-import { useBusinesses, type BusinessDraft, type OwnerShareInput } from '../../context/BusinessContext'
+import { useBusinesses, type BranchDraft, type BusinessDraft, type OwnerShareInput } from '../../context/BusinessContext'
 import { cn } from '../../utils/cn'
 import { Button } from '../common/Button'
 import { Field, Select, Textarea, TextInput } from '../common/Input'
@@ -20,8 +20,20 @@ interface BusinessFormModalProps {
   open: boolean
   onClose: () => void
   initial?: Business
-  onSubmit: (draft: BusinessDraft) => void
+  /** Receives the business draft plus initial branches (only for creation). */
+  onSubmit: (draft: BusinessDraft, initialBranches: BranchDraft[]) => void
 }
+
+const STEPS = ['Basics & model', 'Cap table', 'Branches'] as const
+
+interface BranchRow {
+  name: string
+  location: string
+  monthlyRevenue: string
+  monthlyExpenses: string
+}
+
+const EMPTY_BRANCH_ROW: BranchRow = { name: '', location: '', monthlyRevenue: '', monthlyExpenses: '' }
 
 interface FormState {
   name: string
@@ -128,27 +140,52 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
   const { owners, addOwner } = useBusinesses()
   const [form, setForm] = useState<FormState>(() => (initial ? toForm(initial) : EMPTY))
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [step, setStep] = useState(0)
+  const [branchRows, setBranchRows] = useState<BranchRow[]>([EMPTY_BRANCH_ROW])
 
   const hasBranches = (initial?.branches.length ?? 0) > 0
+  const isCreate = !initial
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleSubmit = () => {
+  const updateBranchRow = (index: number, patch: Partial<BranchRow>) => {
+    setBranchRows((prev) => prev.map((row, i) => (i === index ? { ...row, ...patch } : row)))
+  }
+
+  /** Validate the current step; returns true when navigation may continue. */
+  const validateStep = (target: number): boolean => {
     const nextErrors: Record<string, string> = {}
-    if (!form.name.trim()) nextErrors.name = 'Business name is required.'
-    if (!form.industry.trim()) nextErrors.industry = 'Industry is required.'
-    if (form.category === 'equity' && form.equityShare) {
-      const share = Number(form.equityShare)
-      if (Number.isNaN(share) || share < 0 || share > 100) nextErrors.equityShare = 'Enter a value between 0 and 100.'
+    if (target === 0) {
+      if (!form.name.trim()) nextErrors.name = 'Business name is required.'
+      if (!form.industry.trim()) nextErrors.industry = 'Industry is required.'
+      if (form.category === 'equity' && form.equityShare) {
+        const share = Number(form.equityShare)
+        if (Number.isNaN(share) || share < 0 || share > 100) nextErrors.equityShare = 'Enter a value between 0 and 100.'
+      }
     }
-    const allocated = form.capTable.reduce((sum, entry) => sum + entry.percentage, 0)
-    if (form.capTable.length > 0 && Math.abs(allocated - 100) >= 0.01) {
-      nextErrors.capTable = `Equity must total 100% (currently ${allocated.toFixed(0)}%).`
+    if (target === 1) {
+      const allocated = form.capTable.reduce((sum, entry) => sum + entry.percentage, 0)
+      if (form.capTable.length > 0 && Math.abs(allocated - 100) >= 0.01) {
+        nextErrors.capTable = `Equity must total 100% (currently ${allocated.toFixed(0)}%).`
+      }
     }
     setErrors(nextErrors)
-    if (Object.keys(nextErrors).length > 0) return
+    return Object.keys(nextErrors).length === 0
+  }
+
+  const goNext = () => {
+    if (validateStep(step)) setStep((s) => Math.min(s + 1, STEPS.length - 1))
+  }
+
+  const handleSubmit = () => {
+    if (!validateStep(0) || !validateStep(1)) {
+      setStep(!form.name.trim() || !form.industry.trim() ? 0 : 1)
+      return
+    }
+    const nextErrors: Record<string, string> = {}
+    setErrors(nextErrors)
 
     const draft: BusinessDraft = {
       name: form.name.trim(),
@@ -202,7 +239,19 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
           : undefined,
     }
 
-    onSubmit(draft)
+    const initialBranches: BranchDraft[] = isCreate
+      ? branchRows
+          .filter((row) => row.name.trim())
+          .map((row, index) => ({
+            name: row.name.trim(),
+            location: row.location.trim(),
+            monthlyRevenue: Number(row.monthlyRevenue) || 0,
+            monthlyExpenses: Number(row.monthlyExpenses) || 0,
+            isHeadquarters: index === 0,
+          }))
+      : []
+
+    onSubmit(draft, initialBranches)
     onClose()
   }
 
@@ -218,11 +267,49 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>{initial ? 'Save changes' : 'Create business'}</Button>
+          {step > 0 && (
+            <Button variant="secondary" onClick={() => setStep((s) => s - 1)}>
+              Back
+            </Button>
+          )}
+          {step < STEPS.length - 1 ? (
+            <Button onClick={goNext}>Continue</Button>
+          ) : (
+            <Button onClick={handleSubmit}>{initial ? 'Save changes' : 'Create business'}</Button>
+          )}
         </>
       }
     >
+      <ol className="mb-5 flex items-center gap-2" aria-label="Form progress">
+        {STEPS.map((label, index) => (
+          <li key={label} className="flex flex-1 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (index < step || validateStep(step)) setStep(index)
+              }}
+              className={cn(
+                'flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors',
+                index === step
+                  ? 'bg-brand-600 text-white'
+                  : index < step
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                    : 'bg-slate-100 text-slate-400 dark:bg-slate-800',
+              )}
+              aria-current={index === step ? 'step' : undefined}
+            >
+              {index + 1}
+            </button>
+            <span className={cn('text-xs font-semibold', index === step ? 'text-slate-900 dark:text-white' : 'text-slate-400')}>
+              {label}
+            </span>
+            {index < STEPS.length - 1 && <span className="mx-1 h-px flex-1 bg-slate-200 dark:bg-slate-700" />}
+          </li>
+        ))}
+      </ol>
       <div className="space-y-5">
+        {step === 0 && (
+          <>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Business name" htmlFor="bf-name" required error={errors.name}>
             <TextInput
@@ -493,11 +580,6 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
           </div>
         )}
 
-        <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-          <CapTableEditor owners={owners} value={form.capTable} onChange={(next) => update('capTable', next)} onCreateOwner={addOwner} />
-          {errors.capTable && <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.capTable}</p>}
-        </div>
-
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Location" htmlFor="bf-location">
             <TextInput id="bf-location" value={form.location} onChange={(e) => update('location', e.target.value)} placeholder="City, area" />
@@ -534,6 +616,102 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
             ))}
           </div>
         </Field>
+          </>
+        )}
+        {step === 1 && (
+          <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+            <p className="mb-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              Allocate ownership across stakeholders. Percentages must total exactly 100% before you can continue.
+            </p>
+            <CapTableEditor owners={owners} value={form.capTable} onChange={(next) => update('capTable', next)} onCreateOwner={addOwner} />
+            {errors.capTable && <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.capTable}</p>}
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-4">
+            {isCreate ? (
+              <>
+                <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                  Optionally register the first branches now — revenue, expenses and staff roll up from branches
+                  automatically. The first branch becomes headquarters. You can add more later from the detail view.
+                </p>
+                {branchRows.map((row, index) => (
+                  <div key={index} className="grid gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-2 dark:border-slate-800">
+                    <Field label={`Branch ${index + 1} name`} htmlFor={`bf-br-name-${index}`}>
+                      <TextInput
+                        id={`bf-br-name-${index}`}
+                        value={row.name}
+                        onChange={(e) => updateBranchRow(index, { name: e.target.value })}
+                        placeholder="e.g. DHA Flagship"
+                      />
+                    </Field>
+                    <Field label="Location" htmlFor={`bf-br-loc-${index}`}>
+                      <TextInput
+                        id={`bf-br-loc-${index}`}
+                        value={row.location}
+                        onChange={(e) => updateBranchRow(index, { location: e.target.value })}
+                        placeholder="City, area"
+                      />
+                    </Field>
+                    <Field label="Monthly revenue" htmlFor={`bf-br-rev-${index}`}>
+                      <TextInput
+                        id={`bf-br-rev-${index}`}
+                        type="number"
+                        min={0}
+                        value={row.monthlyRevenue}
+                        onChange={(e) => updateBranchRow(index, { monthlyRevenue: e.target.value })}
+                        placeholder="0"
+                      />
+                    </Field>
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <Field label="Monthly expenses" htmlFor={`bf-br-exp-${index}`}>
+                          <TextInput
+                            id={`bf-br-exp-${index}`}
+                            type="number"
+                            min={0}
+                            value={row.monthlyExpenses}
+                            onChange={(e) => updateBranchRow(index, { monthlyExpenses: e.target.value })}
+                            placeholder="0"
+                          />
+                        </Field>
+                      </div>
+                      {branchRows.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          onClick={() => setBranchRows((prev) => prev.filter((_, i) => i !== index))}
+                          aria-label={`Remove branch ${index + 1}`}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <Button variant="secondary" onClick={() => setBranchRows((prev) => [...prev, { ...EMPTY_BRANCH_ROW }])}>
+                  Add another branch
+                </Button>
+                <div className="rounded-xl bg-slate-50 p-4 text-xs text-slate-600 dark:bg-slate-800/40 dark:text-slate-300">
+                  <p className="font-bold text-slate-800 dark:text-slate-100">Review — {form.name || 'New business'}</p>
+                  <p className="mt-1">
+                    {form.category} · {form.model} model · {form.capTable.reduce((s, e) => s + e.percentage, 0).toFixed(0)}% equity allocated ·
+                    {' '}{branchRows.filter((r) => r.name.trim()).length} branch(es)
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-600 dark:bg-slate-800/40 dark:text-slate-300">
+                <p className="font-bold text-slate-800 dark:text-slate-100">
+                  {initial?.branches.length ?? 0} existing branch(es)
+                </p>
+                <p className="mt-1">
+                  Branches are managed from the business detail view, where revenue, expenses and staff roll up
+                  automatically. Saving here keeps the current branch structure.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Modal>
   )

@@ -545,7 +545,18 @@ export function BusinessDetail() {
                 )
               })}
               {teamMembers.filter((m) => (m.activeBusinessId ?? m.associatedBusinessId) === business.id).length === 0 && (
-                <Card><EmptyState icon={Users} title="No team assigned" description={`No internal members, freelancers or agencies are currently allocated to ${business.name}.`} /></Card>
+                <Card>
+                  <EmptyState
+                    icon={Users}
+                    title="No team assigned"
+                    description={`No internal members, freelancers or agencies are currently allocated to ${business.name}.`}
+                    action={
+                      <Link to="/team">
+                        <Button variant="secondary">Assign in team hub</Button>
+                      </Link>
+                    }
+                  />
+                </Card>
               )}
               <Card>
                 <CardHeader><div><CardTitle>Deployed Zainpreneur assets</CardTitle><CardDescription>Hardware & machinery checked out to this business — ownership stays with Zainpreneur</CardDescription></div></CardHeader>

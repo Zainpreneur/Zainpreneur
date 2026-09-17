@@ -50,6 +50,7 @@ import {
   ZAIN_OWNER_ID,
 } from '../data'
 import { ASSET_OWNER } from '../types'
+import { useToast } from './ToastContext'
 import { initials } from '../utils/format'
 import { branchTotals } from '../utils/branches'
 import { ownerStats } from '../utils/calculations'
@@ -165,6 +166,7 @@ export interface TeamMemberDraft {
   hourlyRate?: number
   contractTerms?: string
   projectScope?: string
+  contractEndDate?: string
   /** Agency partner specific details */
   companyName?: string
   contactPerson?: string
@@ -247,6 +249,7 @@ function normalizeTeamMember(member: TeamMember): TeamMember {
       hourlyRate: normalized.hourlyRate ?? 0,
       contractTerms: normalized.contractTerms ?? 'contract',
       projectScope: normalized.projectScope,
+      contractEndDate: normalized.contractEndDate,
     }
   }
   if (engagementType === 'agency_partner' && !normalized.agencyPartner) {
@@ -450,6 +453,7 @@ function teamMemberSeed(draft: TeamMemberDraft, id: string): TeamMember {
     hourlyRate: draft.hourlyRate,
     contractTerms: draft.contractTerms,
     projectScope: draft.projectScope,
+    contractEndDate: draft.contractEndDate,
     companyName: draft.companyName,
     contactPerson: draft.contactPerson,
     projectAllocation: draft.projectAllocation,
@@ -461,7 +465,12 @@ function teamMemberSeed(draft: TeamMemberDraft, id: string): TeamMember {
         : undefined,
     freelancer:
       engagementType === 'freelancer'
-        ? { hourlyRate: draft.hourlyRate ?? 0, contractTerms: draft.contractTerms ?? 'project-based', projectScope: draft.projectScope }
+        ? {
+            hourlyRate: draft.hourlyRate ?? 0,
+            contractTerms: draft.contractTerms ?? 'project-based',
+            projectScope: draft.projectScope,
+            contractEndDate: draft.contractEndDate,
+          }
         : undefined,
     agencyPartner:
       engagementType === 'agency_partner'
@@ -588,6 +597,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   const [assetHistory, setAssetHistory] = useState<AssetHistoryEntry[]>(seeded.assetHistory)
   const [settings, setSettings] = useState<AppSettings>(() => readSettings())
   const [profile, setProfile] = useState<UserProfile>(() => readProfile())
+  const { notify } = useToast()
 
   /* ------------------------------ derived owners ------------------------------ */
 
@@ -640,8 +650,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   const addBusiness = useCallback((draft: BusinessDraft) => {
     const nextBusiness = businessSeed(draft, makeId('biz'))
     setBusinesses((prev) => [...prev, nextBusiness])
+    notify(`Business "${nextBusiness.name}" created`)
     return nextBusiness
-  }, [])
+  }, [notify])
 
   const updateBusiness = useCallback((id: string, patch: Partial<BusinessDraft>) => {
     setBusinesses((prev) =>
@@ -652,9 +663,11 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return withRollup(merged)
       }),
     )
-  }, [])
+    notify('Business updated')
+  }, [notify])
 
   const deleteBusiness = useCallback((id: string) => {
+    notify('Business deleted', 'info')
     setBusinesses((prev) => prev.filter((business) => business.id !== id))
     setTransactions((prev) => prev.filter((tx) => tx.businessId !== id))
     setTasks((prev) => prev.filter((task) => task.businessId !== id))
@@ -677,15 +690,17 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         business.id === businessId ? { ...business, capTable: capTable.map((entry) => ({ ...entry })) } : business,
       ),
     )
-  }, [])
+    notify('Cap table updated')
+  }, [notify])
 
   /* ------------------------------ owner actions ------------------------------ */
 
   const addOwner = useCallback((draft: OwnerDraft) => {
     const nextOwner = ownerSeed(draft, makeId('own'))
     setRawOwners((prev) => [...prev, nextOwner])
+    notify(`Owner "${nextOwner.name}" added`)
     return nextOwner
-  }, [])
+  }, [notify])
 
   const updateOwner = useCallback((id: string, patch: Partial<OwnerDraft>) => {
     setRawOwners((prev) =>
@@ -696,9 +711,11 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return merged
       }),
     )
-  }, [])
+    notify('Owner updated')
+  }, [notify])
 
   const deleteOwner = useCallback((id: string) => {
+    notify('Owner removed', 'info')
     setRawOwners((prev) => prev.filter((owner) => owner.id !== id))
     setBusinesses((prev) =>
       prev.map((business) =>
@@ -721,8 +738,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return withRollup({ ...business, branches })
       }),
     )
+    notify(`Branch "${branch.name}" added — totals rolled up`)
     return branch
-  }, [])
+  }, [notify])
 
   const updateBranch = useCallback((businessId: string, branchId: string, patch: Partial<BranchDraft>) => {
     setBusinesses((prev) =>
@@ -733,9 +751,11 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return withRollup({ ...business, branches })
       }),
     )
-  }, [])
+    notify('Branch updated — totals rolled up')
+  }, [notify])
 
   const deleteBranch = useCallback((businessId: string, branchId: string) => {
+    notify('Branch deleted — totals rolled up', 'info')
     setBusinesses((prev) =>
       prev.map((business) =>
         business.id === businessId
@@ -750,7 +770,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
           : asset,
       ),
     )
-  }, [])
+  }, [notify])
 
   /* ------------------------------ milestone actions ------------------------------ */
 
@@ -762,7 +782,8 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return { ...business, project: { ...project, milestones: [...project.milestones, { ...milestone, id: makeId('ms') }] } }
       }),
     )
-  }, [])
+    notify(`Milestone "${milestone.name}" added`)
+  }, [notify])
 
   const updateMilestone = useCallback((businessId: string, milestoneId: string, patch: Partial<Milestone>) => {
     setBusinesses((prev) =>
@@ -779,9 +800,11 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         }
       }),
     )
-  }, [])
+    notify('Milestone updated')
+  }, [notify])
 
   const deleteMilestone = useCallback((businessId: string, milestoneId: string) => {
+    notify('Milestone deleted', 'info')
     setBusinesses((prev) =>
       prev.map((business) => {
         if (business.id !== businessId || !business.project) return business
@@ -794,15 +817,16 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         }
       }),
     )
-  }, [])
+  }, [notify])
 
   /* ------------------------------ team member actions ------------------------------ */
 
   const addTeamMember = useCallback((draft: TeamMemberDraft) => {
     const member = teamMemberSeed(draft, makeId('tm'))
     setRawTeamMembers((prev) => [...prev, member])
+    notify(`"${member.name}" added to roster`)
     return member
-  }, [])
+  }, [notify])
 
   const updateTeamMember = useCallback((id: string, patch: Partial<TeamMemberDraft>) => {
     setRawTeamMembers((prev) =>
@@ -830,9 +854,12 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
             hourlyRate: patch.hourlyRate ?? merged.freelancer?.hourlyRate ?? merged.hourlyRate ?? 0,
             contractTerms: patch.contractTerms ?? merged.freelancer?.contractTerms ?? 'project-based',
             projectScope: patch.projectScope ?? merged.freelancer?.projectScope,
+            contractEndDate: patch.contractEndDate ?? merged.freelancer?.contractEndDate ?? merged.contractEndDate,
           }
           if (patch.hourlyRate !== undefined) merged.hourlyRate = patch.hourlyRate
           if (patch.contractTerms !== undefined) merged.contractTerms = patch.contractTerms
+          if (patch.contractEndDate !== undefined) merged.contractEndDate = patch.contractEndDate
+          if (patch.projectScope !== undefined) merged.projectScope = patch.projectScope
         }
         if (merged.engagementType === 'agency_partner') {
           merged.agencyPartner = {
@@ -845,9 +872,15 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return merged
       }),
     )
-  }, [])
+    if (patch.activeBusinessId !== undefined || patch.associatedBusinessId !== undefined) {
+      notify('Team member reassigned')
+    } else {
+      notify('Team member updated')
+    }
+  }, [notify])
 
   const deleteTeamMember = useCallback((id: string) => {
+    notify('Team member removed', 'info')
     setRawTeamMembers((prev) => prev.filter((member) => member.id !== id))
     setAssets((prev) =>
       prev.map((asset) =>
@@ -856,12 +889,13 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
           : asset,
       ),
     )
-  }, [])
+  }, [notify])
 
   /* ------------------------------ asset actions ------------------------------ */
 
   const addAsset = useCallback((draft: AssetDraft) => {
     const asset = assetSeed(draft, makeId('as'))
+    notify(`Asset "${asset.name}" registered to central pool`)
     setAssets((prev) => [asset, ...prev])
     setAssetHistory((prev) => [
       {
@@ -875,16 +909,18 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       ...prev,
     ])
     return asset
-  }, [])
+  }, [notify])
 
   const updateAsset = useCallback((id: string, patch: Partial<AssetDraft>) => {
     setAssets((prev) => prev.map((asset) => (asset.id === id ? { ...asset, ...patch } : asset)))
-  }, [])
+    notify('Asset updated')
+  }, [notify])
 
   const deleteAsset = useCallback((id: string) => {
+    notify('Asset deleted from pool', 'info')
     setAssets((prev) => prev.filter((asset) => asset.id !== id))
     setAssetHistory((prev) => prev.filter((entry) => entry.assetId !== id))
-  }, [])
+  }, [notify])
 
   const describeDeployment = useCallback(
     (input: { entityId: string; branchId?: string; memberId?: string }): { label: string; businessId: string } => {
@@ -957,8 +993,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         notes: input.notes,
       })
       if (asset) logActivity(target.businessId, 'asset', `${asset.name} deployed to ${target.label}`)
+      notify(`Asset "${asset?.name ?? 'asset'}" successfully deployed`)
     },
-    [assets, describeDeployment, pushHistory, logActivity],
+    [assets, describeDeployment, pushHistory, logActivity, notify],
   )
 
   const returnAsset = useCallback(
@@ -977,8 +1014,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       )
       pushHistory(asset, { action: 'returned', targetLabel: 'Returned to pool', notes })
       if (asset) logActivity(target.businessId, 'asset', `${asset.name} returned from ${target.label}`)
+      notify(`Asset "${asset?.name ?? 'asset'}" returned to base`)
     },
-    [assets, describeDeployment, pushHistory, logActivity],
+    [assets, describeDeployment, pushHistory, logActivity, notify],
   )
 
   const setAssetStatus = useCallback(
@@ -995,8 +1033,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       const label = status === 'maintenance' ? 'Sent for maintenance' : status === 'retired' ? 'Retired from service' : 'Back in service'
       pushHistory(asset, { action, targetLabel: label, notes })
       if (asset) logActivity('', 'asset', `${asset.name} marked ${status}`)
+      notify(`Asset "${asset?.name ?? 'asset'}" marked ${status}`)
     },
-    [assets, pushHistory, logActivity],
+    [assets, pushHistory, logActivity, notify],
   )
 
   /* ------------------------------ transaction actions ------------------------------ */
@@ -1016,16 +1055,19 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       notes: draft.notes,
     }
     setTransactions((prev) => [...prev, nextTransaction])
+    notify('Transaction recorded')
     return nextTransaction
-  }, [])
+  }, [notify])
 
   const updateTransaction = useCallback((id: string, patch: Partial<TransactionDraft>) => {
     setTransactions((prev) => prev.map((tx) => (tx.id === id ? { ...tx, ...patch } : tx)))
-  }, [])
+    notify('Transaction updated')
+  }, [notify])
 
   const deleteTransaction = useCallback((id: string) => {
+    notify('Transaction deleted', 'info')
     setTransactions((prev) => prev.filter((tx) => tx.id !== id))
-  }, [])
+  }, [notify])
 
   /* ------------------------------ task actions ------------------------------ */
 
@@ -1044,8 +1086,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       completedAt: draft.status === 'done' ? nowIso : undefined,
     }
     setTasks((prev) => [...prev, nextTask])
+    notify(`Task "${nextTask.title}" created`)
     return nextTask
-  }, [])
+  }, [notify])
 
   const updateTask = useCallback((id: string, patch: Partial<Omit<TaskDraft, 'businessId'>>) => {
     setTasks((prev) =>
@@ -1057,11 +1100,13 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         return merged
       }),
     )
-  }, [])
+    notify(patch.status === 'done' ? 'Task completed' : 'Task updated')
+  }, [notify])
 
   const deleteTask = useCallback((id: string) => {
+    notify('Task deleted', 'info')
     setTasks((prev) => prev.filter((task) => task.id !== id))
-  }, [])
+  }, [notify])
 
   /* ------------------------------ settings ------------------------------ */
 
@@ -1084,7 +1129,8 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     setAssetHistory(seedAssetHistory)
     setSettings(defaultSettings)
     setProfile(defaultUser)
-  }, [])
+    notify('Demo data reset', 'info')
+  }, [notify])
 
   const value = useMemo<BusinessContextValue>(
     () => ({

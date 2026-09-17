@@ -29,6 +29,7 @@ interface FormState {
   hourlyRate: string
   contractTerms: string
   projectScope: string
+  contractEndDate: string
   companyName: string
   contactPerson: string
   projectAllocation: string
@@ -53,6 +54,7 @@ const EMPTY: FormState = {
   hourlyRate: '',
   contractTerms: '',
   projectScope: '',
+  contractEndDate: '',
   companyName: '',
   contactPerson: '',
   projectAllocation: '',
@@ -78,6 +80,7 @@ function toForm(member: TeamMember): FormState {
     hourlyRate: String(member.freelancer?.hourlyRate ?? member.hourlyRate ?? ''),
     contractTerms: member.freelancer?.contractTerms ?? member.contractTerms ?? '',
     projectScope: member.freelancer?.projectScope ?? member.projectScope ?? '',
+    contractEndDate: (member.freelancer?.contractEndDate ?? member.contractEndDate ?? '').slice(0, 10),
     companyName: member.agencyPartner?.companyName ?? member.companyName ?? '',
     contactPerson: member.agencyPartner?.contactPerson ?? member.contactPerson ?? '',
     projectAllocation: member.agencyPartner?.projectAllocation ?? member.projectAllocation ?? '',
@@ -133,6 +136,7 @@ export function MemberFormModal({ open, onClose, initial, onSubmit }: MemberForm
       hourlyRate: num(form.hourlyRate),
       contractTerms: form.contractTerms.trim() || undefined,
       projectScope: form.projectScope.trim() || undefined,
+      contractEndDate: form.contractEndDate || undefined,
       companyName: form.companyName.trim() || undefined,
       contactPerson: form.contactPerson.trim() || undefined,
       projectAllocation: form.projectAllocation.trim() || undefined,
@@ -203,6 +207,9 @@ export function MemberFormModal({ open, onClose, initial, onSubmit }: MemberForm
             </Field>
             <Field label="Contract terms" htmlFor="mm-terms">
               <TextInput id="mm-terms" value={form.contractTerms} onChange={(e) => set({ contractTerms: e.target.value })} placeholder="e.g. 3-month retainer" />
+            </Field>
+            <Field label="Contract end date" htmlFor="mm-end">
+              <TextInput id="mm-end" type="date" value={form.contractEndDate} onChange={(e) => set({ contractEndDate: e.target.value })} />
             </Field>
             <div className="sm:col-span-2">
               <Field label="Project scope" htmlFor="mm-scope">
