@@ -7,7 +7,7 @@ import { cn } from '../../utils/cn'
 const FIELD_BASE =
   'w-full rounded-[14px] border border-[var(--hairline)] bg-[var(--surface-2)] px-3.5 py-2.5 text-sm text-[var(--text-1)] shadow-[var(--sh-inset)] placeholder-color-[var(--text-3)] transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus-ring-[var(--accent-tint)] disabled:cursor-not-allowed disabled:bg-[var(--surface-3)] dark:border-[var(--hairline-strong)] dark:bg-[var(--surface-3)] dark:text-[var(--text-1)] dark:placeholder-color-[var(--text-3)]'
 
-const INPUT_LEFT_ICON = 'left-3 top-1/2 -translate-y-1/2 left-3 select-none pointer-events-none text-[var(--text-2)]'
+const _INPUT_LEFT_ICON = 'left-3 top-1/2 -translate-y-1/2 left-3 select-none pointer-events-none text-[var(--text-2)]'
 
 interface FieldProps {
   label: string

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 
 import {
   ArrowRight,
-  Banknote,
   Building2,
   CircleDollarSign,
   HeartPulse,
@@ -18,10 +17,6 @@ import { useBusinesses } from '../context/BusinessContext'
 import { useAuth } from '../context/AuthContext'
 import { formatCurrency, formatNumber } from '../utils/format'
 import { businessFinancials, portfolioSummary } from '../utils/calculations'
-import { CATEGORY_META } from '../utils/meta'
-import { isPast } from '../utils/time'
-import { cn } from '../utils/cn'
-import { computeTotals, getPortfolioHistory } from '../utils/stats'
 import { Button } from '../components/common/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/common/Card'
 import { PageContainer, PageHeader } from '../components/layout/PageContainer'
@@ -460,10 +455,6 @@ export function Dashboard() {
   )
 }
 
-function totalDonutValue(slices: DonutSlice[]): number {
-  return slices.reduce((sum, slice) => sum + slice.value, 0)
-}
-
 function formatShortDateLabel(iso: string): string {
   const date = new Date(iso)
   const today = new Date()
@@ -474,11 +465,3 @@ function formatShortDateLabel(iso: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-const PRIORITY_CLASS = (priority: string): string =>
-  priority === 'urgent'
-    ? 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--danger-tint)] text-[var(--danger)]'
-    : priority === 'high'
-      ? 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--warn-tint)] text-[var(--warn)]'
-      : priority === 'medium'
-        ? 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--surface-2)] text-[var(--text-2)]'
-        : 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--surface-1)] text-[var(--text-1)]'

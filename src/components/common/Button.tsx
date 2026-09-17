@@ -12,17 +12,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean
 }
 
-const SHADOW_RAISED = '0 8px 18px rgba(0,0,0,.55), -8px -8px 18px rgba(255,255,255,.045), inset 0 1px 0 rgba(255,255,255,.06)'
-const SHADOW_RAISED_SM = '0 4px 10px rgba(0,0,0,.5), -4px -4px 10px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.05)'
-const SHADOW_INSET = 'inset 4px 4px 9px rgba(0,0,0,.5), inset -4px -4px 9px rgba(255,255,255,.04)'
-const SHADOW_INSET_SM = 'inset 2px 2px 6px rgba(0,0,0,.45), inset -2px -2px 6px rgba(255,255,255,.035)'
-const SHADOW_ACCENT = '0 6px 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.25)'
+const _SHADOW_RAISED = '0 8px 18px rgba(0,0,0,.55), -8px -8px 18px rgba(255,255,255,.045), inset 0 1px 0 rgba(255,255,255,.06)'
+const _SHADOW_RAISED_SM = '0 4px 10px rgba(0,0,0,.5), -4px -4px 10px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.05)'
+const _SHADOW_INSET = 'inset 4px 4px 9px rgba(0,0,0,.5), inset -4px -4px 9px rgba(255,255,255,.04)'
+const _SHADOW_INSET_SM = 'inset 2px 2px 6px rgba(0,0,0,.45), inset -2px -2px 6px rgba(255,255,255,.035)'
+const _SHADOW_ACCENT = '0 6px 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.25)'
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-[var(--accent)] text-white shadow-[var(--sh-accent)] hover:bg-[var(--accent-hover)] focus-visible:ring-[var(--accent-tint)] active:shadow-[inset_0_1px_0_rgba(255,255,255,.25)]',
+    'bg-[var(--accent)] text-white shadow-[_SHADOW_ACCENT] hover:bg-[var(--accent-hover)] focus-visible:ring-[var(--accent-tint)] active:shadow-[inset_0_1px_0_rgba(255,255,255,.25)]',
   secondary:
-    'bg-[var(--surface-1)] text-[var(--text-1)] shadow-[var(--sh-raised-sm)] hover:bg-[var(--surface-2)] focus-visible:ring-[var(--accent-tint)] active:shadow-[var(--sh-inset-sm)]',
+    'bg-[var(--surface-1)] text-[var(--text-1)] shadow-[_SHADOW_RAISED_SM] hover:bg-[var(--surface-2)] focus-visible:ring-[var(--accent-tint)] active:shadow-[_SHADOW_INSET_SM]',
   ghost:
     'text-[var(--text-2)] hover:bg-transparent focus-visible:ring-[var(--accent-tint)]',
   danger:

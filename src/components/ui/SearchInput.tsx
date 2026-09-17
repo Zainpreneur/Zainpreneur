@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { Search, X } from 'lucide-react'
 
 import { cn } from '../../utils/cn'
+import { useDebounced } from '../../hooks/useDebounced'
 
 interface SearchInputProps {
   value: string
@@ -10,9 +11,18 @@ interface SearchInputProps {
   placeholder?: string
   className?: string
   fullWidth?: boolean
+  debounceDelay?: number
 }
 
-export function SearchInput({ value, onChange, placeholder = 'Search…', className, fullWidth }: SearchInputProps) {
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = 'Search…',
+  className,
+  fullWidth,
+  debounceDelay = 250,
+}: SearchInputProps) {
+  const debouncedValue = useDebounced(value, debounceDelay)
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -21,7 +31,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
       <input
         ref={inputRef}
         type="search"
-        value={value}
+        value={debouncedValue}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="h-10 w-full rounded-[14px] border border-[var(--hairline)] bg-[var(--surface-2)] px-9 pl-9 text-sm text-[var(--text-1)] shadow-[var(--sh-inset)] transition-colors placeholder-color-[var(--text-3)] focus:border-transparent focus:outline-none focus:ring-2 focus-ring-[var(--accent-tint)] disabled:cursor-not-allowed disabled:bg-[var(--surface-3)] dark:border-[var(--hairline-strong)] dark:bg-[var(--surface-3)] dark:text-[var(--text-1)] dark:placeholder-color-[var(--text-3)]"

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useToast } from '../context/ToastContext'
 
 import type { Business, BusinessCategory, BusinessModel, BusinessStatus, ClientTier } from '../../types'
 import {
@@ -138,10 +139,13 @@ function toForm(business: Business): FormState {
 
 export function BusinessFormModal({ open, onClose, initial, onSubmit }: BusinessFormModalProps) {
   const { owners, addOwner } = useBusinesses()
+  const { addBusiness, updateBusiness } = useBusinesses()
+  const { toast } = useToast()
   const [form, setForm] = useState<FormState>(() => (initial ? toForm(initial) : EMPTY))
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [step, setStep] = useState(0)
   const [branchRows, setBranchRows] = useState<BranchRow[]>([EMPTY_BRANCH_ROW])
+  const [isSaving, setIsSaving] = useState(false)
 
   const hasBranches = (initial?.branches.length ?? 0) > 0
   const isCreate = !initial
@@ -179,7 +183,7 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
     if (validateStep(step)) setStep((s) => Math.min(s + 1, STEPS.length - 1))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateStep(0) || !validateStep(1)) {
       setStep(!form.name.trim() || !form.industry.trim() ? 0 : 1)
       return
@@ -251,8 +255,21 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
           }))
       : []
 
-    onSubmit(draft, initialBranches)
-    onClose()
+    setIsSaving(true)
+    try {
+      if (editingBusiness) {
+        await updateBusiness(editingBusiness.id, draft)
+      } else {
+        const created = await addBusiness(draft)
+        initialBranches.forEach((branch) => await addBranch(created.id, branch))
+      }
+      onClose()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save business'
+      toast({ title: 'Error', description: message, variant: 'destructive' })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -275,7 +292,7 @@ export function BusinessFormModal({ open, onClose, initial, onSubmit }: Business
           {step < STEPS.length - 1 ? (
             <Button onClick={goNext}>Continue</Button>
           ) : (
-            <Button onClick={handleSubmit}>{initial ? 'Save changes' : 'Create business'}</Button>
+            <Button onClick={handleSubmit} disabled={isSaving}>{initial ? 'Save changes' : 'Create business'}</Button>
           )}
         </>
       }

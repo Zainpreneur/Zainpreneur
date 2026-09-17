@@ -53,13 +53,12 @@ export function BarChart({
           style={{ paddingLeft: showGrid ? 48 : 0 }}
         >
           {labels.map((label, index) => {
-            const tallest = Math.max(...series.map((s) => s.data[index]?.value ?? 0), 1)
+            const _tallest = Math.max(...series.map((s) => s.data[index]?.value ?? 0), 1)
             return (
               <div key={`group-${label}-${index}`} className="group relative flex h-full flex-1 items-end justify-center">
                 <div className="flex h-full w-full items-end justify-center gap-1" style={{ gap: groupGap }}>
                   {series.map((s) => {
                     const value = s.data[index]?.value ?? 0
-                    const percentOfGroup = (value / tallest) * 100
                     const percentOfMax = (value / maxValue) * 100
                     return (
                       <div

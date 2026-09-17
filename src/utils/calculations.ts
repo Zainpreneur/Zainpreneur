@@ -266,7 +266,7 @@ export function portfolioSummary(businesses: Business[], userId: string): Portfo
     userMonthlyRevenue += userRevenueShare(business, userId)
     userMonthlyProfit += userNetShare(business, userId)
     userDividends += userDividendShare(business, userId)
-    health += business.healthScore
+    health += business.healthScore ?? 0
   }
 
   const monthlyProfit = monthlyRevenue - monthlyExpenses
@@ -284,7 +284,7 @@ export function portfolioSummary(businesses: Business[], userId: string): Portfo
     userMonthlyRevenue,
     userMonthlyProfit,
     userDividends,
-    avgHealth: businesses.length > 0 ? Math.round(health / businesses.length) : 0,
+    avgHealth: businesses.length > 0 && !Number.isNaN(health / businesses.length) ? Math.round(health / businesses.length) : 0,
     byModel,
     byCategory,
   }
@@ -321,8 +321,8 @@ export function ownerHoldings(ownerId: string, businesses: Business[]): OwnerHol
       percentage: entry.percentage,
       role: entry.role,
       primary: entry.primary ?? false,
-      netShare: (businessFinancials(business).profit * entry.percentage) / 100,
-      netAssetValue: (enterpriseValue(business) * entry.percentage) / 100,
+      netShare: Number.isFinite(businessFinancials(business).profit * entry.percentage) ? (businessFinancials(business).profit * entry.percentage) / 100 : 0,
+      netAssetValue: Number.isFinite(enterpriseValue(business) * entry.percentage) ? (enterpriseValue(business) * entry.percentage) / 100 : 0,
     })
   }
   return holdings.sort((a, b) => b.percentage - a.percentage)

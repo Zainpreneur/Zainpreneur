@@ -1,0 +1,25 @@
+{
+  "name": "Zainpreneur",
+  "short_name": "Zainpreneur",
+  "description": "Business command center for managing owned businesses, equity stakes, and client work",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1D1D1F",
+  "background_color": "#121214",
+  "orientation": "portrait-primary",
+  "scope": ".",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

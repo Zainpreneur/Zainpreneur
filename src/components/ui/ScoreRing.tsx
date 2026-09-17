@@ -1,5 +1,3 @@
-import { useId } from 'react'
-
 import type { ScoreRingSlice } from '../../types'
 
 import { cn } from '../../utils/cn'
@@ -30,7 +28,7 @@ export function ScoreRing({ data, size = 160, className }: ScoreRingProps) {
           strokeWidth={16}
         />
         <g transform={`rotate(-90 ${center} ${center})`}>
-          {data.map((slice, index) => {
+          {data.map((slice, _index) => {
             const stroke =
               slice.label === 'Revenue'
                 ? 'var(--accent)'
@@ -49,8 +47,7 @@ export function ScoreRing({ data, size = 160, className }: ScoreRingProps) {
                 fill="none"
                 stroke={stroke}
                 strokeWidth={16}
-                strokeDasharray={`${(slice.value / total) * circumference}`
-                  } ${circumference - (slice.value / total) * circumference}
+                strokeDasharray={`${(slice.value / total) * circumference} ${circumference - (slice.value / total) * circumference}`}
                 strokeDashoffset={-slice.value / total * circumference}
                 strokeLinecap="round"
               >

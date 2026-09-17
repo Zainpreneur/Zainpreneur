@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useToast } from '../context/ToastContext'
 
 import type { Business, Task, TaskPriority, TaskStatus } from '../../types'
 import { TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from '../../types'
@@ -34,6 +35,8 @@ function inDays(days: number): string {
 }
 
 export function TaskFormModal({ open, onClose, businesses, initial, defaultBusinessId, onSubmit, onDelete }: TaskFormModalProps) {
+  const { addTask, updateTask } = useBusinesses()
+  const { toast } = useToast()
   const [form, setForm] = useState<FormState>(() => ({
     businessId: initial?.businessId ?? defaultBusinessId ?? businesses[0]?.id ?? '',
     title: initial?.title ?? '',
@@ -44,30 +47,47 @@ export function TaskFormModal({ open, onClose, businesses, initial, defaultBusin
     tags: initial?.tags.join(', ') ?? '',
   }))
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSaving, setIsSaving] = useState(false)
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }))
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const nextErrors: Record<string, string> = {}
     if (!form.title.trim()) nextErrors.title = 'Task title is required.'
     if (!form.businessId) nextErrors.businessId = 'Choose a business.'
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    onSubmit({
-      businessId: form.businessId,
-      title: form.title.trim(),
-      description: form.description.trim(),
-      status: form.status,
-      priority: form.priority,
-      dueDate: form.dueDate,
-      tags: form.tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    })
-    onClose()
+    setIsSaving(true)
+    try {
+      if (initial) {
+        await updateTask(initial.id, {
+          title: form.title.trim(),
+          description: form.description.trim(),
+          status: form.status,
+          priority: form.priority,
+          dueDate: form.dueDate,
+          tags: form.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+        })
+      } else {
+        await addTask({
+          businessId: form.businessId,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          status: form.status,
+          priority: form.priority,
+          dueDate: form.dueDate,
+          tags: form.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+        })
+      }
+      onClose()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save task'
+      toast({ title: 'Error', description: message, variant: 'destructive' })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -93,7 +113,7 @@ export function TaskFormModal({ open, onClose, businesses, initial, defaultBusin
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>{initial ? 'Save changes' : 'Create task'}</Button>
+          <Button onClick={handleSubmit} disabled={isSaving}>{initial ? 'Save changes' : 'Create task'}</Button>
         </>
       }
     >

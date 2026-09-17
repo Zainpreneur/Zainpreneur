@@ -63,6 +63,7 @@ import type { DbDeploymentEntity } from '../db/schema'
 import { initials } from '../utils/format'
 import { branchTotals } from '../utils/branches'
 import { ownerStats } from '../utils/calculations'
+import { generateId } from '../utils/id'
 
 const DATA_KEY = 'zainpreneur:data:v3'
 const SETTINGS_KEY = 'zainpreneur:settings:v1'
@@ -665,7 +666,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   /* ------------------------------ business actions ------------------------------ */
 
   const addBusiness = useCallback((draft: BusinessDraft) => {
-    const nextBusiness = businessSeed(draft, makeId('biz'))
+    const nextBusiness = businessSeed(draft, generateId())
     setBusinesses((prev) => [...prev, nextBusiness])
     notify(`Business "${nextBusiness.name}" created`)
     void mirrorInsert('businesses', {

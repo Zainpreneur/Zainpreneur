@@ -17,6 +17,8 @@ import type { SqlStatement } from './schema'
 const JOURNAL_KEY = 'zainpreneur:sqlite:journal:v1'
 const RPC_TIMEOUT_MS = 30000
 const JOURNAL_CAP = 10000
+const STORAGE_QUOTA_KEY = 'zainpreneur:sqlite:quota:v1'
+const PERSIST_INTERVAL_MS = 30_000 // flush journal every 30s while app is visible
 
 export type DbStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -62,13 +64,33 @@ function readJournal(): BatchStatement[] {
   }
 }
 
-function writeJournal(entries: BatchStatement[]): void {
+
+
+function getQuotaExceeded(): boolean {
   try {
-    localStorage.setItem(JOURNAL_KEY, JSON.stringify(entries.slice(-JOURNAL_CAP)))
+    const raw = localStorage.getItem(STORAGE_QUOTA_KEY)
+    if (!raw) return false
+    const { exceeded, ts } = JSON.parse(raw) as { exceeded: boolean; ts: number }
+    // Mark as recovered after 24h of no QuotaExceeded events
+    if (exceeded && Date.now() - ts > 86_400_000) {
+      localStorage.removeItem(STORAGE_QUOTA_KEY)
+      return false
+    }
+    return exceeded
   } catch {
-    // Quota or privacy mode — journaling is best-effort.
+    return false
   }
 }
+
+function markQuotaExceeded(): void {
+  try {
+    localStorage.setItem(STORAGE_QUOTA_KEY, JSON.stringify({ exceeded: true, ts: Date.now() }))
+  } catch {
+    // silently swallow
+  }
+}
+
+
 
 class DbService {
   private worker: Worker | null = null
@@ -78,6 +100,8 @@ class DbService {
   private backend: WorkerBackend | null = null
   private listeners = new Set<(status: DbStatus) => void>()
   private status: DbStatus = 'idle'
+  private onVisibilityChange: () => void
+  private onBeforeUnload: (e: BeforeUnloadEvent) => void
 
   onStatus(listener: (status: DbStatus) => void): () => void {
     this.listeners.add(listener)
@@ -172,6 +196,8 @@ class DbService {
             }
           }
         }
+        // Start persistence: flush journal when window regains focus
+        this.startPersistence()
         this.setStatus('ready')
         return { backend: boot }
       })().catch((err: unknown) => {
@@ -181,6 +207,56 @@ class DbService {
       })
     }
     return this.readyPromise
+  }
+
+  /** Start periodic journal persistence listeners. */
+  private startPersistence(): void {
+    // Flush journal when window becomes visible again
+    this.onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        this.persistJournal().catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
+    // Flush journal before page unload
+    this.onBeforeUnload = (e: BeforeUnloadEvent) => {
+      this.persistJournal().catch(() => {})
+      // Silently persist without showing the beforeunload dialog
+      e.preventDefault()
+      return false
+    }
+    window.addEventListener('beforeunload', this.onBeforeUnload)
+    // Periodic flush every 30s while visible
+    this.flushTimer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        this.persistJournal().catch(() => {})
+      }
+    }, PERSIST_INTERVAL_MS)
+    // Initial flush
+    this.onVisibilityChange()
+  }
+
+  /** Stop persistence listeners. */
+  private stopPersistence(): void {
+    if (this.flushTimer !== null) {
+      window.clearInterval(this.flushTimer)
+      this.flushTimer = null
+    }
+    document.removeEventListener('visibilitychange', onVisibilityChange)
+    window.removeEventListener('beforeunload', onBeforeUnload)
+  }
+
+  /** Flush any pending journal entries to the worker. */
+  private async persistJournal(): Promise<void> {
+    const journal = readJournal()
+    if (journal.length > 0) {
+      try {
+        await this.sendBatch(journal)
+        writeJournal([])
+      } catch (err) {
+        console.warn('[sqlite] journal persist failed', err)
+      }
+    }
   }
 
   /**
@@ -257,6 +333,7 @@ class DbService {
   }
 
   terminate(): void {
+    this.stopPersistence()
     this.failAll(new Error('SQLite worker terminated'))
     this.worker?.terminate()
     this.worker = null
