@@ -17,8 +17,8 @@ import type {
   BusinessStatus,
   ClientTier,
   ConsultingDetails,
-  EmploymentType,
   EquityDetails,
+  EngagementType,
   Milestone,
   Owner,
   OwnerShare,
@@ -27,6 +27,7 @@ import type {
   TaskPriority,
   TaskStatus,
   TeamMember,
+  TeamMemberEngagementDetail,
   Transaction,
   TransactionCategory,
   TransactionStatus,
@@ -195,6 +196,7 @@ interface PersistedState {
   teamMembers: TeamMember[]
   assets: Asset[]
   assetHistory: AssetHistoryEntry[]
+  partnerAgencies: PartnerAgency[]
 }
 
 /* ---------------------------------- storage helpers ---------------------------------- */
@@ -220,6 +222,7 @@ function readPersisted(): PersistedState | null {
         teamMembers: Array.isArray(parsed.teamMembers) ? parsed.teamMembers : seedTeamMembers,
         assets: Array.isArray(parsed.assets) ? parsed.assets : seedAssets,
         assetHistory: Array.isArray(parsed.assetHistory) ? parsed.assetHistory : seedAssetHistory,
+        partnerAgencies: Array.isArray(parsed.partnerAgencies) ? parsed.partnerAgencies : [],
       }
     }
     return null
@@ -495,6 +498,9 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   const [assetHistory, setAssetHistory] = useState<AssetHistoryEntry[]>(seeded.assetHistory)
   const [settings, setSettings] = useState<AppSettings>(() => readSettings())
   const [profile, setProfile] = useState<UserProfile>(() => readProfile())
+  const [partnerAgencies, setPartnerAgencies] = useState<PartnerAgency[]>(() =>
+    readPersisted()?.partnerAgencies ?? [],
+  )
 
   /* ------------------------------ derived owners ------------------------------ */
 
@@ -530,9 +536,10 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         teamMembers: rawTeamMembers,
         assets,
         assetHistory,
+        partnerAgencies,
       }),
     )
-  }, [businesses, transactions, tasks, activity, rawOwners, rawTeamMembers, assets, assetHistory])
+  }, [businesses, transactions, tasks, activity, rawOwners, rawTeamMembers, assets, assetHistory, partnerAgencies])
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
@@ -961,19 +968,53 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     setProfile(defaultUser)
   }, [])
 
-  const value = useMemo<BusinessContextValue>(
+const value = useMemo<BusinessContextValue>(
     () => ({
-      businesses,
-      transactions,
-      tasks,
-      activity,
-      owners,
-      teamMembers,
-      assets,
-      assetHistory,
-      settings,
-      profile,
+      businesses: businesses,
+      transactions: transactions,
+      tasks: tasks,
+      activity: activity,
+      owners: owners,
+      teamMembers: teamMembers,
+      assets: assets,
+      assetHistory: assetHistory,
+      partnerAgencies: partnerAgencies,
+      settings: settings,
+      profile: profile,
       zainOwnerId: ZAIN_OWNER_ID,
+      addBusiness,
+      updateBusiness,
+      deleteBusiness,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      addTask,
+      updateTask,
+      deleteTask,
+      addOwner,
+      updateOwner,
+      deleteOwner,
+      addBranch,
+      updateBranch,
+      deleteBranch,
+      addTeamMember,
+      updateTeamMember,
+      deleteTeamMember,
+      addAsset,
+      updateAsset,
+      deleteAsset,
+      deployAsset,
+      returnAsset,
+      setAssetStatus,
+      setCapTable,
+      addMilestone,
+      updateMilestone,
+      deleteMilestone,
+      logActivity,
+      updateSettings,
+      updateProfile,
+      resetData,
+    }),
       addBusiness,
       updateBusiness,
       deleteBusiness,

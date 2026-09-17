@@ -24,41 +24,17 @@ export interface AssetDeployment {
   notes?: string
 }
 
-export interface Asset {
-  id: string
-  /** Human-readable asset tag, e.g. ZP-LT-004. */
-  tag: string
-  name: string
-  category: AssetCategory
-  serialNumber: string
-  purchaseDate: string
-  /** Purchase value in the reporting currency. */
-  value: number
-  status: AssetStatus
-  condition: AssetCondition
-  /** Owning entity. Always Zainpreneur / an owned business. */
-  assetOwner: string
-  location?: string
-  notes?: string
-  currentDeployment?: AssetDeployment
-  createdAt: string
-}
-
-export type AssetHistoryAction = 'assigned' | 'returned' | 'maintenance' | 'restored' | 'retired' | 'created'
-
-export interface AssetHistoryEntry {
-  id: string
-  assetId: string
-  assetName: string
-  action: AssetHistoryAction
-  entityType?: BusinessCategory
-  entityId?: string
+/**
+ * Extended deployment info for UI display - shows the human-readable context
+ * of where an asset is currently deployed.
+ */
+export interface AssetDeploymentInfo {
+  entityType: BusinessCategory
+  entityId: string
   branchId?: string
-  memberId?: string
-  /** Human-friendly snapshot of the target at the time of the event. */
+  memberName?: string
+  memberRole?: string
   targetLabel: string
-  date: string
-  notes?: string
 }
 
 /** Default owner label for the central asset pool. */

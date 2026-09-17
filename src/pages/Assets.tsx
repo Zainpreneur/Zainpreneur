@@ -3,10 +3,10 @@ import { useBusinesses } from '../context/BusinessContext'
 import { cn } from '../utils/cn'
 
 export function Assets() {
-  const { assets, addAsset, updateAsset, deleteAsset } = useBusinesses()
+  const { assets, addAsset, updateAsset, deleteAsset, deployAsset, returnAsset, setAssetStatus } = useBusinesses()
 
-  const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({
+  const [open, setOpen] = React.useState(false)
+  const [form, setForm] = React.useState({
     name: '',
     category: 'hardware' as AssetCategory,
     serialNumber: '',
@@ -15,7 +15,7 @@ export function Assets() {
     status: 'available' as AssetStatus,
     condition: 'good' as AssetCondition,
     tag: '',
-    assetOwner: 'Zainpreneur' as typeof ASSET_OWNER,
+    assetOwner: 'Zainpreneur' as string,
     location: '',
     notes: '',
   })
@@ -39,8 +39,8 @@ export function Assets() {
       notes: '',
     })
   }
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm({ ...form, [e.target.name]: e.target.value })
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm({ ...form, [e.target.name]: (e.target as any).value })
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -75,6 +75,53 @@ export function Assets() {
     handleClose()
   }
 
+  // Compute deployment info for each asset
+  const deploymentInfos = React.useMemo(() => {
+    return assets.map((asset) => {
+      if (!asset.currentDeployment) {
+        return {
+          ...asset,
+          deploymentInfo: {
+            entityType: asset.currentDeployment?.entityType ?? 'owned',
+            entityId: asset.currentDeployment?.entityId ?? '',
+            branchId: asset.currentDeployment?.branchId,
+            memberName: '',
+            memberRole: '',
+            targetLabel: 'the pool',
+          },
+        }
+      }
+      const business = businesses.find((b) => b.id === asset.currentDeployment?.entityId)
+      const branch = asset.currentDeployment?.branchId
+        ? business?.branches.find((b) => b.id === asset.currentDeployment.branchId)
+        : undefined
+      const member = asset.currentDeployment?.assignedToMemberId
+        ? teamMembers.find((m) => m.id === asset.currentDeployment.assignedToMemberId)
+        : undefined
+
+      let targetLabel = 'the pool'
+      if (member) {
+        targetLabel = `${member.name} · ${branch?.name ?? business?.name ?? 'Pool'}`
+      } else if (branch) {
+        targetLabel = branch.name
+      } else if (business) {
+        targetLabel = business.name
+      }
+
+      return {
+        ...asset,
+        deploymentInfo: {
+          entityType: asset.currentDeployment.entityType,
+          entityId: asset.currentDeployment.entityId,
+          branchId: asset.currentDeployment.branchId,
+          memberName: member?.name ?? '',
+          memberRole: member?.role ?? '',
+          targetLabel,
+        },
+      }
+    })
+  }, [assets, businesses, teamMembers])
+
   return (
     <div>
       <div className="space-y-4">
@@ -105,6 +152,7 @@ export function Assets() {
                       onChange={handleChange}
                       required
                       className="w-full rounded-lg border p-2.5 text-sm shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 dark:bg-slate-800 dark:text-white dark:focus:ring-brand-300"
+                      placeholder="e.g. MacBook Pro 16\" M3 Max"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -219,7 +267,7 @@ export function Assets() {
         </Suspense>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {assets.map((asset) => (
+          {deploymentInfos.map((asset) => (
             <div
               key={asset.id}
               className={
@@ -251,26 +299,36 @@ export function Assets() {
                 <span>{`₹${asset.value.toLocaleString()}`}</span>
               </div>
               <div className="mt-3 flex gap-2">
-                <button
-                  onClick={() => {
-                    const newStatus =
-                      asset.status === 'available'
-                        ? 'in-use'
-                        : asset.status === 'in-use'
-                        ? 'maintenance'
-                        : 'available'
-                    updateAsset(asset.id, { status: newStatus })
-                  }}
-                  className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-white/5 transition-colors"
-                >
-                  Toggle Status
-                </button>
-                <button
-                  onClick={() => deleteAsset(asset.id)}
-                  className="rounded-lg bg-red-100 px-3 py-1.5 text-xs text-red-600 hover:bg-red-200 dark:text-red-400 dark:hover:bg-white/5 transition-colors"
-                >
-                  Delete
-                </button>
+                <div className="flex-1">
+                  <label className="text-xs text-slate-500">Currently</label>
+                  <p className="text-sm font-medium line-clamp-1">
+                    {asset.deploymentInfo.targetLabel}
+                    {asset.deploymentInfo.memberName ? ` · ${asset.deploymentInfo.memberName}` : ''}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setAssetStatus(asset.id, 'in-use')}
+                    className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-white/5 transition-colors"
+                    title="Deploy to active use"
+                  >
+                    Deploy
+                  </button>
+                  <button
+                    onClick={() => setAssetStatus(asset.id, 'maintenance')}
+                    className="rounded-lg bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-600 hover:bg-amber-200 dark:text-amber-400 dark:hover:bg-white/5 transition-colors"
+                    title="Send for maintenance"
+                  >
+                    Maintenance
+                  </button>
+                  <button
+                    onClick={() => returnAsset(asset.id)}
+                    className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-white/5 transition-colors"
+                    title="Return to pool"
+                  >
+                    Return
+                  </button>
+                </div>
               </div>
             </div>
           ))}
