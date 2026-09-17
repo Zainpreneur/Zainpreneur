@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import {
   ArrowLeft,
+  ArrowRight,
   ArrowUpRight,
   Briefcase,
   Building2,
@@ -26,7 +27,7 @@ import { BUSINESS_CATEGORY_LABELS, CLIENT_TIER_LABELS } from '../types'
 import { useBusinesses } from '../context/BusinessContext'
 import { formatCurrency } from '../utils/format'
 import { businessFinancials } from '../utils/calculations'
-import { CATEGORY_META, MODEL_META, STATUS_META } from '../utils/meta'
+import { CATEGORY_META, MODEL_META, STATUS_META, ASSET_CATEGORY_META, ASSET_STATUS_META } from '../utils/meta'
 import { cn } from '../utils/cn'
 import { getBusinessSeries } from '../data'
 import { PageContainer, PageHeader } from '../components/layout/PageContainer'
@@ -50,7 +51,7 @@ import { BranchFormModal } from '../components/business/BranchFormModal'
 import { BarChart } from '../components/ui/BarChart'
 import { ScoreRing } from '../components/ui/ScoreRing'
 
-type Tab = 'overview' | 'capTable' | 'branches' | 'model' | 'financials' | 'tasks'
+type Tab = 'overview' | 'capTable' | 'branches' | 'model' | 'financials' | 'tasks' | 'assets'
 
 const TABS: Array<{ value: Tab; label: string }> = [
   { value: 'overview', label: 'Overview' },
@@ -59,6 +60,7 @@ const TABS: Array<{ value: Tab; label: string }> = [
   { value: 'model', label: 'Model' },
   { value: 'financials', label: 'Financials' },
   { value: 'tasks', label: 'Tasks' },
+  { value: 'assets', label: 'Assets' },
 ]
 
 export function BusinessDetail() {
@@ -84,6 +86,7 @@ export function BusinessDetail() {
     deleteBranch,
     logActivity,
     teamMembers,
+    assets,
   } = useBusinesses()
 
   const business = businesses.find((b) => b.id === id)
@@ -408,6 +411,89 @@ export function BusinessDetail() {
                 onEdit={(branch) => setBranchModal({ open: true, editing: branch })}
                 onDelete={(branch) => setDeletingBranch(branch)}
               />
+            </Card>
+          )}
+
+          {tab === 'assets' && (
+            <Card>
+              <CardHeader>
+                <div>
+                  <CardTitle>Assets</CardTitle>
+                  <CardDescription>{business.name} asset deployments</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full rounded-md border border-slate-200">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-sm text-slate-600 dark:text-slate-400">
+                        <th>Tag</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Deployed to</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {assets
+                        .filter((a) => a.currentDeployment?.entityId === business.id)
+                        .map((a) => {
+                          const dep = a.currentDeployment!
+                          const entityType = dep.entityType ?? '—'
+                          const entityLabel =
+                            entityType === 'owned'
+                              ? 'Zainpreneur pool'
+                              : entityType === 'equity'
+                                ? businesses.find((b) => b.id === dep.entityId)?.name ?? '—'
+                                : entityType === 'client'
+                                  ? businesses.find((b) => b.id === dep.entityId)?.name ?? '—'
+                                  : '—'
+                          const statusLabel = ASSET_STATUS_META[a.status]?.label ?? a.status
+                          const statusClass =
+                            ASSET_STATUS_META[a.status]?.badgeClass ?? ''
+
+                          return (
+                            <tr key={a.id} className="align-middle text-sm dark:bg-slate-900/50">
+                              <td className="font-medium">{a.tag}</td>
+                              <td>{a.name}</td>
+                              <td>
+                                <Badge className={ASSET_CATEGORY_META[a.category].badgeClass}>
+                                  {ASSET_CATEGORY_META[a.category].label}
+                                </Badge>
+                              </td>
+                              <Badge className={`${statusClass} inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium`}>
+                                {statusLabel}
+                              </Badge>
+                              <td className="font-medium text-slate-500 dark:text-slate-400">
+                                {entityLabel}
+                              </td>
+                              <td>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  icon={<ArrowRight className="size-3.5" />}
+                                  onClick={() => {
+                                    // placeholder for now
+                                  }}
+                                >
+                                  View
+                                </Button>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      {assets.filter((a) => a.currentDeployment?.entityId === business.id).length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="text-center text-slate-400 dark:text-slate-500 p-4">
+                            No assets deployed to {business.name}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
             </Card>
           )}
 
