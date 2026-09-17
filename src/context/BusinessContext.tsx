@@ -194,7 +194,7 @@ export interface AssetDraft {
   status?: AssetStatus
   condition?: AssetCondition
   tag?: string
-  assetOwner?: string
+  // NOTE: no assetOwner — every asset is Zainpreneur-owned by construction.
   location?: string
   notes?: string
 }
@@ -317,7 +317,10 @@ function readProfile(): UserProfile {
   try {
     const raw = localStorage.getItem(PROFILE_KEY)
     if (!raw) return defaultUser
-    return { ...defaultUser, ...(JSON.parse(raw) as Partial<UserProfile>) }
+    const parsed = JSON.parse(raw) as Partial<UserProfile> & { company?: string }
+    // Drop the legacy editable company field — identity is fixed to the enterprise.
+    delete parsed.company
+    return { ...defaultUser, ...parsed, enterprise: 'Zainpreneur' }
   } catch {
     return defaultUser
   }
@@ -510,7 +513,7 @@ function assetSeed(draft: AssetDraft, id: string): Asset {
     value: draft.value,
     status,
     condition: draft.condition ?? 'good',
-    assetOwner: draft.assetOwner ?? ASSET_OWNER,
+    assetOwner: ASSET_OWNER,
     location: draft.location,
     notes: draft.notes,
     currentDeployment: undefined,

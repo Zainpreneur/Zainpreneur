@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext.tsx'
 import { BusinessProvider } from './context/BusinessContext.tsx'
 import { ToastProvider } from './context/ToastContext.tsx'
 import { dbService } from './db/dbService.ts'
+import { startSyncEngine } from './enterprise/sync/syncEngine.ts'
 
 // Pre-warm the offline-first SQLite engine (OPFS file + seed + journal
 // replay) so the local database is ready before Settings is ever opened.
@@ -22,6 +23,11 @@ if (typeof window !== 'undefined') {
     void dbService.ready().catch((err: unknown) => {
       console.warn('[db] pre-warm failed', err)
     })
+    try {
+      startSyncEngine()
+    } catch (err) {
+      console.warn('[sync] engine start failed', err)
+    }
   })
 }
 

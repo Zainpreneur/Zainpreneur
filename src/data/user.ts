@@ -5,7 +5,7 @@ export const defaultUser: UserProfile = {
   name: 'Zain Pirzada',
   email: 'zain@zainpreneur.io',
   role: 'Founder & Managing Partner',
-  company: 'Zainpreneur Holdings',
+  enterprise: 'Zainpreneur',
   initials: 'ZP',
   bio: 'Serial operator managing owned ventures, equity stakes and client engagements from one command center.',
   timezone: 'Asia/Karachi',

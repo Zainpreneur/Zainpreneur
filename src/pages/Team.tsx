@@ -325,6 +325,7 @@ function MemberDetailModal({ member, onClose, onEdit, onDelete }: { member: Team
               <p className="mt-1">Contact: {member.agencyPartner?.contactPerson ?? member.contactPerson}</p>
               <p className="mt-1">Allocation: {member.agencyPartner?.projectAllocation ?? member.projectAllocation}</p>
               {(member.agencyPartner?.retainerMonthly ?? member.retainerMonthly) ? <p className="mt-1 font-bold">Retainer: {formatCurrency(member.agencyPartner?.retainerMonthly ?? member.retainerMonthly ?? 0, settings.currency)}</p> : null}
+              <p className="mt-1 opacity-80">Single enterprise: partner agencies double as registered vendors — see Enterprise → Purchasing.</p>
             </div>
           )}
           {member.engagementType === 'internal' && (

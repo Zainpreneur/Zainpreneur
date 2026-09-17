@@ -2,12 +2,20 @@ export type ThemeMode = 'light' | 'dark' | 'system'
 
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'PKR' | 'AED' | 'INR'
 
+/** The single consolidated enterprise this command center operates. */
+export const ENTERPRISE_NAME = 'Zainpreneur'
+
 export interface UserProfile {
   id: string
   name: string
   email: string
   role: string
-  company: string
+  /**
+   * Fixed operator identity — the user operates AS Zainpreneur HQ, never as
+   * an employee of an external company. Kept on the profile so persisted
+   * records self-describe the enterprise; not user-editable.
+   */
+  enterprise: typeof ENTERPRISE_NAME
   initials: string
   bio: string
   timezone: string

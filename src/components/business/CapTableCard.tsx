@@ -1,6 +1,7 @@
 import { Pencil, PieChart } from 'lucide-react'
 
 import type { Business, Owner } from '../../types'
+import { ZAIN_OWNER_ID } from '../../data'
 import { formatCurrency } from '../../utils/format'
 import { businessFinancials, capTableTotal } from '../../utils/calculations'
 import { Avatar } from '../common/Avatar'
@@ -20,6 +21,7 @@ export function CapTableCard({ business, owners, currency, onManage }: CapTableC
 
   const total = capTableTotal(business.capTable)
   const profit = businessFinancials(business).profit
+  const zainShare = business.capTable.find((share) => share.ownerId === ZAIN_OWNER_ID)?.percentage
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -80,6 +82,9 @@ export function CapTableCard({ business, owners, currency, onManage }: CapTableC
               Equity totals {total.toFixed(0)}% — it should add up to 100%.
             </p>
           )}
+          <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-[11px] leading-relaxed text-slate-500 dark:bg-white/5 dark:text-slate-400">
+            Venture ownership{typeof zainShare === 'number' ? ` — Zainpreneur holds ${zainShare}%` : ' — Zainpreneur holds no equity here and monetizes via retainers'}.
+          </p>
         </>
       )}
     </div>

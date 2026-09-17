@@ -56,6 +56,7 @@ export type {
 export {
   CURRENCY_LABELS,
   CURRENCY_SYMBOLS,
+  ENTERPRISE_NAME,
 } from './user'
 
 export type {

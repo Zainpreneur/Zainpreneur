@@ -17,6 +17,8 @@ import sqlite3InitModule, {
 
 import { DB_FILENAME, SCHEMA_DDL, SCHEMA_VERSION } from './schema'
 import { buildSeedStatements } from './seed'
+import { v3MigrationPlan } from './migrate'
+import { buildEnterpriseSeedStatements } from '../enterprise/seed'
 
 export type SqlParams = SqlValue[] | Record<string, SqlValue>
 
@@ -126,6 +128,50 @@ function tableCounts(): Record<string, number> {
   return counts
 }
 
+/**
+ * v3 migration, idempotent and journal-free (runs before any replay).
+ * Statements come from the pure `v3MigrationPlan` planner (unit-tested
+ * against real SQLite); this wrapper only executes them transactionally.
+ */
+function migrateToV3(database: Database): void {
+  const meta = database.selectObjects("SELECT value FROM schema_meta WHERE key = 'schema_version'")
+  if (Number(meta[0]?.['value'] ?? 1) >= 3) return
+
+  const assetDdl = database.selectObjects(
+    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'assets'",
+  )
+  const plan = v3MigrationPlan({
+    assetTableSql: assetDdl.length > 0 ? String(assetDdl[0]?.['sql'] ?? '') : null,
+    teamColumns: database.selectObjects('PRAGMA table_info(team_members)').map((row) => String(row['name'])),
+    vendorColumns: database.selectObjects('PRAGMA table_info(vendors)').map((row) => String(row['name'])),
+  })
+
+  database.exec('BEGIN IMMEDIATE')
+  try {
+    for (const stmt of plan) {
+      database.exec({ sql: stmt.sql, bind: stmt.params ?? [] })
+    }
+    database.exec('COMMIT')
+  } catch (err) {
+    try {
+      database.exec('ROLLBACK')
+    } catch {
+      // already failing — surface the original error below
+    }
+    try {
+      database.exec('PRAGMA foreign_keys = ON')
+    } catch {
+      // best-effort restore
+    }
+    throw err
+  }
+
+  const violations = database.selectObjects('PRAGMA foreign_key_check')
+  if (violations.length > 0) {
+    console.warn('[sqlite] v3 migration left FK violations', violations)
+  }
+}
+
 async function initDatabase(): Promise<{ backend: WorkerBackend; seeded: boolean }> {
   sqlite3 = await sqlite3InitModule()
 
@@ -156,11 +202,18 @@ async function initDatabase(): Promise<{ backend: WorkerBackend; seeded: boolean
   const seeded = Number(existing[0]?.['n'] ?? 0) === 0
   if (seeded) {
     runBatch(buildSeedStatements())
-    database.exec({
-      sql: 'INSERT OR REPLACE INTO schema_meta (key, value) VALUES (?, ?)',
-      bind: ['schema_version', String(SCHEMA_VERSION)],
-    })
   }
+  // Enterprise module tables seed independently so v1 databases migrate
+  // forward without a wipe: DDL above already created any missing tables.
+  const vendors = database.selectObjects('SELECT COUNT(*) AS n FROM vendors')
+  if (Number(vendors[0]?.['n'] ?? 0) === 0) {
+    runBatch(buildEnterpriseSeedStatements())
+  }
+  migrateToV3(database)
+  database.exec({
+    sql: 'INSERT OR REPLACE INTO schema_meta (key, value) VALUES (?, ?)',
+    bind: ['schema_version', String(SCHEMA_VERSION)],
+  })
 
   const ready: WorkerReady = { type: 'worker-ready', backend }
   self.postMessage(ready)
@@ -203,11 +256,12 @@ function handleRequest(req: WorkerRequest): void {
         const database = getDb()
         database.exec('PRAGMA foreign_keys = OFF')
         database.exec(
-          'DROP TABLE IF EXISTS asset_deployments; DROP TABLE IF EXISTS assets; DROP TABLE IF EXISTS team_members; DROP TABLE IF EXISTS cap_table; DROP TABLE IF EXISTS owners; DROP TABLE IF EXISTS branches; DROP TABLE IF EXISTS businesses; DROP TABLE IF EXISTS schema_meta;',
+          'DROP TABLE IF EXISTS outbox; DROP TABLE IF EXISTS invoices; DROP TABLE IF EXISTS ledger_lines; DROP TABLE IF EXISTS ledger_entries; DROP TABLE IF EXISTS ledger_accounts; DROP TABLE IF EXISTS timesheets; DROP TABLE IF EXISTS hr_contracts; DROP TABLE IF EXISTS po_items; DROP TABLE IF EXISTS purchase_orders; DROP TABLE IF EXISTS vendors; DROP TABLE IF EXISTS asset_deployments; DROP TABLE IF EXISTS assets; DROP TABLE IF EXISTS team_members; DROP TABLE IF EXISTS cap_table; DROP TABLE IF EXISTS owners; DROP TABLE IF EXISTS branches; DROP TABLE IF EXISTS businesses; DROP TABLE IF EXISTS schema_meta;',
         )
         database.exec('PRAGMA foreign_keys = ON')
         database.exec(SCHEMA_DDL)
         runBatch(buildSeedStatements())
+        runBatch(buildEnterpriseSeedStatements())
         journal = []
         if (backend === 'memory') {
           const push: JournalPush = { type: 'journal', entries: journal }

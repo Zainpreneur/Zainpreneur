@@ -24,6 +24,9 @@ export interface AssetDeployment {
   notes?: string
 }
 
+/** Sole owner label for the central asset pool. */
+export const ASSET_OWNER = 'Zainpreneur'
+
 export interface Asset {
   id: string
   /** Human-readable asset tag, e.g. ZP-LT-004. */
@@ -36,8 +39,12 @@ export interface Asset {
   value: number
   status: AssetStatus
   condition: AssetCondition
-  /** Owning entity. Always Zainpreneur / an owned business. */
-  assetOwner: string
+  /**
+   * Sole owning entity — always Zainpreneur. Typed as a literal so ownership
+   * can never drift to a venture, vendor, or member. Deployments move only
+   * `currentDeployment`; this field never changes after registration.
+   */
+  assetOwner: typeof ASSET_OWNER
   location?: string
   notes?: string
   currentDeployment?: AssetDeployment
@@ -60,9 +67,6 @@ export interface AssetHistoryEntry {
   date: string
   notes?: string
 }
-
-/** Default owner label for the central asset pool. */
-export const ASSET_OWNER = 'Zainpreneur'
 
 export const ASSET_CATEGORY_LABELS: Record<AssetCategory, string> = {
   hardware: 'Hardware',

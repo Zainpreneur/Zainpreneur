@@ -64,7 +64,6 @@ export function Settings() {
     name: profile.name,
     email: profile.email,
     role: profile.role,
-    company: profile.company,
     bio: profile.bio,
     timezone: profile.timezone,
   }))
@@ -82,7 +81,6 @@ export function Settings() {
       name: form.name.trim() || profile.name,
       email: form.email.trim() || profile.email,
       role: form.role.trim(),
-      company: form.company.trim(),
       bio: form.bio.trim(),
       timezone: form.timezone,
     })
@@ -146,8 +144,10 @@ export function Settings() {
               <Field label="Role" htmlFor="set-role">
                 <TextInput id="set-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
               </Field>
-              <Field label="Company" htmlFor="set-company">
-                <TextInput id="set-company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+              <Field label="Enterprise">
+                <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm font-bold text-slate-800 ring-1 ring-inset ring-slate-200 dark:bg-white/5 dark:text-slate-100 dark:ring-white/10">
+                  {profile.enterprise} HQ
+                </p>
               </Field>
             </div>
 

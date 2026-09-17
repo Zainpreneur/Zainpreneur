@@ -21,4 +21,11 @@ export interface OwnerShare {
   primary?: boolean
 }
 
+/**
+ * Venture ownership split — describes the VENTURE's cap table, not
+ * Zainpreneur's books. A 100% external table (e.g. a client founder holding
+ * everything) is correct: Zainpreneur monetizes such ventures through
+ * retainers and project billing rather than equity. Zainpreneur's own
+ * economics come from its percentage here via net-share math.
+ */
 export type CapTable = OwnerShare[]
