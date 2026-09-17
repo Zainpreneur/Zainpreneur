@@ -132,7 +132,7 @@ export function LedgerPanel() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="zp-stacked w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
                   <th scope="col" className="px-5 py-3">Code</th>
@@ -142,14 +142,14 @@ export function LedgerPanel() {
                   <th scope="col" className="px-5 py-3 text-right">Balance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="md:divide-y md:divide-slate-100 md:dark:divide-slate-800">
                 {trial.map((row) => (
                   <tr key={row.code}>
-                    <td className="px-5 py-2.5 font-mono text-xs text-slate-500">{row.code}</td>
-                    <td className="px-3 py-2.5 font-semibold">{row.name}</td>
-                    <td className="px-3 py-2.5 text-right tabular-nums">{row.debit ? formatCurrency(row.debit, settings.currency, { compact: true }) : '—'}</td>
-                    <td className="px-3 py-2.5 text-right tabular-nums">{row.credit ? formatCurrency(row.credit, settings.currency, { compact: true }) : '—'}</td>
-                    <td className="px-5 py-2.5 text-right font-bold tabular-nums">{formatCurrency(row.balance, settings.currency, { compact: true, signed: true })}</td>
+                    <td data-nolabel className="font-mono text-xs text-slate-500 md:px-5 md:py-2.5">{row.code}</td>
+                    <td data-nolabel className="font-semibold md:px-3 md:py-2.5">{row.name}</td>
+                    <td data-label="Debit" className="text-right tabular-nums md:px-3 md:py-2.5">{row.debit ? formatCurrency(row.debit, settings.currency, { compact: true }) : '—'}</td>
+                    <td data-label="Credit" className="text-right tabular-nums md:px-3 md:py-2.5">{row.credit ? formatCurrency(row.credit, settings.currency, { compact: true }) : '—'}</td>
+                    <td data-label="Balance" className="text-right font-bold tabular-nums md:px-5 md:py-2.5">{formatCurrency(row.balance, settings.currency, { compact: true, signed: true })}</td>
                   </tr>
                 ))}
               </tbody>
