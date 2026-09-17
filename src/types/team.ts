@@ -104,3 +104,9 @@ export interface TeamMember {
 export function getEngagementLabel(type: EngagementType): string {
   return ENGAGEMENT_TYPE_LABELS[type] ?? type
 }
+
+export const ENGAGEMENT_TYPE_COLORS: Record<EngagementType, string> = {
+  internal: 'border-indigo-600',
+  freelancer: 'border-emerald-600',
+  agency_partner: 'border-amber-600',
+}

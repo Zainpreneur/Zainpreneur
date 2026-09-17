@@ -66,7 +66,7 @@ export type {
   InternalStaffDetails,
   TeamMember,
 } from './team'
-export { EMPLOYMENT_TYPE_LABELS, ENGAGEMENT_TYPE_LABELS, getEngagementLabel } from './team'
+export { EMPLOYMENT_TYPE_LABELS, ENGAGEMENT_TYPE_LABELS, ENGAGEMENT_TYPE_COLORS, getEngagementLabel } from './team'
 
 export type {
   Asset,
