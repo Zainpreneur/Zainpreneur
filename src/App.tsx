@@ -13,6 +13,8 @@ const Owners = lazy(() => import('./pages/Owners').then((module) => ({ default: 
 const Financials = lazy(() => import('./pages/Financials').then((module) => ({ default: module.Financials })))
 const Tasks = lazy(() => import('./pages/Tasks').then((module) => ({ default: module.Tasks })))
 const Settings = lazy(() => import('./pages/Settings').then((module) => ({ default: module.Settings })))
+const Assets = lazy(() => import('./pages/Assets').then((module) => ({ default: module.Assets })))
+const Team = lazy(() => import('./pages/Team').then((module) => ({ default: module.Team })))
 const Login = lazy(() => import('./pages/Login').then((module) => ({ default: module.Login })))
 const NotFound = lazy(() => import('./pages/NotFound').then((module) => ({ default: module.NotFound })))
 
@@ -32,6 +34,8 @@ function AppRoutes() {
           <Route path="/financials" element={<Financials />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/assets" element={<Assets />} />
+          <Route path="/team" element={<Team />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
