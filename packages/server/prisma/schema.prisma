@@ -1,0 +1,447 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Auth ──
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("user")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile UserProfile?
+  settings AppSettings?
+}
+
+model UserProfile {
+  id             String  @id @default(cuid())
+  userId         String  @unique
+  name           String  @default("")
+  bio            String  @default("")
+  timezone       String  @default("Asia/Karachi")
+  businessSince  String  @default("")
+  avatarColor    String  @default("#6366f1")
+  initials       String  @default("")
+  enterprise     String  @default("Zainpreneur")
+  role           String  @default("user")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AppSettings {
+  id                    String @id @default(cuid())
+  userId                String @unique
+  theme                 String @default("system")
+  currency              String @default("PKR")
+  compactSidebar        Boolean @default(false)
+  showFinancialTotals   Boolean @default(true)
+  defaultCategoryFilter String @default("all")
+  notifications         Json   @default("{\"taskReminders\":true,\"paymentAlerts\":true,\"weeklyDigest\":true,\"milestoneAlerts\":true,\"marketingEmails\":false}")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Business ──
+
+model Business {
+  id              String   @id @default(cuid())
+  name            String
+  model           String
+  category        String
+  status          String   @default("active")
+  tagline         String   @default("")
+  description     String   @default("")
+  industry        String
+  foundedYear     Int      @default(2024)
+  color           String   @default("#6366f1")
+  logoGlyph       String   @default("")
+  website         String?
+  location        String?
+  phone           String?
+  email           String?
+  equityShare     Float?
+  clientTier      String?
+  monthlyRevenue  Float    @default(0)
+  monthlyExpenses Float    @default(0)
+  employees       Int      @default(0)
+  tags            String[] @default([])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  branches        Branch[]
+  capTable        CapShare[]
+  project         ProjectDetails?
+  consulting      ConsultingDetails?
+  equity          EquityDetails?
+  tasks           Task[]
+  transactions    Transaction[]
+  activity        ActivityEvent[]
+  ledgerEntries   LedgerEntry[]
+  invoices        Invoice[]
+}
+
+model Branch {
+  id              String   @id @default(cuid())
+  businessId      String
+  name            String
+  location        String   @default("")
+  address         String
+  city            String
+  country         String
+  phone           String
+  email           String
+  manager         String
+  status          String   @default("active")
+  openedYear      Int      @default(2024)
+  monthlyRevenue  Float    @default(0)
+  monthlyExpenses Float    @default(0)
+  employees       Int      @default(0)
+  isHeadquarters  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model ProjectDetails {
+  id           String @id @default(cuid())
+  businessId   String @unique
+  budget       Float
+  deliverables Int
+
+  business   Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  milestones ProjectMilestone[]
+}
+
+model ProjectMilestone {
+  id               String  @id @default(cuid())
+  projectDetailsId String
+  name             String
+  dueDate          String?
+  status           String  @default("pending")
+  amount           Float   @default(0)
+
+  project ProjectDetails @relation(fields: [projectDetailsId], references: [id], onDelete: Cascade)
+}
+
+model ConsultingDetails {
+  id                  String @id @default(cuid())
+  businessId          String @unique
+  hourlyRate          Float
+  retainerMonthly     Float
+  billableHoursTarget Float
+  billableHoursLogged Float
+  contracts           Int
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model EquityDetails {
+  id                String @id @default(cuid())
+  businessId        String @unique
+  valuation         Float
+  dividendYield     Float
+  dividendsReceived Float
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+model CapShare {
+  id         String  @id @default(cuid())
+  businessId String
+  ownerId    String
+  percentage Float
+  role       String?
+  isPrimary  Boolean @default(false)
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  owner    Owner    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, ownerId])
+}
+
+model Owner {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  location  String?
+  role      String?
+  bio       String?
+  color     String   @default("#6366f1")
+  initials  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shares CapShare[]
+}
+
+// ── Tasks ──
+
+model Task {
+  id          String    @id @default(cuid())
+  businessId  String
+  title       String
+  description String    @default("")
+  status      String    @default("todo")
+  priority    String
+  dueDate     String
+  tags        String[]  @default([])
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+// ── Transactions ──
+
+model Transaction {
+  id            String   @id @default(cuid())
+  businessId    String
+  date          String
+  description   String
+  category      String
+  type          String
+  amount        Float
+  paymentMethod String   @default("")
+  reference     String   @default("")
+  status        String   @default("cleared")
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+// ── Activity Log ──
+
+model ActivityEvent {
+  id         String   @id @default(cuid())
+  businessId String?
+  type       String
+  message    String
+  timestamp  DateTime @default(now())
+
+  business Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+}
+
+// ── Team ──
+
+model TeamMember {
+  id                   String   @id @default(cuid())
+  name                 String
+  email                String
+  role                 String   @default("")
+  phone                String?
+  color                String   @default("#6366f1")
+  initials             String
+  department           String   @default("")
+  engagementType       String   @default("internal")
+  employmentType       String?
+  activeBusinessId     String?
+  associatedBusinessId String?
+  branchId             String?
+  location             String?
+  startedAt            String?
+  monthlyCost          Float?
+  hourlyRate           Float?
+  contractTerms        String?
+  projectScope         String?
+  contractEndDate      String?
+  companyName          String?
+  contactPerson        String?
+  projectAllocation    Float?
+  retainerMonthly      Float?
+  skills               String[] @default([])
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  contracts   HrContract[]
+  timesheets  Timesheet[]
+  deployments AssetDeployment[]
+}
+
+// ── Invoices ──
+
+model Invoice {
+  id           String   @id @default(cuid())
+  businessId   String
+  invoiceNo    String
+  issueDate    String
+  dueDate      String
+  amount       Float
+  amountPaid   Float    @default(0)
+  status       String   @default("sent")
+  milestoneRef String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+// ── Ledger ──
+
+model LedgerAccount {
+  id         String  @id @default(cuid())
+  code       String  @unique
+  name       String
+  type       String
+  parentCode String?
+
+  lines LedgerLine[]
+}
+
+model LedgerEntry {
+  id         String   @id @default(cuid())
+  entryDate  String
+  memo       String
+  businessId String?
+  source     String
+  createdAt  String
+
+  business Business?    @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  lines    LedgerLine[]
+}
+
+model LedgerLine {
+  id          String @id @default(cuid())
+  entryId     String
+  accountCode String
+  debit       Float  @default(0)
+  credit      Float  @default(0)
+
+  entry   LedgerEntry   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  account LedgerAccount @relation(fields: [accountCode], references: [code], onDelete: Restrict)
+}
+
+// ── HR ──
+
+model HrContract {
+  id           String   @id @default(cuid())
+  memberId     String
+  kind         String
+  baseAmount   Float
+  currency     String   @default("PKR")
+  startDate    String
+  endDate      String?
+  billingCycle String   @default("monthly")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  member TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model Timesheet {
+  id           String  @id @default(cuid())
+  memberId     String
+  businessId   String?
+  workDate     String
+  hours        Float
+  billable     Boolean @default(true)
+  milestoneRef String?
+  note         String?
+  synced       Boolean @default(true)
+
+  member TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+// ── Procurement ──
+
+model Vendor {
+  id           String  @id @default(cuid())
+  name         String
+  email        String?
+  phone        String?
+  address      String?
+  taxId        String?
+  paymentTerms String  @default("net-30")
+  rating       Float?
+
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id           String   @id @default(cuid())
+  vendorId     String
+  businessId   String?
+  status       String   @default("draft")
+  orderDate    String
+  expectedDate String?
+  subtotal     Float
+  tax          Float
+  total        Float
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  vendor Vendor   @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  items  POItem[]
+}
+
+model POItem {
+  id           String @id @default(cuid())
+  poId         String
+  name         String
+  category     String @default("other")
+  qty          Int
+  unitPrice    Float
+  serialNumber String?
+
+  purchaseOrder PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+}
+
+// ── Assets ──
+
+model Asset {
+  id           String   @id @default(cuid())
+  name         String
+  category     String
+  serialNumber String   @default("")
+  purchaseDate String
+  value        Float
+  status       String   @default("available")
+  condition    String   @default("good")
+  tag          String
+  location     String
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  deployments AssetDeployment[]
+}
+
+model AssetDeployment {
+  id           String   @id @default(cuid())
+  assetId      String
+  entityType   String
+  entityId     String
+  branchId     String?
+  memberId     String?
+  deployedDate String
+  returnedAt   String?
+  notes        String?
+
+  asset  Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  member TeamMember? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+}
+
+// ── Outbox ──
+
+model OutboxEntry {
+  id        String   @id @default(cuid())
+  topic     String
+  payload   Json
+  status    String   @default("pending")
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

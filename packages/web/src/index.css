@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------- tokens (Rule 1) ---------------------------------- */
+/* Single :root source. Dark values are the executive theme; light values
+   preserve the existing light mode. Always reference vars below. */
+
+/* --bg-canvas, --bg-base, --surface-1/2/3, --text-1/2/3, --hairline are shared */
+:root {
+  --bg-canvas:#121214;
+  --bg-base:#1D1D1F;
+  --surface-1:linear-gradient(145deg,#232326,#1B1B1D);
+  --surface-2:#171719;
+  --surface-3:#26262A;
+  --text-1:#F5F5F7;
+  --text-2:#AAAAAA;
+  --text-3:#77777C;
+  --hairline:rgba(245,245,247,.06);
+  --hairline-strong:rgba(245,245,247,.12);
+  --accent:#007AFF;
+  --accent-hover:#3395FF;
+  --accent-press:#0062CC;
+  --accent-glow:rgba(0,122,255,.35);
+  --accent-tint:rgba(0,122,255,.14);
+  --success:#30D158;
+  --success-tint:rgba(48,209,88,.14);
+  --success-glow:rgba(48,209,88,.30);
+  --warn:#FF9F0A;
+  --warn-tint:rgba(255,159,10,.14);
+  --warn-glow:rgba(255,159,10,.30);
+  --danger:#FF453A;
+  --danger-tint:rgba(255,69,58,.14);
+  --danger-glow:rgba(255,69,58,.30);
+  --r-card:22px;
+  --r-control:14px;
+  --r-chip:999px;
+  --r-well:14px;
+  --r-panel:18px;
+  --r-modal:26px;
+  --r-tile:12px;
+  color-scheme: light;
+}
+
+.dark {
+  --bg-canvas:#121214;
+  --bg-base:#1D1D1F;
+  --surface-1:linear-gradient(145deg,#232326,#1B1B1D);
+  --surface-2:#171719;
+  --surface-3:#26262A;
+  --text-1:#F5F5F7;
+  --text-2:#AAAAAA;
+  --text-3:#77777C;
+  --hairline:rgba(245,245,247,.06);
+  --hairline-strong:rgba(245,245,247,.12);
+  --accent:#007AFF;
+  --accent-hover:#3395FF;
+  --accent-press:#0062CC;
+  --accent-glow:rgba(0,122,255,.35);
+  --accent-tint:rgba(0,122,255,.14);
+  --success:#30D158;
+  --success-tint:rgba(48,209,88,.14);
+  --success-glow:rgba(48,209,88,.30);
+  --warn:#FF9F0A;
+  --warn-tint:rgba(255,159,10,.14);
+  --warn-glow:rgba(255,159,10,.30);
+  --danger:#FF453A;
+  --danger-tint:rgba(255,69,58,.14);
+  --danger-glow:rgba(255,69,58,.30);
+  --r-card:22px;
+  --r-control:14px;
+  --r-chip:999px;
+  --r-well:14px;
+  --r-panel:18px;
+  --r-modal:26px;
+  --r-tile:12px;
+  color-scheme: dark;
+}
+
+/* Light mode ("Daylight Neumorph") */
+.light {
+  --bg-canvas:#EDEDF0;
+  --bg-base:#F5F5F7;
+  --surface-1:linear-gradient(145deg,#FFFFFF,#EFEFF2);
+  --surface-2:#E9E9EC;
+  --surface-3:#FFFFFF;
+  --text-1:#1D1D1F;
+  --text-2:#6E6E73;
+  --text-3:#86868B;
+  --hairline:rgba(29,29,31,.08);
+  --accent:#007AFF;
+  --accent-hover:#3395FF;
+  --accent-press:#0062CC;
+  --accent-glow:rgba(0,122,255,.35);
+  --accent-tint:rgba(0,122,255,.14);
+  --success:#30D158;
+  --success-tint:rgba(48,209,88,.14);
+  --success-glow:rgba(48,209,88,.30);
+  --warn:#FF9F0A;
+  --warn-tint:rgba(255,159,10,.14);
+  --warn-glow:rgba(255,159,10,.30);
+  --danger:#FF453A;
+  --danger-tint:rgba(255,69,58,.14);
+  --danger-glow:rgba(255,69,58,.30);
+  --r-card:22px;
+  --r-control:14px;
+  --r-chip:999px;
+  --r-well:14px;
+  --r-panel:18px;
+  --r-modal:26px;
+  --r-tile:12px;
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes zp-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-in {
+  animation: zp-fade-in 0.28s ease-out both;
+}
+
+@keyframes zp-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-toast-in {
+  animation: zp-toast-in 0.22s ease-out both;
+}
+
+@keyframes zp-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Skeleton shimmer sweep (Rule 5). */
+.animate-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(170 170 170 / 0.18) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: zp-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular numerals on every numeric surface (Rule 2). */
+.tnum,
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible 2px accent focus everywhere (Rule 1). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-tint);
+}
+
+/* Primary buttons lift on hover (Rule 5); disabled state (Rule 5). */
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Stacked label:value cards for dense tables below 768px (Rule 4).
+   Apply `zp-stacked` to the table and `data-label` to each td. */
+@media (max-width: 767px) {
+  table.zp-stacked thead {
+    display: none;
+  }
+  table.zp-stacked tbody {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+  }
+  table.zp-stacked tbody tr {
+    display: grid;
+    gap: 8px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    padding: 12px 16px;
+  }
+  table.zp-stacked tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0;
+    white-space: normal;
+    text-align: right;
+  }
+  table.zp-stacked tbody td:not([data-nolabel])::before {
+    content: attr(data-label);
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-2);
+    text-align: left;
+  }
+  table.zp-stacked tbody td[data-nolabel] {
+    justify-content: flex-start;
+  }
+}
+
+::selection {
+  background-color: var(--accent-tint);
+  color: var(--accent);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(148 163 184 / 0.45);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover { background-color: var(--text-2); }

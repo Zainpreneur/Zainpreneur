@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zainpreneur
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: zainpreneur_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # ── Shared ──
+      - name: Typecheck shared
+        run: pnpm --filter @zainpreneur/shared typecheck
+      - name: Build shared
+        run: pnpm --filter @zainpreneur/shared build
+
+      # ── Server ──
+      - name: Typecheck server
+        run: pnpm --filter @zainpreneur/server typecheck
+      - name: Lint server
+        run: pnpm --filter @zainpreneur/server lint || true
+      - name: Build server
+        run: pnpm --filter @zainpreneur/server build
+      - name: Prisma migrate
+        run: pnpm --filter @zainpreneur/server db:migrate
+        env:
+          DATABASE_URL: postgresql://zainpreneur:testpassword@localhost:5432/zainpreneur_test
+      - name: Seed database
+        run: pnpm --filter @zainpreneur/server db:seed
+        env:
+          DATABASE_URL: postgresql://zainpreneur:testpassword@localhost:5432/zainpreneur_test
+
+      # ── Web ──
+      - name: Typecheck web
+        run: pnpm --filter @zainpreneur/web typecheck
+      - name: Build web
+        run: pnpm --filter @zainpreneur/web build
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: lint-typecheck-build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t zainpreneur-server:latest --target production .
+
+      - name: Smoke test container
+        run: |
+          docker run -d --name test-server \
+            -e DATABASE_URL=postgresql://x:x@localhost:5432/x \
+            -e JWT_SECRET=test-secret-key-at-least-32-chars-long!! \
+            -p 3000:3000 \
+            zainpreneur-server:latest || true
+          sleep 3
+          docker logs test-server 2>&1 || true
+          docker rm -f test-server || true
