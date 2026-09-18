@@ -8,7 +8,6 @@ import { BusinessProvider } from './context/BusinessContext'
 import { ToastProvider } from './context/ToastContext'
 import ErrorBoundary from './components/layout/ErrorBoundary'
 import App from './App'
-import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

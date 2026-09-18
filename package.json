@@ -1,37 +1,23 @@
 {
-  "name": "zainpreneur",
+  "name": "zainpreneur-monorepo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "test": "vitest run",
-    "audit:sqlite": "node scripts/sqlite-audit/audit.mjs"
-  },
-  "dependencies": {
-    "@sqlite.org/sqlite-wasm": "^3.53.4-build1",
-    "lucide-react": "^1.46.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.4"
+    "build": "pnpm --filter @zainpreneur/shared build && pnpm --filter @zainpreneur/server build && pnpm --filter @zainpreneur/web build",
+    "start": "pnpm --filter @zainpreneur/server start",
+    "dev": "pnpm --filter @zainpreneur/server dev",
+    "test": "pnpm --filter @zainpreneur/server test",
+    "db:migrate": "pnpm --filter @zainpreneur/server db:migrate",
+    "db:seed": "pnpm --filter @zainpreneur/server db:seed",
+    "install": "pnpm install --frozen-lockfile",
+    "prepare": "pnpm install --frozen-lockfile"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "@testing-library/react": "^16.3.3",
-    "@testing-library/user-event": "^14.6.7",
-    "@types/node": "^24.13.3",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
-    "@vitejs/plugin-react": "^6.1.1",
-    "jsdom": "^30.1.0",
-    "oxlint": "^1.81.0",
-    "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.2",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "turbo": "^2.5.0",
+    "typescript": "~5.7.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
   }
 }
