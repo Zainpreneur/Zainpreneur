@@ -1,0 +1,47 @@
+{
+  "name": "zainpreneur",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zainpreneur Business Portfolio \u2014 an internal business portfolio and operations platform.",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "bash tools/dev.sh",
+    "dev:server": "npm -w @zainpreneur/server run dev",
+    "dev:client": "npm -w @zainpreneur/client run dev",
+    "build": "npm -w @zainpreneur/client run build",
+    "start": "npm -w @zainpreneur/server run start",
+    "test": "npm -w @zainpreneur/server run test",
+    "typecheck": "tsc -b shared server client",
+    "db:reset": "npm -w @zainpreneur/server run db:reset",
+    "db:seed": "npm -w @zainpreneur/server run db:seed",
+    "dev:check": "bash tools/dev.sh --check"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "overrides": {
+    "@tailwindcss/node": "file:./vendor/tailwindcss-node-4.3.3.tgz",
+    "@tailwindcss/oxide": "file:./vendor/tailwindcss-oxide-4.3.3.tgz",
+    "enhanced-resolve": "file:./vendor/enhanced-resolve-5.24.5.tgz",
+    "@types/body-parser": "file:./vendor/types-body-parser-1.19.6.tgz",
+    "@types/express-serve-static-core": "file:./vendor/types-express-serve-static-core-4.19.9.tgz",
+    "@types/qs": "file:./vendor/types-qs-6.15.1.tgz",
+    "@types/serve-static": "file:./vendor/types-serve-static-1.15.10.tgz",
+    "@types/connect": "file:./vendor/types-connect-3.4.38.tgz",
+    "@types/range-parser": "file:./vendor/types-range-parser-1.2.7.tgz",
+    "@types/send": "file:./vendor/types-send-1.2.1.tgz",
+    "undici-types": "file:./vendor/undici-types-8.9.0.tgz",
+    "@types/http-errors": "file:./vendor/types-http-errors-2.0.5.tgz",
+    "tapable": "file:./vendor/tapable-2.3.3.tgz",
+    "set-cookie-parser": "file:./vendor/set-cookie-parser-2.7.2.tgz",
+    "@tailwindcss/oxide-linux-arm64-gnu": "file:./vendor/tailwindcss-oxide-linux-arm64-gnu-4.3.3.tgz"
+  }
+}

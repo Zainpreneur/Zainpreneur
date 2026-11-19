@@ -1,0 +1,31 @@
+{
+  "name": "@zainpreneur/client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zainpreneur Business Portfolio client.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "tsx --test test/*.test.tsx"
+  },
+  "dependencies": {
+    "@zainpreneur/shared": "*",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router-dom": "7.18.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "file:../vendor/tailwindcss-vite-4.3.3.tgz",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.1.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "vite": "8.3.0"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-arm64-gnu": "file:../vendor/tailwindcss-oxide-linux-arm64-gnu-4.3.3.tgz"
+  }
+}

@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+/* --------------------------------------------------------------------------
+   Fonts — self-hosted.
+   The store already ships these two faces, so the register reuses them rather
+   than reaching for a CDN. There is no network here anyway, and a stylesheet
+   that renders in a fallback face is worse than one that does not render.
+   Space Grotesk for display and figures; Inter for everything else. One display
+   face, never two.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/SpaceGrotesk.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   Tokens.
+   Transcribed from BRAND.md. Light ships by default and structure never changes
+   with theme — only the token values do.
+   -------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  --zp-bg: #fbfaf7;
+  --zp-bg-alt: #f3f1ea;
+  --zp-surface: #ffffff;
+  --zp-surface-2: #f6f4ee;
+  --zp-surface-3: #ebe9e1;
+
+  --zp-ink: #14180f;
+  --zp-muted: #5f6659;
+  --zp-ink-3: #6f7669;
+
+  --zp-border: rgb(20 24 15 / 0.12);
+  --zp-border-2: rgb(20 24 15 / 0.22);
+
+  --zp-gold: #f5a524;
+  --zp-gold-deep: #d97706;
+  --zp-gold-soft: rgb(245 165 36 / 0.16);
+  --zp-gold-ink: #14180f;
+
+  --zp-teal: #0f766e;
+  --zp-teal-soft: rgb(15 118 110 / 0.1);
+
+  --zp-danger: #dc2626;
+  --zp-success: #15803d;
+  --zp-band: #14180f;
+  --zp-header-bg: rgb(251 250 247 / 0.9);
+
+  --zp-ok: #15803d;
+  --zp-warn: #b45309;
+  --zp-bad: #dc2626;
+  --zp-blue: #1d5fa8;
+  --zp-violet: #5b3fb0;
+  --zp-slate: #5a6673;
+
+  --zp-shadow-sm: 0 2px 10px rgb(20 24 15 / 0.06);
+  --zp-shadow: 0 18px 44px rgb(20 24 15 / 0.12);
+
+  /* Density: comfortable is the designed page. Compact packs it tighter and
+     moves padding and gaps only — nothing is hidden or reordered. */
+  --zp-dens: 1;
+}
+
+/* The store's moss. `--gold` is deliberately NOT overridden: gold as a fill
+   reads the same on both grounds, and only the gradient's dark end flips. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --zp-bg: #10130e;
+  --zp-bg-alt: #161a13;
+  --zp-surface: #1a1f16;
+  --zp-surface-2: #232a1c;
+  --zp-surface-3: #2c3425;
+
+  --zp-ink: #f1f0e8;
+  --zp-muted: #a7ae9c;
+  --zp-ink-3: #8f9785;
+
+  --zp-border: rgb(255 255 255 / 0.11);
+  --zp-border-2: rgb(255 255 255 / 0.24);
+
+  --zp-gold-deep: #fbbf24;
+  --zp-gold-soft: rgb(245 165 36 / 0.18);
+
+  --zp-teal: #2dd4bf;
+  --zp-teal-soft: rgb(45 212 191 / 0.14);
+
+  --zp-danger: #f87171;
+  --zp-success: #4ade80;
+  --zp-header-bg: rgb(16 19 14 / 0.9);
+
+  --zp-ok: #4ade80;
+  --zp-warn: #fbbf24;
+  --zp-bad: #f87171;
+  --zp-blue: #60a5fa;
+  --zp-violet: #a78bfa;
+  --zp-slate: #94a3b8;
+
+  --zp-shadow-sm: 0 2px 10px rgb(0 0 0 / 0.4);
+  --zp-shadow: 0 18px 44px rgb(0 0 0 / 0.55);
+}
+
+/* `inline` so each utility emits var() directly, which is what lets the values
+   above change with the theme instead of being baked in at build time. */
+@theme inline {
+  --color-bg: var(--zp-bg);
+  --color-bg-alt: var(--zp-bg-alt);
+  --color-surface: var(--zp-surface);
+  --color-surface-2: var(--zp-surface-2);
+  --color-surface-3: var(--zp-surface-3);
+
+  --color-ink: var(--zp-ink);
+  --color-muted: var(--zp-muted);
+  --color-ink-3: var(--zp-ink-3);
+
+  --color-line: var(--zp-border);
+  --color-line-2: var(--zp-border-2);
+
+  --color-gold: var(--zp-gold);
+  --color-gold-deep: var(--zp-gold-deep);
+  --color-gold-soft: var(--zp-gold-soft);
+  --color-gold-ink: var(--zp-gold-ink);
+
+  --color-teal: var(--zp-teal);
+  --color-teal-soft: var(--zp-teal-soft);
+
+  --color-danger: var(--zp-danger);
+  --color-success: var(--zp-success);
+  --color-band: var(--zp-band);
+
+  --color-ok: var(--zp-ok);
+  --color-warn: var(--zp-warn);
+  --color-bad: var(--zp-bad);
+  --color-blue: var(--zp-blue);
+  --color-violet: var(--zp-violet);
+  --color-slate: var(--zp-slate);
+
+  --radius-card: 16px;
+  --radius-s: 14px;
+  --radius-field: 12px;
+
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* One curve. Two speeds. */
+  --ease-zp: cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+html {
+  background: var(--zp-bg);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  /* One ink per surface: a card declares its own colour and never inherits
+     whatever the ground happens to carry. */
+  color: var(--zp-ink);
+  background: var(--zp-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+/* Every figure is tabular and set in the display face, so columns of numbers
+   line up and read as one kind of thing. */
+.tnum {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   The one focus ring.
+   -------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--zp-gold-deep);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   --------------------------------------------------------------------------
+   One implementation, two layouts, decided by width. The original had three
+   overlapping narrow-width blocks, and a fourth element (`overflow-x: hidden`)
+   that clipped columns past 1000px so badly the user could not scroll to them.
+   Nothing here hides overflow: a table that cannot be scrolled is a table with
+   unreachable columns.
+   -------------------------------------------------------------------------- */
+.zp-table-scroll {
+  overflow-x: auto;
+  /* Visible only once there is something to scroll to, so a table that fits does
+     not gain a stray bar. */
+  scrollbar-width: thin;
+}
+
+.zp-table-scroll:focus-visible {
+  outline: 2px solid var(--zp-gold-deep);
+  outline-offset: -2px;
+}
+
+@media (max-width: 639px) {
+  /* Each row becomes a card; each cell shows its own column label. A cell with no
+     `data-label` is omitted entirely rather than rendered with a blank label. */
+  .zp-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .zp-table,
+  .zp-table tbody,
+  .zp-table tr,
+  .zp-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .zp-table tr {
+    border-bottom: 1px solid var(--zp-border);
+    padding: 4px 0;
+  }
+  .zp-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .zp-table td {
+    border: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 40%) auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 7px 22px;
+  }
+
+  .zp-table td::before {
+    content: attr(data-label);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--zp-ink-3);
+  }
+
+  /* An empty cell shows neither a rule nor an empty label. */
+  .zp-table td:empty {
+    display: none;
+  }
+
+  /* The first cell is the row's name and carries no label of its own. */
+  .zp-table td[data-label="Business"]:first-child,
+  .zp-table td[data-label="Period"]:first-child {
+    grid-template-columns: 1fr;
+    padding-top: 14px;
+  }
+  .zp-table td[data-label="Business"]:first-child::before,
+  .zp-table td[data-label="Period"]:first-child::before {
+    content: none;
+  }
+
+  .zp-table td.text-right {
+    text-align: left;
+  }
+
+  /* Dropped on a phone: present on a wide screen, noise in a card. */
+  .zp-col-secondary {
+    display: none;
+  }
+}
+
+/* A clickable row is a control, so it needs a pointer and a keyboard route. The
+   handler lives on the row for pointer users; the button inside the first cell is
+   the focusable control. */
+.zp-row-clickable {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .zp-row-clickable:hover {
+    background: var(--zp-surface-2);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Touch targets
+   A 44px floor on small screens, for controls only — never on the row itself,
+   which would triple the height of every table.
+   -------------------------------------------------------------------------- */
+@media (max-width: 639px) {
+  button,
+  a[href],
+  input,
+  select {
+    min-height: 44px;
+  }
+  .zp-table button {
+    min-height: 0;
+    text-align: left;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Motion
+   -------------------------------------------------------------------------- */
+
+/* Placeholder rows while a figure is fetched. `motion-safe:` means the pulse
+   never runs at all when reduced motion is asked for, rather than being cancelled
+   halfway through its first cycle. */
+@keyframes zp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Visually hidden but available to assistive technology — used to announce a
+   pending region without painting anything. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}

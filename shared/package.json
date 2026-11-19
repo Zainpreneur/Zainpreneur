@@ -1,0 +1,12 @@
+{
+  "name": "@zainpreneur/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Rules, vocabularies and labels shared by the server and the client.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
